@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "hexstrike-ai": {
+      "command": "python3",
+      "args": [
+        "/home/irunva/Projects/Omukuumi/hexstrike-ai/hexstrike_mcp.py",
+        "--server",
+        "http://127.0.0.1:8888"
+      ],
+      "description": "HexStrike AI v6.0 — AI-driven penetration testing automation platform. 150+ tools: nmap, nuclei, sqlmap, metasploit, ghidra, pwntools, gobuster, masscan, and more.",
+      "env": {
+        "PYTHONPATH": "/home/irunva/Projects/Omukuumi/hexstrike-ai/hexstrike-env/lib/python3.12/site-packages"
+      },
+      "timeout": 300,
+      "alwaysAllow": []
+    }
+  }
+}
