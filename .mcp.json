@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "neon-omukuumi-cli": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-postgres@latest"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://neondb_owner:npg_nmt1z0xFGCZJ@ep-billowing-waterfall-atax8044-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+        "DB_READ_ONLY": "true",
+        "DB_STATEMENT_TIMEOUT": "30000",
+        "npm_config_loglevel": "silent"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "list_tables",
+        "get_schema",
+        "describe_table",
+        "execute_query"
+      ]
+    }
+  }
+}

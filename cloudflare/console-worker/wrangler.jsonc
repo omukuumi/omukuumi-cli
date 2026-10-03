@@ -1,0 +1,16 @@
+{
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+	"name": "omukuumi-console",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-07-11",
+	"workers_dev": true,
+	"routes": [
+		{
+			"pattern": "console.upskillsafrica.org",
+			"custom_domain": true
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+}
