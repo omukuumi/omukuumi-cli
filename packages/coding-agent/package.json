@@ -4,7 +4,7 @@
 	"description": "Coding agent CLI with read, bash, edit, write tools and session management",
 	"type": "module",
 	"piConfig": {
-		"name": "omukuumi",
+		"name": "Omukuumi",
 		"configDir": ".omukuumi"
 	},
 	"bin": {
@@ -44,6 +44,7 @@
 		"@earendil-works/pi-ai": "^0.80.6",
 		"@earendil-works/pi-tui": "^0.80.6",
 		"@silvia-odwyer/photon-node": "0.3.4",
+		"@supabase/supabase-js": "2.117.2",
 		"chalk": "5.6.2",
 		"cross-spawn": "7.0.6",
 		"diff": "8.0.4",
@@ -98,5 +99,14 @@
 	},
 	"engines": {
 		"node": ">=22.19.0"
-	}
+	},
+	"directories": {
+		"doc": "docs",
+		"example": "examples",
+		"test": "test"
+	},
+	"bugs": {
+		"url": "https://github.com/earendil-works/pi/issues"
+	},
+	"homepage": "https://github.com/earendil-works/pi#readme"
 }

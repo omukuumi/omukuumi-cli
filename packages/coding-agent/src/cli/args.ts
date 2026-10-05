@@ -235,7 +235,7 @@ ${chalk.bold("Amategeko:")}
   ${APP_NAME} install <source> [-l]     Injiza isoko y'ingereko maze uyongere mu igenamiterere
   ${APP_NAME} remove <source> [-l]      Kuramo isoko y'ingereko mu igenamiterere
   ${APP_NAME} uninstall <source> [-l]   Izina risimbura remove
-  ${APP_NAME} update [source|self|gihanga] Vugurura Gihanga (koresha --all kuri Gihanga n'ingereko)
+  ${APP_NAME} update [source|self|gihanga] Vugurura Omukuumi (koresha --all kuri Omukuumi n'ingereko)
   ${APP_NAME} list                      Erekana ingereko zinjijwe ziri mu igenamiterere
   ${APP_NAME} config [-l]               Fungura TUI kugira ngo wemere cyangwa uhagarike umutungo w'amapakeji (Tab ihindura scope)
   ${APP_NAME} doctor                    Suzuma installation, auth, models, na backend
