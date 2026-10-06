@@ -207,7 +207,30 @@ export interface AgentMessageEventStream {
 }
 export type TProvider = string;
 export type TModel = any;
+
+// Additional exports needed by agent package
+export interface AssistantMessage {
+  role: "assistant";
+  content: Array<{ type: string; text?: string; data?: string; mimeType?: string }>;
+  toolCalls?: Array<{ id: string; name: string; arguments: any }>;
+}
+export interface ToolResultMessage {
+  type: "tool_result";
+  toolCallId: string;
+  content: Array<{ type: string; text?: string; data?: string; mimeType?: string }>;
+  isError?: boolean;
+}
+export interface EventStream {
+  [Symbol.asyncIterator](): AsyncIterator<any>;
+}
+export interface Context {
+  cwd: string;
+  env: Record<string, string>;
+}
+export function validateToolArguments(tool: any, args: any): { ok: boolean; error?: string };
+export function streamSimple(model: any, messages: any[], options?: any): AsyncIterable<any>;
 DTS
+        echo "Generated @earendil-works/pi-ai type declarations"
         echo "Generated @earendil-works/pi-ai type declarations"
         # Build dependent packages in order using absolute paths
         ROOT_DIR="$(pwd)"
