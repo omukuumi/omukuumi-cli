@@ -114,8 +114,14 @@ fi
 
 if [[ "$SKIP_BUILD" == "false" ]]; then
     if [[ "$SKIP_AI" == "true" ]]; then
-        echo "==> Building packages (skipping ai)..."
-        cd packages/tui && npm run build && cd ../agent && npm run build && cd ../coding-agent && npm run build && cd ../orchestrator && npm run build
+        echo "==> Building packages (building ai first, allowing errors)..."
+        # Build ai package first - allow failures but generate types
+        (cd packages/ai && npm run build) || echo "AI package build had errors, continuing..."
+        # Build dependent packages in order
+        cd packages/tui && npm run build
+        cd ../agent && npm run build
+        cd ../coding-agent && npm run build
+        cd ../orchestrator && npm run build
     else
         echo "==> Building all packages..."
         npm run build
