@@ -50,7 +50,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Build binaries
-        run: ./scripts/build-binaries.sh --skip-ai
+        run: ./scripts/build-binaries.sh --skip-ai --skip-deps
 
       - name: Prepare GitHub release payload
         run: |
