@@ -114,9 +114,11 @@ fi
 
 if [[ "$SKIP_BUILD" == "false" ]]; then
     if [[ "$SKIP_AI" == "true" ]]; then
-        echo "==> Building packages (building ai first, allowing errors)..."
-        # Build ai package first - allow failures but generate types
-        (cd packages/ai && npm run build) || echo "AI package build had errors, continuing..."
+        echo "==> Building packages (building ai types first)..."
+        # Build ai package first - run generation scripts, then try build with error tolerance
+        (cd packages/ai && npm run generate-models && npm run generate-image-models) || echo "AI generation had errors, continuing..."
+        # Try to build ai with skipLibCheck to get types generated
+        (cd packages/ai && npx tsgo -p tsconfig.build.json --skipLibCheck) || echo "AI tsgo had errors, continuing..."
         # Build dependent packages in order
         cd packages/tui && npm run build
         cd ../agent && npm run build
