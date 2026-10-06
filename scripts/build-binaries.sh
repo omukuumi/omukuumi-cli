@@ -118,11 +118,12 @@ if [[ "$SKIP_BUILD" == "false" ]]; then
         (cd packages/ai && npm run generate-models && npm run generate-image-models) || echo "AI generation had errors, continuing..."
         # Try to build ai with skipLibCheck to get types generated
         (cd packages/ai && npx tsgo -p tsconfig.build.json --skipLibCheck) || echo "AI tsgo had errors, continuing..."
-        # Build dependent packages in order
-        cd packages/tui && npm run build
-        cd ../agent && npm run build
-        cd ../coding-agent && npm run build
-        cd ../orchestrator && npm run build
+        # Build dependent packages in order using absolute paths
+        local ROOT_DIR="$(pwd)"
+        cd "$ROOT_DIR/packages/tui" && npm run build
+        cd "$ROOT_DIR/packages/agent" && npm run build
+        cd "$ROOT_DIR/packages/coding-agent" && npm run build
+        cd "$ROOT_DIR/packages/orchestrator" && npm run build
     else
         echo "==> Building all packages..."
         npm run build
@@ -132,7 +133,7 @@ else
 fi
 
 echo "==> Building binaries..."
-cd packages/coding-agent
+cd "$(pwd)/packages/coding-agent"
 
 # Clean previous builds
 rm -rf "$OUTPUT_DIR"
