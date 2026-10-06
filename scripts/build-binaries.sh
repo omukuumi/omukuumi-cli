@@ -119,7 +119,7 @@ if [[ "$SKIP_BUILD" == "false" ]]; then
         # Try to build ai with skipLibCheck to get types generated
         (cd packages/ai && npx tsgo -p tsconfig.build.json --skipLibCheck) || echo "AI tsgo had errors, continuing..."
         # Build dependent packages in order using absolute paths
-        local ROOT_DIR="$(pwd)"
+        ROOT_DIR="$(pwd)"
         cd "$ROOT_DIR/packages/tui" && npm run build
         cd "$ROOT_DIR/packages/agent" && npm run build
         cd "$ROOT_DIR/packages/coding-agent" && npm run build
