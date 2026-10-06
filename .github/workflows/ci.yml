@@ -13,6 +13,8 @@ concurrency:
 jobs:
   build-check-test:
     runs-on: ubuntu-latest
+    env:
+      SKIP_AI: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,8 +35,6 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Build
-        env:
-          SKIP_AI: true
         run: npm run build
 
       - name: Check
