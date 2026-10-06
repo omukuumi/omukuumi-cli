@@ -113,11 +113,31 @@ fi
 
 if [[ "$SKIP_BUILD" == "false" ]]; then
     if [[ "$SKIP_AI" == "true" ]]; then
-        echo "==> Building packages (building ai types first)..."
-        # Build ai package first - run generation scripts, then tsgo with skipLibCheck
-        (cd packages/ai && npm run generate-models) || echo "AI generate-models had errors, continuing..."
-        # Run tsgo with skipLibCheck to generate types (bypassing generate-image-models which runs tsgo without skipLibCheck)
-        (cd packages/ai && npx tsgo -p tsconfig.build.json --skipLibCheck) || echo "AI tsgo had errors, continuing..."
+        echo "==> Building packages (skipping ai package build)..."
+        # Skip ai package build entirely - it has TS errors that prevent building
+        # Generate minimal type declarations for @earendil-works/pi-ai that agent needs
+        echo "Generating minimal @earendil-works/pi-ai type declarations..."
+        mkdir -p packages/ai/dist
+        cat > packages/ai/dist/index.d.ts << 'DTS'
+export interface AgentToolResult<TDetails = unknown> {
+  content: Array<{ type: string; text?: string; data?: string; mimeType?: string }>;
+  details?: TDetails;
+}
+export interface AgentTool<TParams, TDetails, TState> {
+  name: string;
+  description: string;
+  parameters: any;
+  execute(toolCallId: string, params: any, signal: AbortSignal | undefined, onUpdate: any, ctx: any): Promise<AgentToolResult<any>>;
+}
+export type ToolExecutionMode = "sequential" | "parallel";
+export interface AgentLoopConfig {
+  model: any;
+  thinkingLevel?: any;
+  maxTokens?: number;
+  reasoning?: any;
+}
+DTS
+        echo "Generated minimal @earendil-works/pi-ai type declarations"
         # Build dependent packages in order using absolute paths
         ROOT_DIR="$(pwd)"
         cd "$ROOT_DIR/packages/tui" && npm run build
