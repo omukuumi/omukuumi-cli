@@ -91,6 +91,7 @@ import { type SessionEntry, SessionManager, sessionEntryToContextMessages } from
 import { BUILTIN_SLASH_COMMANDS } from "../../core/slash-commands.ts";
 import type { SourceInfo } from "../../core/source-info.ts";
 import { isInstallTelemetryEnabled } from "../../core/telemetry.ts";
+import { subscribeMiniOmukuumiSnapshots } from "../../core/mini-omukuumi-delegation.ts";
 import type { TruncationResult } from "../../core/tools/truncate.ts";
 import { hasTrustRequiringProjectResources, ProjectTrustStore } from "../../core/trust-manager.ts";
 import { getChangelogPath, getNewEntries, normalizeChangelogLinks, parseChangelog } from "../../utils/changelog.ts";
@@ -107,7 +108,6 @@ import { AssistantMessageComponent } from "./components/assistant-message.ts";
 import { BashExecutionComponent } from "./components/bash-execution.ts";
 import { BorderedLoader } from "./components/bordered-loader.ts";
 import { BranchSummaryMessageComponent } from "./components/branch-summary-message.ts";
-import { CenteredContainer } from "./components/centered-container.ts";
 import { CompactionSummaryMessageComponent } from "./components/compaction-summary-message.ts";
 import { CustomEditor } from "./components/custom-editor.ts";
 import { CustomEntryComponent } from "./components/custom-entry.ts";
@@ -132,7 +132,6 @@ import { ScopedModelsSelectorComponent } from "./components/scoped-models-select
 import { ScrollableContainer } from "./components/scrollable-container.ts";
 import { SessionSelectorComponent } from "./components/session-selector.ts";
 import { SettingsSelectorComponent } from "./components/settings-selector.ts";
-import { SidebarComponent } from "./components/sidebar-component.ts";
 import { SidebarLayout } from "./components/sidebar-layout.ts";
 import { SkillInvocationMessageComponent } from "./components/skill-invocation-message.ts";
 import {
@@ -442,6 +441,7 @@ export class InteractiveMode {
 	private centerPanel!: CenterPanel;
 	private leftPanel!: LeftPanel;
 	private rightPanel!: RightPanel;
+	private unsubscribeMiniOmukuumiSnapshots: (() => void) | undefined;
 	private scrollableMainContent: ScrollableContainer | null = null;
 	// Stored so the same manager can be injected into custom editors, selectors, and extension UI.
 	private keybindings: KeybindingsManager;
@@ -838,35 +838,18 @@ export class InteractiveMode {
 		// Center panel: manages scrollable content + fixed input at bottom
 		this.centerPanel = new CenterPanel(this.scrollableMainContent, this.editorContainer, this.ui.terminal);
 
-		// Create left panel (20%) with VULNS/UPDATES/INCIDENTS
+		// Create the status panel without implying that sample scan data is live.
 		const termRows = this.ui.terminal?.rows || 24;
 		this.leftPanel = new LeftPanel(termRows);
+		this.leftPanel.setFindings(["No live findings connected"]);
+		this.leftPanel.setUpdates(["No update data connected"]);
+		this.leftPanel.setIncidents(["No incidents connected"]);
 
-		// Populate with live scan data
-		this.leftPanel.setFindings(["Gateway: 192.168.0.1", "12 hosts on network", "nmap scan available"]);
-		this.leftPanel.setUpdates(["Host 192.168.0.187", "Host 192.168.0.208"]);
-		this.leftPanel.setIncidents(["No active incidents"]);
-
-		// Create right panel (15%) with System/Packets/WiFi sections
+		// Right panel shows session details and live Mini-Omukuumi child output.
 		const modelId = this.session.state.model?.id ?? "no-model";
 		const ctxUsage = this.session.getContextUsage();
 		const ctxPct = ctxUsage?.percent?.toFixed(1) ?? "0";
-		this.rightPanel = new RightPanel(termRows, modelId, ctxPct + "%", "0 UGX");
-
-		// Populate right panel with live scan data
-		this.rightPanel.setWifiDevices([
-			"192.168.0.1  (gateway)",
-			"192.168.0.12  (host)",
-			"192.168.0.66  (host)",
-			"192.168.0.187 (host)",
-			"192.168.0.206 (host)",
-			"192.168.0.208 (host)",
-			"192.168.0.216 (host)",
-			"192.168.0.218 (host)",
-			"192.168.0.234 (host)",
-			"192.168.0.237 (host)",
-		]);
-		this.rightPanel.setPacketSummary("tcpdump: 50 pkts/sample");
+		this.rightPanel = new RightPanel(termRows, modelId, `${ctxPct}%`, "0 UGX");
 
 		// Create full-height 3-column layout: 20% left / 65% center / 15% right
 		const sidebarLayout = new SidebarLayout({
@@ -877,6 +860,11 @@ export class InteractiveMode {
 		});
 
 		this.ui.addChild(sidebarLayout);
+		this.unsubscribeMiniOmukuumiSnapshots?.();
+		this.unsubscribeMiniOmukuumiSnapshots = subscribeMiniOmukuumiSnapshots((agents) => {
+			this.rightPanel.setMiniAgents(agents);
+			this.ui.requestRender();
+		});
 		this.ui.setFocus(this.editor);
 
 		this.setupKeyHandlers();
@@ -5391,7 +5379,7 @@ export class InteractiveMode {
 				this.removeUpskillsAfricaOrganisationCode();
 				this.session.modelRegistry.refresh();
 				await this.updateAvailableProviderCount();
-				this.showStatus("Organisation code removed from local Gihanga credentials.");
+				this.showStatus("Organisation code removed from local Omukuumi credentials.");
 			} catch (error) {
 				this.showError(error instanceof Error ? error.message : String(error));
 			}
@@ -5420,7 +5408,7 @@ export class InteractiveMode {
 		} catch (error) {
 			checks.push(`Upskillsafrica backend: ${error instanceof Error ? error.message : String(error)}`);
 		}
-		this.addInfoPanel("Gihanga doctor", checks);
+		this.addInfoPanel("Omukuumi doctor", checks);
 	}
 
 	private async showUpskillsAfricaSubscriptionStatus(token: string, email: string): Promise<void> {
@@ -6652,6 +6640,8 @@ export class InteractiveMode {
 		if (this.unsubscribe) {
 			this.unsubscribe();
 		}
+		this.unsubscribeMiniOmukuumiSnapshots?.();
+		this.unsubscribeMiniOmukuumiSnapshots = undefined;
 		if (this.isInitialized) {
 			this.ui.stop();
 			this.isInitialized = false;

@@ -23,7 +23,7 @@ import {
 } from "../modes/interactive/theme/theme.ts";
 
 const OFFICIAL_PACKAGE_NAME = "@earendil-works/pi-coding-agent";
-const OFFICIAL_APP_NAME = "gihanga";
+const OFFICIAL_APP_NAME = "Omukuumi";
 const OFFICIAL_CONFIG_DIR_NAME = ".gihanga";
 
 interface DistributionMetadata {
@@ -105,7 +105,7 @@ async function clearStartupTui(ui: TUI): Promise<void> {
 }
 
 /**
- * First-time setup runs for the official Gihanga distribution on the first
+ * First-time setup runs for the official Omukuumi distribution on the first
  * interactive launch. It explains the basic workflow, lets the user choose a
  * theme, and records the privacy preference before the main TUI starts.
  */

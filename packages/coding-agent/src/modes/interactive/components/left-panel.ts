@@ -4,11 +4,8 @@ import { theme } from "../theme/theme.ts";
 
 /**
  * LeftPanel - Left column (20%).
- * Section 1 (30%): VULNS — Findings, Vulnerability and Problems in System
- * Section 2 (30%): UPDATES — Devices that need updates
- * Section 3 (40%): INCIDENTS — Incident Operations
- *
- * Real data from live scans populates each section.
+ * Shows optional findings, update notices and incident state; empty states are explicit.
+ * Connect a verified data source before presenting scan results as live.
  */
 export class LeftPanel implements Component {
 	private termRows: number;
@@ -40,21 +37,21 @@ export class LeftPanel implements Component {
 			t(theme.fg("muted", "Findings & Problems")),
 			...(this._findings.length > 0
 				? this._findings.map((f) => t(theme.fg("dim", "  " + f)))
-				: [t(theme.fg("dim", "  No findings"))]),
+				: [t(theme.fg("dim", "  No live findings connected"))]),
 		];
 		const sec2: string[] = [
 			t(theme.fg("warning", "2. UPDATES")),
 			t(theme.fg("muted", "Devices needing updates")),
 			...(this._updates.length > 0
 				? this._updates.map((u) => t(theme.fg("dim", "  " + u)))
-				: [t(theme.fg("dim", "  No devices"))]),
+				: [t(theme.fg("dim", "  No update data connected"))]),
 		];
 		const sec3: string[] = [
 			t(theme.fg("accent", "3. INCIDENTS")),
 			t(theme.fg("muted", "Incident Operations")),
 			...(this._incidents.length > 0
 				? this._incidents.map((inc) => t(theme.fg("dim", "  " + inc)))
-				: [t(theme.fg("dim", "  No incidents"))]),
+				: [t(theme.fg("dim", "  No incidents connected"))]),
 		];
 
 		const header = 4;
@@ -68,17 +65,17 @@ export class LeftPanel implements Component {
 		const lines: string[] = [
 			t(theme.fg("accent", wave)),
 			t(theme.bold(theme.fg("accent", "OMUKUUMI"))),
-			t(theme.fg("dim", "Skills & Extensions")),
+			t(theme.fg("dim", "Workspace status")),
 			"",
 		];
 
 		lines.push(...sec1);
 		while (lines.length < header + h1) lines.push("");
-		lines.push(t(theme.fg("muted", "." + "\u2500".repeat(Math.max(1, width - 2)))));
+		lines.push(t(theme.fg("muted", `.{"\u2500".repeat(Math.max(1, width - 2))}`)));
 		while (lines.length < header + h1 + 1) lines.push("");
 		lines.push(...sec2);
 		while (lines.length < header + h1 + 1 + h2) lines.push("");
-		lines.push(t(theme.fg("muted", "." + "\u2500".repeat(Math.max(1, width - 2)))));
+		lines.push(t(theme.fg("muted", `.{"\u2500".repeat(Math.max(1, width - 2))}`)));
 		while (lines.length < header + h1 + 1 + h2 + 1) lines.push("");
 		lines.push(...sec3);
 		while (lines.length < header + h1 + 1 + h2 + 1 + h3) lines.push("");

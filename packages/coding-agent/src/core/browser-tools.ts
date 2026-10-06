@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { AgentToolResult } from "@earendil-works/pi-agent-core";
 import { type Browser, type BrowserContext, chromium, type Page } from "playwright-core";
+import { CONFIG_DIR_NAME } from "../config.ts";
 import { type Static, Type } from "typebox";
 import type { ToolDefinition } from "./extensions/types.ts";
 
@@ -109,7 +110,7 @@ function renderBrowserStatus(ctx: {
 }): void {
 	const summary = browserSession.getSummary();
 	if (summary.state === "closed") {
-		ctx.ui.setWidget("gihanga-browser", undefined, { placement: "aboveEditor" });
+		ctx.ui.setWidget("omukuumi-browser", undefined, { placement: "aboveEditor" });
 		return;
 	}
 	const color = summary.state === "ready" ? "#20603D" : summary.state === "error" ? "#DC3C3C" : "#E5BE01";
@@ -117,7 +118,7 @@ function renderBrowserStatus(ctx: {
 	const location = summary.url ? new URL(summary.url).hostname : "browser";
 	const bar = summary.state === "working" || summary.state === "opening" ? "[━━●━━━]" : "[━━━━━━━]";
 	ctx.ui.setWidget(
-		"gihanga-browser",
+		"omukuumi-browser",
 		[`${ansi("#00A1DE", "Browser:")} ${ansi(color, `${icon} ${summary.state} ${bar}`)} ${location}`],
 		{
 			placement: "aboveEditor",
@@ -136,7 +137,7 @@ function safeText(value: string): string {
 function rejectSensitiveTarget(target: string): void {
 	if (/(password|passcode|one[- ]?time|otp|2fa|verification|credit.?card|cvv|secret|api.?key|token)/i.test(target)) {
 		throw new Error(
-			"Sensitive fields are blocked. Gihanga will not enter passwords, secrets, payment details, or one-time codes.",
+			"Sensitive fields are blocked. Omukuumi will not enter passwords, secrets, payment details, or one-time codes.",
 		);
 	}
 }
@@ -305,7 +306,7 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 			parameters: Type.Object({}),
 			async execute(_id, _params, _signal, _update, _ctx) {
 				const page = browserSession.getPage();
-				const dir = join(cwd, ".gihanga", "browser-screenshots");
+				const dir = join(cwd, CONFIG_DIR_NAME, "browser-screenshots");
 				await mkdir(dir, { recursive: true });
 				const path = join(dir, `page-${Date.now()}.png`);
 				await page.screenshot({ path, fullPage: false });

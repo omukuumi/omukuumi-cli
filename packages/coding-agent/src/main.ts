@@ -29,7 +29,7 @@ import { AuthStorage } from "./core/auth-storage.ts";
 import { createBrowserTools } from "./core/browser-tools.ts";
 import { exportFromFile } from "./core/export-html/index.ts";
 import type { InlineExtension } from "./core/extensions/types.ts";
-import { createGihangaDelegationTools } from "./core/gihanga-delegation.ts";
+import { createMiniOmukuumiTools } from "./core/mini-omukuumi-delegation.ts";
 import { applyHttpProxySettings, configureHttpDispatcher } from "./core/http-dispatcher.ts";
 import type { ModelRegistry } from "./core/model-registry.ts";
 import { resolveCliModel, resolveModelScope, type ScopedModel } from "./core/model-resolver.ts";
@@ -752,7 +752,7 @@ export async function main(args: string[], options?: MainOptions) {
 			noTools: sessionOptions.noTools,
 			customTools: [
 				...(sessionOptions.customTools ?? []),
-				...createGihangaDelegationTools(sessionManager.getCwd()),
+				...createMiniOmukuumiTools(sessionManager.getCwd()),
 				...createBrowserTools(sessionManager.getCwd()),
 			],
 		});
