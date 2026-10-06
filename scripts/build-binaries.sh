@@ -98,16 +98,15 @@ if [[ "$SKIP_DEPS" == "false" ]]; then
     CLIPBOARD_VERSION=$(node -p "require('./packages/coding-agent/package.json').optionalDependencies['@mariozechner/clipboard']")
     # npm ci only installs optional deps for the current platform
     # We need the base clipboard package and all platform bindings for bun cross-compilation
-    # Use --force to bypass platform checks (os/cpu restrictions in package.json)
-    # Install all in one command to avoid npm removing packages from previous installs
-    npm install --include=optional --no-save --package-lock=false --force --ignore-scripts \
+    # Install without --force to avoid npm bug with optional deps
+    npm install --include=optional --no-save --package-lock=false --ignore-scripts \
         @mariozechner/clipboard@"$CLIPBOARD_VERSION" \
         @mariozechner/clipboard-darwin-arm64@"$CLIPBOARD_VERSION" \
         @mariozechner/clipboard-darwin-x64@"$CLIPBOARD_VERSION" \
         @mariozechner/clipboard-linux-x64-gnu@"$CLIPBOARD_VERSION" \
         @mariozechner/clipboard-linux-arm64-gnu@"$CLIPBOARD_VERSION" \
         @mariozechner/clipboard-win32-x64-msvc@"$CLIPBOARD_VERSION" \
-        @mariozechner/clipboard-win32-arm64-msvc@"$CLIPBOARD_VERSION"
+        @mariozechner/clipboard-win32-arm64-msvc@"$CLIPBOARD_VERSION" || echo "Clipboard deps install had errors, continuing..."
 else
     echo "==> Skipping cross-platform native bindings (--skip-deps)"
 fi
