@@ -1,90 +1,185 @@
-$ErrorActionPreference = "Stop"
-Set-StrictMode -Version Latest
+<#>
+.SYNOPSIS
+    Universal Omukuumi Installer for Windows PowerShell
 
-$RepoUrl = "https://github.com/DannyIRUMVA/omukuumi-command-line-interface.git"
-$InstallDir = if ($env:GIHANGA_INSTALL_DIR) { $env:GIHANGA_INSTALL_DIR } else { Join-Path $HOME ".omukuumi-cli" }
-$InstallLog = if ($env:GIHANGA_INSTALL_LOG) { $env:GIHANGA_INSTALL_LOG } else { Join-Path ([IO.Path]::GetTempPath()) "omukuumi-install.log" }
-Set-Content -Path $InstallLog -Value ""
+.DESCRIPTION
+    Installs Omukuumi CLI on Windows. Downloads the latest release binary,
+    verifies checksum, extracts to install directory, and adds to PATH.
 
-function Invoke-Quiet($Label, [ScriptBlock]$Command) {
-	Write-Host $Label
-	try {
-		& $Command *> $InstallLog
-	} catch {
-		Write-Error "${Label} failed. Log: $InstallLog"
-		if (Test-Path -LiteralPath $InstallLog) { Get-Content -Tail 40 $InstallLog | Write-Error }
-		throw
-	}
-	if ($LASTEXITCODE -ne 0) {
-		Write-Error "${Label} failed. Log: $InstallLog"
-		if (Test-Path -LiteralPath $InstallLog) { Get-Content -Tail 40 $InstallLog | Write-Error }
-		exit $LASTEXITCODE
-	}
+.PARAMETER Version
+    Specific version to install (default: latest)
+
+.PARAMETER InstallDir
+    Installation directory (default: $env:USERPROFILE\.omukuumi-cli)
+
+.PARAMETER NoVerify
+    Skip SHA256 checksum verification
+
+.PARAMETER Force
+    Force reinstall even if already installed
+
+.PARAMETER Help
+    Show this help message
+
+.EXAMPLE
+    iwr https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.ps1 -UseB | iex
+
+.EXAMPLE
+    iwr https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.ps1 -UseB | iex -Version v0.81.0
+
+.EXAMPLE
+    iwr https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.ps1 -UseB | iex -InstallDir "C:\Tools\omukuumi"
+#>
+
+[CmdletBinding()]
+param(
+    [Parameter()]
+    [string]$Version = "",
+
+    [Parameter()]
+    [string]$InstallDir = "$env:USERPROFILE\.omukuumi-cli",
+
+    [switch]$NoVerify,
+
+    [switch]$Force,
+
+    [switch]$Help
+)
+
+if ($Help) {
+    Get-Help $MyInvocation.MyCommand.Definition -Full
+    exit 0
 }
 
-function Require-Command($Name) {
-	if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
-		throw "'$Name' irakenewe ariko ntiyabonetse. Banza winjize Git, Node.js, na npm, hanyuma wongere ukoreshe iyi script."
-	}
-}
+# Colors
+$Red = [ConsoleColor]::Red
+$Green = [ConsoleColor]::Green
+$Yellow = [ConsoleColor]::Yellow
+$Blue = [ConsoleColor]::Cyan
+$Reset = [ConsoleColor]::Gray
 
-Require-Command git
-Require-Command node
-Require-Command npm
+function Log-Info { param([string]$msg) Write-Host "[$(Get-Date -Format HH:mm:ss)] ${Blue}[INFO]${Reset} $msg" }
+function Log-Ok   { param([string]$msg) Write-Host "[$(Get-Date -Format HH:mm:ss)] ${Green}[OK]${Reset} $msg" }
+function Log-Warn { param([string]$msg) Write-Host "[$(Get-Date -Format HH:mm:ss)] ${Yellow}[WARN]${Reset} $msg" }
+function Log-Err  { param([string]$msg) Write-Host "[$(Get-Date -Format HH:mm:ss)] ${Red}[ERR]${Reset} $msg" }
 
-if (Test-Path -LiteralPath (Join-Path $InstallDir ".git")) {
-	Invoke-Quiet "Kuvugurura Omukuumi..." { git -C $InstallDir pull --ff-only --quiet }
-} elseif (Test-Path -LiteralPath $InstallDir) {
-	throw "$InstallDir exists but is not a git repository. Set GIHANGA_INSTALL_DIR to another path or remove that folder."
+# Detect architecture
+$arch = (Get-CimInstance Win32_Processor).AddressWidth
+if ($arch -eq 64) { $ARCH = "x64" } else { $ARCH = "arm64" }
+$OS = "windows"
+$REPO = "omukuumi/omukuumi-cli"
+
+Log-Info "Detected platform: $OS-$ARCH"
+
+# Get version
+if (-not $Version) {
+    Log-Info "Fetching latest version from GitHub..."
+    try {
+        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/omukuumi/omukuumi-cli/releases/latest" -ErrorAction Stop
+        $Version = $release.tag_name -replace '^v', ''
+        Log-Ok "Latest version: $Version"
+    } catch {
+        Log-Err "Failed to fetch latest version: $_"
+        exit 1
+    }
 } else {
-	Invoke-Quiet "Kwinjiza Omukuumi..." { git clone --quiet $RepoUrl $InstallDir }
+    Log-Info "Installing version: $Version"
 }
 
-Set-Location $InstallDir
-Invoke-Quiet "Gutegura amapakeji..." { npm install --ignore-scripts --silent --no-fund --no-audit --loglevel=error }
-Invoke-Quiet "Kubaka Omukuumi..." { npm run build --silent }
-Push-Location "packages/coding-agent"
-Invoke-Quiet "Gushyira Omukuumi muri terminal..." { npm link --silent }
-Pop-Location
-
-$OmukuumiAgentDir = if ($env:GIHANGA_AGENT_DIR) { $env:GIHANGA_AGENT_DIR } else { Join-Path $HOME ".omukuumi/agent" }
-New-Item -ItemType Directory -Force -Path (Join-Path $OmukuumiAgentDir "skills") | Out-Null
-New-Item -ItemType Directory -Force -Path (Join-Path $OmukuumiAgentDir "data") | Out-Null
-New-Item -ItemType Directory -Force -Path (Join-Path $OmukuumiAgentDir "scripts") | Out-Null
-Copy-Item -Recurse -Force (Join-Path $InstallDir "resources/omukuumi/agent/skills/omukuumi-community") (Join-Path $OmukuumiAgentDir "skills")
-Copy-Item -Force (Join-Path $InstallDir "resources/omukuumi/agent/data/*") (Join-Path $OmukuumiAgentDir "data")
-Copy-Item -Force (Join-Path $InstallDir "resources/omukuumi/agent/scripts/*") (Join-Path $OmukuumiAgentDir "scripts")
-
-if ($env:GIHANGA_INSTALL_MBAZA_NLP -eq "1" -or $env:GIHANGA_INSTALL_MBAZA_NLP -eq "true") {
-	$MbazaDataset = if ($env:GIHANGA_MBAZA_NLP_DATASET) { $env:GIHANGA_MBAZA_NLP_DATASET } else { "mbazaNLP/kinyarwanda_monolingual_v01.0" }
-	$MbazaArgs = @((Join-Path $OmukuumiAgentDir "scripts/import-mbaza-nlp.mjs"), "--dataset", $MbazaDataset)
-	if ($env:GIHANGA_MBAZA_METADATA_ONLY -eq "1" -or $env:GIHANGA_MBAZA_METADATA_ONLY -eq "true") {
-		$MbazaArgs += "--metadata-only"
-	}
-	node @MbazaArgs
+# Check if already installed
+$binPath = Join-Path $InstallDir "omukuumi.exe"
+if (Test-Path $binPath -and -not $Force) {
+    Log-Warn "Omukuumi already installed at $InstallDir"
+    Log-Info "Use -Force to reinstall, or run: $binPath --version"
+    exit 0
 }
 
-if ($env:AZURE_OPENAI_API_KEY -and ($env:AZURE_OPENAI_BASE_URL -or $env:AZURE_OPENAI_RESOURCE_NAME)) {
-	$AuthPath = Join-Path $OmukuumiAgentDir "auth.json"
-	$Auth = if (Test-Path -LiteralPath $AuthPath) { Get-Content -Raw $AuthPath | ConvertFrom-Json -AsHashtable } else { @{} }
-	$ResourceName = $env:AZURE_OPENAI_RESOURCE_NAME
-	if (-not $ResourceName -and $env:AZURE_OPENAI_BASE_URL) {
-		try { $ResourceName = ([Uri]$env:AZURE_OPENAI_BASE_URL).Host.Split('.')[0] } catch { $ResourceName = $null }
-	}
-	$BaseUrl = if ($env:AZURE_OPENAI_BASE_URL) { $env:AZURE_OPENAI_BASE_URL } elseif ($ResourceName) { "https://$ResourceName.openai.azure.com" } else { $null }
-	$AzureEnv = @{}
-	if ($BaseUrl) { $AzureEnv["AZURE_OPENAI_BASE_URL"] = $BaseUrl }
-	if ($ResourceName) { $AzureEnv["AZURE_OPENAI_RESOURCE_NAME"] = $ResourceName }
-	if ($env:AZURE_OPENAI_API_VERSION) { $AzureEnv["AZURE_OPENAI_API_VERSION"] = $env:AZURE_OPENAI_API_VERSION }
-	$Auth["azure-openai-responses"] = @{
-		type = "api_key"
-		key = "AZURE_OPENAI_API_KEY"
-		env = $AzureEnv
-	}
-	$Auth | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 -Path $AuthPath
+# Download
+$fileName = "omukuumi-windows-$ARCH.zip"
+$url = "https://github.com/omukuumi/omukuumi-cli/releases/download/v$Version/$fileName"
+$archive = Join-Path $env:TEMP $fileName
+
+Log-Info "Downloading $fileName..."
+try {
+    Invoke-WebRequest -Uri $url -OutFile $archive -ErrorAction Stop
+    Log-Ok "Downloaded to $archive"
+} catch {
+    Log-Err "Download failed: $_"
+    Log-Err "Check if version exists: https://github.com/omukuumi/omukuumi-cli/releases/tag/v$Version"
+    exit 1
 }
 
+# Verify checksum
+if (-not $NoVerify) {
+    Log-Info "Verifying checksum..."
+    try {
+        $shaUrl = "https://github.com/omukuumi/omukuumi-cli/releases/download/v$Version/SHA256SUMS"
+        $shaRemote = (Invoke-RestMethod -Uri $shaUrl -ErrorAction SilentlyContinue) | Select-String $fileName | ForEach-Object { ($_ -split '\s+')[0] }
+        $shaLocal = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLower()
+
+        if ($shaRemote -and $shaLocal -eq $shaRemote.ToLower()) {
+            Log-Ok "Checksum verified"
+        } elseif (-not $shaRemote) {
+            Log-Warn "No SHA256SUMS found on release, skipping verification"
+        } else {
+            Log-Err "Checksum mismatch! Expected: $shaRemote, Got: $shaLocal"
+            exit 1
+        }
+    } catch {
+        Log-Warn "Could not verify checksum: $_"
+    }
+} else {
+    Log-Warn "Skipping checksum verification (-NoVerify)"
+}
+
+# Extract
+Log-Info "Extracting to $InstallDir..."
+if (-not (Test-Path $InstallDir)) { New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null }
+
+try {
+    Expand-Archive -Path $archive -DestinationPath $InstallDir -Force -ErrorAction Stop
+    Log-Ok "Extracted to $InstallDir"
+} catch {
+    Log-Err "Extract failed: $_"
+    exit 1
+}
+
+# Ensure binary is executable and in right place
+$binPath = Join-Path $InstallDir "omukuumi.exe"
+if (-not (Test-Path $binPath)) {
+    $found = Get-ChildItem $InstallDir -Recurse -Filter "omukuumi.exe" | Select-Object -First 1
+    if ($found) {
+        Move-Item $found.FullName $binPath -Force
+    }
+}
+
+# Add to PATH (user scope)
+$currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+if ($currentPath -notlike "*$InstallDir*") {
+    $newPath = "$InstallDir;$currentPath"
+    [Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
+    Log-Ok "Added $InstallDir to user PATH"
+    Log-Warn "Restart your terminal or run: refreshenv"
+} else {
+    Log-Info "PATH already contains $InstallDir"
+}
+
+# Create symlink in ~/bin if exists
+$localBin = Join-Path $env:USERPROFILE "bin"
+if (Test-Path $localBin) {
+    $link = Join-Path $localBin "omukuumi.exe"
+    if (-not (Test-Path $link)) {
+        New-Item -ItemType SymbolicLink -Path $link -Target (Join-Path $InstallDir "omukuumi.exe") | Out-Null
+        Log-Ok "Created symlink: $link"
+    }
+}
+
+Log-Ok "Omukuumi $Version installed successfully!"
 Write-Host ""
-Write-Host "Omukuumi CLI installed successfully."
-Write-Host "Kinyarwanda keyword data installed in: $OmukuumiAgentDir"
-Write-Host "Run: omukuumi --help"
+Write-Host "Next steps:"
+Write-Host "  1. Restart your terminal, or run: refreshenv"
+Write-Host "  2. Run Omukuumi:"
+Write-Host "     omukuumi"
+Write-Host ""
+Write-Host "Install location: $InstallDir"
+Write-Host "Binary: omukuumi.exe"

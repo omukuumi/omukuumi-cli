@@ -1,153 +1,250 @@
 #!/usr/bin/env bash
+#
+# Universal Omukuumi Installer
+# Works on: Linux, macOS, Windows (Git Bash / WSL / MSYS2)
+#
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.sh | bash -s -- --version v0.81.0
+#   curl -fsSL https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.sh | bash -s -- --dir "$HOME/.local/omukuumi"
+#
+# Options:
+#   --version VERSION    Install specific version (default: latest)
+#   --dir DIR            Install directory (default: ~/.omukuumi-cli)
+#   --no-verify          Skip checksum verification
+#   --help               Show this help
+
 set -euo pipefail
 
-REPO_URL="https://github.com/DannyIRUMVA/omukuumi-command-line-interface.git"
-INSTALL_DIR="${GIHANGA_INSTALL_DIR:-$HOME/.omukuumi-cli}"
-INSTALL_LOG="${GIHANGA_INSTALL_LOG:-${TMPDIR:-/tmp}/omukuumi-install.log}"
-: > "$INSTALL_LOG"
+# ─── Defaults ──────────────────────────────────────────────────────────────
+INSTALL_DIR="${OMUKUUMI_INSTALL_DIR:-$HOME/.omukuumi-cli}"
+REPO="omukuumi/omukuumi-cli"
+VERSION=""
+NO_VERIFY=false
+FORCE=false
 
-run_quiet() {
-	local label="$1"
-	shift
-	echo "$label"
-	if ! "$@" >>"$INSTALL_LOG" 2>&1; then
-		echo "Error: $label failed. Log: $INSTALL_LOG" >&2
-		tail -40 "$INSTALL_LOG" >&2 || true
-		exit 1
-	fi
+# ─── Colors ────────────────────────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+log_info()  { echo -e "${BLUE}[INFO]${NC} $*"; }
+log_ok()    { echo -e "${GREEN}[OK]${NC} $*"; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
+log_err()   { echo -e "${RED}[ERR]${NC} $*"; }
+
+# ─── Helpers ───────────────────────────────────────────────────────────────
+usage() {
+    sed -n '2,18p' "$0" | sed 's/^# //; s/^#//'
+    exit 0
 }
 
-run_quiet_shell() {
-	local label="$1"
-	shift
-	echo "$label"
-	if ! bash -lc "$*" >>"$INSTALL_LOG" 2>&1; then
-		echo "Error: $label failed. Log: $INSTALL_LOG" >&2
-		tail -40 "$INSTALL_LOG" >&2 || true
-		exit 1
-	fi
+detect_platform() {
+    local os arch
+    os=$(uname -s | tr '[:upper:]' '[:lower:]')
+    arch=$(uname -m)
+
+    case "$os" in
+        linux)   OS="linux" ;;
+        darwin)  OS="darwin" ;;
+        cygwin*|mingw*|msys*) OS="windows" ;;
+        *)       log_err "Unsupported OS: $os"; exit 1 ;;
+    esac
+
+    case "$arch" in
+        x86_64|amd64) ARCH="x64" ;;
+        aarch64|arm64) ARCH="arm64" ;;
+        *) log_err "Unsupported architecture: $arch"; exit 1 ;;
+    esac
+
+    log_info "Detected platform: $OS-$ARCH"
 }
 
-require_command() {
-	if ! command -v "$1" >/dev/null 2>&1; then
-		echo "Error: '$1' irakenewe ariko ntiyabonetse." >&2
-		exit 1
-	fi
+get_latest_version() {
+    log_info "Fetching latest version from GitHub..."
+    VERSION=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
+        | grep '"tag_name"' | head -1 | sed -E 's/.*"v?([^"]+)".*/\1/')
+    if [[ -z "$VERSION" ]]; then
+        log_err "Failed to fetch latest version"
+        exit 1
+    fi
+    log_ok "Latest version: $VERSION"
 }
 
-require_command git
-require_command node
-require_command npm
+download_binary() {
+    local url filename
+    if [[ "$OS" == "windows" ]]; then
+        filename="omukuumi-windows-$ARCH.zip"
+        url="https://github.com/$REPO/releases/download/v$VERSION/omukuumi-windows-$ARCH.zip"
+    else
+        filename="omukuumi-$OS-$ARCH.tar.gz"
+        url="https://github.com/$REPO/releases/download/v$VERSION/omukuumi-$OS-$ARCH.tar.gz"
+    fi
 
-remove_stale_omukuumi_helper() {
-	local existing=""
-	existing="$(command -v omukuumi 2>/dev/null || true)"
-	[ -n "$existing" ] || return 0
-	if [ -f "$existing" ] || [ -L "$existing" ]; then
-		if "$existing" --help 2>/dev/null | grep -q "Omukuumi CLI helper"; then
-			if rm -f "$existing" 2>/dev/null; then
-				hash -r 2>/dev/null || true
-				echo "Removed old Omukuumi helper: $existing"
-			else
-				echo "Warning: old Omukuumi helper is still in PATH: $existing" >&2
-				echo "Remove it manually or make sure the npm global bin directory appears earlier in PATH." >&2
-			fi
-		fi
-	fi
+    log_info "Downloading $filename..."
+    curl -fsSL "$url" -o "/tmp/$filename" || {
+        log_err "Download failed. Check version exists: https://github.com/$REPO/releases/tag/v$VERSION"
+        exit 1
+    }
+    log_ok "Downloaded to /tmp/$filename"
 }
 
-remove_stale_omukuumi_helper
+verify_checksum() {
+    if [[ "$NO_VERIFY" == "true" ]]; then
+        log_warn "Skipping checksum verification (--no-verify)"
+        return
+    fi
 
-NPM_PREFIX="${npm_config_prefix:-$(npm config get prefix 2>/dev/null || true)}"
-if [ -n "$NPM_PREFIX" ] && [ ! -w "$NPM_PREFIX" ]; then
-	export npm_config_prefix="${npm_config_prefix:-$HOME/.local}"
-	mkdir -p "$npm_config_prefix/bin"
-fi
+    local sha_url sha_local sha_remote
+    sha_url="https://github.com/$REPO/releases/download/v$VERSION/SHA256SUMS"
+    log_info "Verifying checksum..."
+    sha_remote=$(curl -fsSL "$sha_url" 2>/dev/null | grep "$(basename "$1")" | awk '{print $1}')
+    sha_local=$(sha256sum "$1" | awk '{print $1}')
 
-if [ -d "$INSTALL_DIR/.git" ]; then
-	run_quiet "Kuvugurura Omukuumi..." git -C "$INSTALL_DIR" fetch --quiet origin main
-	run_quiet "Guhuza Omukuumi..." git -C "$INSTALL_DIR" reset --hard --quiet origin/main
-elif [ -e "$INSTALL_DIR" ]; then
-	echo "Error: $INSTALL_DIR exists but is not a git repository." >&2
-	echo "Set GIHANGA_INSTALL_DIR to another path or remove that folder." >&2
-	exit 1
-else
-	run_quiet "Kwinjiza Omukuumi..." git clone --quiet "$REPO_URL" "$INSTALL_DIR"
-fi
-
-cd "$INSTALL_DIR"
-run_quiet "Gutegura amapakeji..." npm install --ignore-scripts --silent --no-fund --no-audit --loglevel=error
-run_quiet "Kubaka Omukuumi..." npm run build --silent
-remove_stale_omukuumi_helper
-run_quiet_shell "Gushyira Omukuumi muri terminal..." "cd packages/coding-agent && npm link --silent"
-hash -r 2>/dev/null || true
-remove_stale_omukuumi_helper
-
-GIHANGA_AGENT_DIR="${GIHANGA_AGENT_DIR:-$HOME/.omukuumi/agent}"
-mkdir -p "$GIHANGA_AGENT_DIR/skills" "$GIHANGA_AGENT_DIR/data" "$GIHANGA_AGENT_DIR/scripts"
-cp -R "$INSTALL_DIR/resources/omukuumi/agent/skills/omukuumi-community" "$GIHANGA_AGENT_DIR/skills/"
-cp "$INSTALL_DIR"/resources/omukuumi/agent/data/* "$GIHANGA_AGENT_DIR/data/"
-if [ -f "$INSTALL_DIR/resources/omukuumi/agent/models.json" ]; then
-	cp "$INSTALL_DIR/resources/omukuumi/agent/models.json" "$GIHANGA_AGENT_DIR/models.json"
-	MODELS_PATH="$GIHANGA_AGENT_DIR/models.json" node <<'JS'
-const fs = require("fs");
-const path = process.env.MODELS_PATH;
-const data = JSON.parse(fs.readFileSync(path, "utf8"));
-for (const provider of Object.values(data.providers || {})) {
-	for (const model of provider.models || []) {
-		model.input = ["text"];
-		if (Array.isArray(model.output)) model.output = model.output.filter((value) => value === "text");
-		if (Array.isArray(model.output) && model.output.length === 0) delete model.output;
-	}
+    if [[ -n "$sha_remote" && "$sha_local" == "$sha_remote" ]]; then
+        log_ok "Checksum verified"
+    elif [[ -z "$sha_remote" ]]; then
+        log_warn "No SHA256SUMS found on release, skipping verification"
+    else
+        log_err "Checksum mismatch! Expected: $sha_remote, Got: $sha_local"
+        exit 1
+    fi
 }
-fs.writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
-JS
-fi
-cp "$INSTALL_DIR"/resources/omukuumi/agent/scripts/* "$GIHANGA_AGENT_DIR/scripts/"
 
-if [ "${GIHANGA_INSTALL_MBAZA_NLP:-0}" = "1" ] || [ "${GIHANGA_INSTALL_MBAZA_NLP:-}" = "true" ]; then
-	MBAZA_ARGS=(--dataset "${GIHANGA_MBAZA_NLP_DATASET:-mbazaNLP/kinyarwanda_monolingual_v01.0}")
-	if [ "${GIHANGA_MBAZA_METADATA_ONLY:-0}" = "1" ] || [ "${GIHANGA_MBAZA_METADATA_ONLY:-}" = "true" ]; then
-		MBAZA_ARGS+=(--metadata-only)
-	fi
-	node "$GIHANGA_AGENT_DIR/scripts/import-mbaza-nlp.mjs" "${MBAZA_ARGS[@]}"
-fi
+extract_binary() {
+    local archive="$1"
+    local dest="$2"
 
-if [ -n "${AZURE_OPENAI_API_KEY:-}" ] && { [ -n "${AZURE_OPENAI_BASE_URL:-}" ] || [ -n "${AZURE_OPENAI_RESOURCE_NAME:-}" ]; }; then
-	AUTH_PATH="$GIHANGA_AGENT_DIR/auth.json" node <<'JS'
-const fs = require("fs");
-const path = process.env.AUTH_PATH;
-const baseFromResource = (name) => `https://${name}.openai.azure.com`;
-const resourceFromBase = (baseUrl) => {
-	try { return new URL(baseUrl).hostname.split(".")[0] || undefined; } catch { return undefined; }
-};
-const current = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path, "utf8") || "{}") : {};
-const resourceName = process.env.AZURE_OPENAI_RESOURCE_NAME || resourceFromBase(process.env.AZURE_OPENAI_BASE_URL || "");
-const baseUrl = process.env.AZURE_OPENAI_BASE_URL || (resourceName ? baseFromResource(resourceName) : undefined);
-current["azure-openai-responses"] = {
-	type: "api_key",
-	key: "AZURE_OPENAI_API_KEY",
-	env: {
-		...(baseUrl ? { AZURE_OPENAI_BASE_URL: baseUrl } : {}),
-		...(resourceName ? { AZURE_OPENAI_RESOURCE_NAME: resourceName } : {}),
-		...(process.env.AZURE_OPENAI_API_VERSION ? { AZURE_OPENAI_API_VERSION: process.env.AZURE_OPENAI_API_VERSION } : {}),
-	},
-};
-fs.mkdirSync(require("path").dirname(path), { recursive: true, mode: 0o700 });
-fs.writeFileSync(path, JSON.stringify(current, null, 2), { mode: 0o600 });
-JS
-fi
+    mkdir -p "$dest"
+    log_info "Extracting to $dest..."
 
-echo ""
-echo "Omukuumi CLI installed successfully."
-echo "Kinyarwanda keyword data installed in: $GIHANGA_AGENT_DIR"
-if command -v omukuumi >/dev/null 2>&1; then
-	GIHANGA_BIN="$(command -v omukuumi)"
-	echo "Installed command: $GIHANGA_BIN"
-	echo "Run: omukuumi --help"
-elif [ -n "${npm_config_prefix:-}" ]; then
-	echo "Add $npm_config_prefix/bin to your PATH if needed."
-	echo "Then run: omukuumi --help"
-else
-	echo "Run: omukuumi --help"
-fi
+    if [[ "$archive" == *.zip ]]; then
+        unzip -qo "$archive" -d "$dest" || { log_err "unzip failed"; exit 1; }
+    else
+        tar -xzf "$archive" -C "$dest" || { log_err "tar failed"; exit 1; }
+    fi
+
+    # Find the binary (could be in a subdirectory)
+    local binary
+    binary=$(find "$dest" -maxdepth 2 -type f -name "omukuumi*" -executable 2>/dev/null | head -1)
+    if [[ -z "$binary" ]]; then
+        binary=$(find "$dest" -maxdepth 2 -type f -name "omukuumi*" | head -1)
+    fi
+
+    if [[ -n "$binary" && "$binary" != "$dest/omukuumi" && "$binary" != "$dest/omukuumi.exe" ]]; then
+        mv "$binary" "$dest/omukuumi"
+        binary="$dest/omukuumi"
+    fi
+
+    chmod +x "$binary" 2>/dev/null || true
+    log_ok "Binary installed at $binary"
+}
+
+setup_path() {
+    local dest="$1"
+    local shell_rc=""
+
+    # Detect shell config file
+    if [[ -n "${ZSH_VERSION:-}" ]]; then
+        shell_rc="${ZDOTDIR:-$HOME}/.zshrc"
+    elif [[ -n "${BASH_VERSION:-}" ]]; then
+        shell_rc="$HOME/.bashrc"
+    else
+        shell_rc="$HOME/.profile"
+    fi
+
+    local path_entry="export PATH=\"$dest:\$PATH\""
+
+    if [[ -f "$shell_rc" ]] && grep -q "$dest" "$shell_rc"; then
+        log_info "PATH already configured in $shell_rc"
+        return
+    fi
+
+    echo "" >> "$shell_rc"
+    echo "# Omukuumi CLI" >> "$shell_rc"
+    echo "$path_entry" >> "$shell_rc"
+    log_ok "Added $dest to PATH in $shell_rc"
+    log_info "Run: source $shell_rc  (or restart your terminal)"
+}
+
+create_wrapper() {
+    local dest="$1"
+    local bin_dir="$HOME/.local/bin"
+
+    if [[ ! -d "$bin_dir" ]]; then
+        return
+    fi
+
+    local target="$bin_dir/omukuumi"
+    local source="$dest/omukuumi"
+    [[ "$OS" == "windows" ]] && source="$dest/omukuumi.exe"
+
+    if [[ -f "$source" ]]; then
+        ln -sf "$source" "$target" 2>/dev/null || true
+        log_ok "Created symlink: $target -> $source"
+    fi
+}
+
+# ─── Parse Args ────────────────────────────────────────────────────────────
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --version) VERSION="$2"; shift 2 ;;
+        --dir)     INSTALL_DIR="$2"; shift 2 ;;
+        --no-verify) NO_VERIFY=true; shift ;;
+        --force)   FORCE=true; shift ;;
+        --help)    usage ;;
+        *) log_err "Unknown option: $1"; usage ;;
+    esac
+done
+
+# ─── Main ──────────────────────────────────────────────────────────────────
+main() {
+    echo "╔═══════════════════════════════════════════════════════════╗"
+    echo "║         Omukuumi CLI — Universal Installer                 ║"
+    echo "╚═══════════════════════════════════════════════════════════╝"
+    echo ""
+
+    detect_platform
+
+    if [[ -z "$VERSION" ]]; then
+        get_latest_version
+    else
+        log_info "Installing version: $VERSION"
+    fi
+
+    # Check if already installed
+    if [[ -f "$INSTALL_DIR/omukuumi" || -f "$INSTALL_DIR/omukuumi.exe" ]] && [[ "$FORCE" != "true" ]]; then
+        log_warn "Omukuumi already installed at $INSTALL_DIR"
+        log_info "Use --force to reinstall, or run: $INSTALL_DIR/omukuumi --version"
+        exit 0
+    fi
+
+    local archive="/tmp/omukuumi-$VERSION-$OS-$ARCH"
+    if [[ "$OS" == "windows" ]]; then
+        archive+=".zip"
+    else
+        archive+=".tar.gz"
+    fi
+
+    download_binary
+    verify_checksum "$archive"
+    extract_binary "$archive" "$INSTALL_DIR"
+    setup_path "$INSTALL_DIR"
+    create_wrapper "$INSTALL_DIR"
+
+    echo ""
+    log_ok "Omukuumi $VERSION installed successfully!"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Restart your terminal, or run:"
+    echo "     source ~/.bashrc   # or ~/.zshrc, ~/.profile"
+    echo "  2. Run Omukuumi:"
+    echo "     omukuumi"
+    echo ""
+    echo "Install location: $INSTALL_DIR"
+    echo "Binary: omukuumi${OS:+.exe}"
+}
+
+main "$@"
