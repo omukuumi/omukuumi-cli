@@ -29,6 +29,7 @@ cd "$(dirname "$0")/.."
 SKIP_INSTALL=false
 SKIP_DEPS=false
 SKIP_BUILD=false
+SKIP_AI=false
 PLATFORM=""
 OUTPUT_DIR=""
 
@@ -44,6 +45,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-build)
             SKIP_BUILD=true
+            shift
+            ;;
+        --skip-ai)
+            SKIP_AI=true
             shift
             ;;
         --platform)
@@ -108,8 +113,13 @@ else
 fi
 
 if [[ "$SKIP_BUILD" == "false" ]]; then
-    echo "==> Building all packages..."
-    npm run build
+    if [[ "$SKIP_AI" == "true" ]]; then
+        echo "==> Building packages (skipping ai)..."
+        cd packages/tui && npm run build && cd ../agent && npm run build && cd ../coding-agent && npm run build && cd ../orchestrator && npm run build
+    else
+        echo "==> Building all packages..."
+        npm run build
+    fi
 else
     echo "==> Skipping package build (--skip-build)"
 fi
