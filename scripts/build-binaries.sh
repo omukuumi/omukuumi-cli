@@ -112,22 +112,32 @@ else
 fi
 
 if [[ "$SKIP_BUILD" == "false" ]]; then
-    if [[ "$SKIP_AI" == "true" ]]; then
-        echo "==> Building packages (skipping ai package build)..."
+        if [[ "$SKIP_AI" == "true" ]]; then
+        echo "==> Building packages (generating @earendil-works/pi-ai types)..."
         # Skip ai package build entirely - it has TS errors that prevent building
-        # Generate minimal type declarations for @earendil-works/pi-ai that agent needs
-        echo "Generating minimal @earendil-works/pi-ai type declarations..."
+        # Generate comprehensive type declarations for @earendil-works/pi-ai that agent needs
+        echo "Generating @earendil-works/pi-ai type declarations..."
         mkdir -p packages/ai/dist
+        mkdir -p packages/ai/dist/compat
         cat > packages/ai/dist/index.d.ts << 'DTS'
 export interface AgentToolResult<TDetails = unknown> {
   content: Array<{ type: string; text?: string; data?: string; mimeType?: string }>;
   details?: TDetails;
+  isError?: boolean;
 }
-export interface AgentTool<TParams, TDetails, TState> {
+export interface AgentTool<TParams = any, TDetails = unknown, TState = any> {
   name: string;
+  label?: string;
   description: string;
   parameters: any;
+  promptSnippet?: string;
+  promptGuidelines?: string[];
+  prepareArguments?: (args: unknown) => any;
+  renderShell?: "default" | "self";
+  executionMode?: "sequential" | "parallel";
   execute(toolCallId: string, params: any, signal: AbortSignal | undefined, onUpdate: any, ctx: any): Promise<AgentToolResult<any>>;
+  renderCall?: (args: any, theme: any, context: any) => any;
+  renderResult?: (result: any, options: any, theme: any, context: any) => any;
 }
 export type ToolExecutionMode = "sequential" | "parallel";
 export interface AgentLoopConfig {
@@ -135,9 +145,70 @@ export interface AgentLoopConfig {
   thinkingLevel?: any;
   maxTokens?: number;
   reasoning?: any;
+  apiKey?: string;
+  systemPrompt?: string;
+  appendSystemPrompt?: string;
+  tools?: string[];
+}
+export interface AgentMessage {
+  role: string;
+  content: Array<{ type: string; text?: string; data?: string; mimeType?: string }>;
+}
+export interface AgentMessageEvent {
+  type: string;
+  message: AgentMessage;
+}
+export interface AgentMessageEventStream {
+  [Symbol.asyncIterator](): AsyncIterator<AgentMessageEvent>;
 }
 DTS
-        echo "Generated minimal @earendil-works/pi-ai type declarations"
+        cat > packages/ai/dist/compat.d.ts << 'DTS'
+export * from '../index.js';
+export interface AgentToolResult<TDetails = unknown> {
+  content: Array<{ type: string; text?: string; data?: string; mimeType?: string }>;
+  details?: TDetails;
+  isError?: boolean;
+}
+export interface AgentTool<TParams = any, TDetails = unknown, TState = any> {
+  name: string;
+  label?: string;
+  description: string;
+  parameters: any;
+  promptSnippet?: string;
+  promptGuidelines?: string[];
+  prepareArguments?: (args: unknown) => any;
+  renderShell?: "default" | "self";
+  executionMode?: "sequential" | "parallel";
+  execute(toolCallId: string, params: any, signal: AbortSignal | undefined, onUpdate: any, ctx: any): Promise<AgentToolResult<any>>;
+  renderCall?: (args: any, theme: any, context: any) => any;
+  renderResult?: (result: any, options: any, theme: any, context: any) => any;
+}
+export type ToolExecutionMode = "sequential" | "parallel";
+export interface AgentLoopConfig {
+  model: any;
+  thinkingLevel?: any;
+  maxTokens?: number;
+  reasoning?: any;
+  apiKey?: string;
+  systemPrompt?: string;
+  appendSystemPrompt?: string;
+  tools?: string[];
+}
+export interface AgentMessage {
+  role: string;
+  content: Array<{ type: string; text?: string; data?: string; mimeType?: string }>;
+}
+export interface AgentMessageEvent {
+  type: string;
+  message: AgentMessage;
+}
+export interface AgentMessageEventStream {
+  [Symbol.asyncIterator](): AsyncIterator<AgentMessageEvent>;
+}
+export type TProvider = string;
+export type TModel = any;
+DTS
+        echo "Generated @earendil-works/pi-ai type declarations"
         # Build dependent packages in order using absolute paths
         ROOT_DIR="$(pwd)"
         cd "$ROOT_DIR/packages/tui" && npm run build
