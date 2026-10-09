@@ -3,8 +3,8 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const CONFIG_DIR_NAME = ".pi";
-const ENV_ORCHESTRATOR_DIR = "PI_ORCHESTRATOR_DIR";
+const CONFIG_DIR_NAME = ".omukuumi";
+const ENV_ORCHESTRATOR_DIR = "OMUKUUMI_ORCHESTRATOR_DIR";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,8 +48,8 @@ export function getOrchestratorDir(): string {
 		return envDir;
 	}
 
-	const piDir = process.env.PI_CONFIG_DIR || join(homedir(), CONFIG_DIR_NAME);
-	return join(piDir, "orchestrator");
+	const omukuumiDir = process.env.OMUKUUMI_CONFIG_DIR || join(homedir(), CONFIG_DIR_NAME);
+	return join(omukuumiDir, "orchestrator");
 }
 
 export function getAuthPath(): string {

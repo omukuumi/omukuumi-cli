@@ -25,11 +25,11 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+REPO_ROOT="$(pwd)"
 
 SKIP_INSTALL=false
 SKIP_DEPS=false
 SKIP_BUILD=false
-SKIP_AI=false
 PLATFORM=""
 OUTPUT_DIR=""
 
@@ -45,10 +45,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-build)
             SKIP_BUILD=true
-            shift
-            ;;
-        --skip-ai)
-            SKIP_AI=true
             shift
             ;;
         --platform)
@@ -94,66 +90,33 @@ else
 fi
 
 if [[ "$SKIP_DEPS" == "false" ]]; then
-    echo "==> Installing cross-platform native bindings..."
+    echo "==> Downloading cross-platform native bindings with npm pack..."
     CLIPBOARD_VERSION=$(node -p "require('./packages/coding-agent/package.json').optionalDependencies['@mariozechner/clipboard']")
-    # npm ci only installs optional deps for the current platform
-    # We need the base clipboard package and all platform bindings for bun cross-compilation
-    # Install without --force to avoid npm bug with optional deps
-    npm install --include=optional --no-save --package-lock=false --ignore-scripts \
-        @mariozechner/clipboard@"$CLIPBOARD_VERSION" \
-        @mariozechner/clipboard-darwin-arm64@"$CLIPBOARD_VERSION" \
-        @mariozechner/clipboard-darwin-x64@"$CLIPBOARD_VERSION" \
-        @mariozechner/clipboard-linux-x64-gnu@"$CLIPBOARD_VERSION" \
-        @mariozechner/clipboard-linux-arm64-gnu@"$CLIPBOARD_VERSION" \
-        @mariozechner/clipboard-win32-x64-msvc@"$CLIPBOARD_VERSION" \
-        @mariozechner/clipboard-win32-arm64-msvc@"$CLIPBOARD_VERSION" || echo "Clipboard deps install had errors, continuing..."
+    NATIVE_PACKAGE_DIR="$REPO_ROOT/node_modules/@mariozechner"
+    NATIVE_PACKAGE_TMP=$(mktemp -d)
+    trap 'rm -rf "$NATIVE_PACKAGE_TMP"' EXIT
+    for native_package in clipboard-darwin-arm64 clipboard-darwin-x64 clipboard-linux-x64-gnu clipboard-linux-arm64-gnu clipboard-win32-x64-msvc clipboard-win32-arm64-msvc; do
+        native_dir="$NATIVE_PACKAGE_DIR/$native_package"
+        if [[ -d "$native_dir" ]]; then continue; fi
+        echo "  Fetching @mariozechner/$native_package@$CLIPBOARD_VERSION"
+        archive=$(npm pack --ignore-scripts --silent --pack-destination "$NATIVE_PACKAGE_TMP" "@mariozechner/$native_package@$CLIPBOARD_VERSION")
+        mkdir -p "$native_dir"
+        tar -xzf "$NATIVE_PACKAGE_TMP/$archive" --strip-components=1 -C "$native_dir"
+    done
 else
     echo "==> Skipping cross-platform native bindings (--skip-deps)"
 fi
 
 if [[ "$SKIP_BUILD" == "false" ]]; then
-        if [[ "$SKIP_AI" == "true" ]]; then
-        echo "==> Building packages (building ai with permissive tsconfig)..."
-        # Build ai package with permissive tsconfig to generate types
-        echo "Building @earendil-works/pi-ai with permissive tsconfig..."
-        # Create a permissive tsconfig for ai package
-        cat > packages/ai/tsconfig.permissive.json << 'TSCONFIG'
-{
-  "extends": "./tsconfig.build.json",
-  "compilerOptions": {
-    "skipLibCheck": true,
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "noImplicitThis": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": false,
-    "noUncheckedIndexedAccess": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
-}
-TSCONFIG
-        # Build ai package with permissive tsconfig
-        (cd packages/ai && npx tsgo -p tsconfig.permissive.json) || echo "AI package build had errors, continuing..."
-        # Build dependent packages in order using absolute paths
-        ROOT_DIR="$(pwd)"
-        cd "$ROOT_DIR/packages/tui" && npm run build
-        cd "$ROOT_DIR/packages/agent" && npm run build
-        cd "$ROOT_DIR/packages/coding-agent" && npm run build
-        cd "$ROOT_DIR/packages/orchestrator" && npm run build
-    else
-        echo "==> Building all packages..."
-        npm run build
-    fi
+    echo "==> Building all workspace packages..."
+    cd "$REPO_ROOT"
+    npm run build
 else
     echo "==> Skipping package build (--skip-build)"
 fi
 
 echo "==> Building binaries..."
-cd "$(pwd)/packages/coding-agent"
+cd "$REPO_ROOT/packages/coding-agent"
 
 # Clean previous builds
 rm -rf "$OUTPUT_DIR"

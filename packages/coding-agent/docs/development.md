@@ -27,7 +27,7 @@ Configure via `package.json`:
 {
   "piConfig": {
     "name": "pi",
-    "configDir": ".pi"
+    "configDir": ".omukuumi"
   }
 }
 ```

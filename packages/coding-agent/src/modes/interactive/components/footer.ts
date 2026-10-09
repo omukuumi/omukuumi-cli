@@ -54,12 +54,6 @@ export const KINYARWANDA_FOOTER_SAYINGS = [
 	"Agaciro kari mu murimo unoze",
 ] as const;
 
-function formatRwfCost(usdCost: number): string {
-	const rwfCost = usdCost * USD_TO_RWF_RATE;
-	if (usdCost > 0 && rwfCost < 1) return "<1 RWF";
-	return `${Math.round(rwfCost + 1e-9).toLocaleString()} RWF`;
-}
-
 function stableIndex(text: string, modulo: number): number {
 	let hash = 0;
 	for (const char of text) {
@@ -76,6 +70,12 @@ function pickKinyarwandaFooterSaying(seed: string, now = Date.now()): string {
 		KINYARWANDA_FOOTER_SAYINGS[stableIndex(`${seed}:${rotation}`, KINYARWANDA_FOOTER_SAYINGS.length)] ??
 		KINYARWANDA_FOOTER_SAYINGS[0]
 	);
+}
+
+function formatRwfCost(usdCost: number): string {
+	const rwfCost = usdCost * USD_TO_RWF_RATE;
+	if (usdCost > 0 && rwfCost < 1) return "<1 RWF";
+	return `${Math.round(rwfCost + 1e-9).toLocaleString()} RWF`;
 }
 
 function alignFooterLine(left: string, right: string | null | undefined, width: number): string {
@@ -217,9 +217,15 @@ export class FooterComponent implements Component {
 		if (areExperimentalFeaturesEnabled()) {
 			statsParts.push("xp");
 		}
-		const statsText = alignFooterLine(`Omukuumi · ${pwd} · ${statsParts.join(" · ")}`, kampalaWeather, width);
+		const statsText = alignFooterLine(
+			`Omukuumi · ${pwd} · ${statsParts.join(" · ")}`,
+			kampalaWeather,
+			Math.max(1, width - 3),
+		);
+		const titleText = truncateToWidth(`╭─ Gihanga kumurimo · ${pwd} · ${footerSaying}`, width, "...");
+		const statsLine = `╰─ ${statsText}`;
 
-		const lines = [theme.fg("dim", statsText)];
+		const lines = [theme.fg("dim", titleText), theme.fg("dim", statsLine)];
 
 		// Add extension statuses on a single line, sorted by key alphabetically
 		const extensionStatuses = this.footerData.getExtensionStatuses();

@@ -22,9 +22,9 @@ import {
 	type Theme,
 } from "../modes/interactive/theme/theme.ts";
 
-const OFFICIAL_PACKAGE_NAME = "@earendil-works/pi-coding-agent";
+const OFFICIAL_PACKAGE_NAME = "omukuumi";
 const OFFICIAL_APP_NAME = "Omukuumi";
-const OFFICIAL_CONFIG_DIR_NAME = ".gihanga";
+const OFFICIAL_CONFIG_DIR_NAME = ".omukuumi";
 
 interface DistributionMetadata {
 	packageName: string;
@@ -111,6 +111,7 @@ async function clearStartupTui(ui: TUI): Promise<void> {
  */
 export function shouldRunFirstTimeSetup(settingsPath: string = getSettingsPath()): boolean {
 	if (
+		process.env.PI_EXPERIMENTAL !== "1" ||
 		!isOfficialDistribution({
 			packageName: PACKAGE_NAME,
 			appName: APP_NAME,

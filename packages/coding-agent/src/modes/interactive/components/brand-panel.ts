@@ -9,18 +9,13 @@ const VERSION: string = process.env.PI_VERSION || "0.80.6";
  */
 export class BrandPanel implements Component {
 	private gitBranch: string | undefined;
-	private sessionName: string | undefined;
 
-	constructor(gitBranch?: string, sessionName?: string) {
+	constructor(gitBranch?: string, _sessionName?: string) {
 		this.gitBranch = gitBranch;
-		this.sessionName = sessionName;
 	}
 
 	setGitBranch(branch: string | undefined): void {
 		this.gitBranch = branch;
-	}
-	setSessionName(name: string | undefined): void {
-		this.sessionName = name;
 	}
 	invalidate(): void {}
 
@@ -32,9 +27,9 @@ export class BrandPanel implements Component {
 		return [
 			theme.fg("accent", wave),
 			theme.bold(theme.fg("accent", "O M U K U U M I")),
-			theme.fg("dim", "v" + VERSION),
+			theme.fg("dim", `v${VERSION}`),
 			"",
-			this.gitBranch ? "# " + this.gitBranch : undefined,
+			this.gitBranch ? `# ${this.gitBranch}` : undefined,
 			"",
 		].filter((l) => l !== undefined) as string[];
 	}

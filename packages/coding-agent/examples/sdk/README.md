@@ -40,7 +40,7 @@ import {
   ModelRegistry,
   SessionManager,
   SettingsManager,
-} from "@earendil-works/pi-coding-agent";
+} from "omukuumi";
 
 // Auth and models setup
 const authStorage = AuthStorage.create();

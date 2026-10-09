@@ -13,8 +13,6 @@ concurrency:
 jobs:
   build-check-test:
     runs-on: ubuntu-latest
-    env:
-      SKIP_AI: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,6 +22,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - name: Upgrade npm for shrinkwrap-compatible packing
+        run: npm install --global npm@11.16.0 --ignore-scripts
 
       - name: Install system dependencies
         run: |
@@ -38,8 +39,10 @@ jobs:
         run: npm run build
 
       - name: Check
-        if: env.SKIP_AI != 'true'
         run: npm run check
 
-      - name: Test (skipped)
-        run: echo "Skipping tests - pre-existing issues in packages/ai"
+      - name: Test (coding-agent only)
+        run: npm test --workspace=packages/coding-agent
+
+      - name: Clean npm install smoke
+        run: node scripts/check-npm-install.mjs

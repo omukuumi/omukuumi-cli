@@ -21,9 +21,9 @@
  */
 
 import type { TextContent } from "@earendil-works/pi-ai";
-import { type ExtensionAPI, getAgentDir, withFileMutationQueue } from "@earendil-works/pi-coding-agent";
 import { constants, readFileSync } from "fs";
 import { access, appendFile, readFile } from "fs/promises";
+import { type ExtensionAPI, getAgentDir, withFileMutationQueue } from "omukuumi";
 import { join, resolve } from "path";
 import { Type } from "typebox";
 

@@ -36,21 +36,21 @@ export class LeftPanel implements Component {
 			t(theme.fg("error", "1. VULNS")),
 			t(theme.fg("muted", "Findings & Problems")),
 			...(this._findings.length > 0
-				? this._findings.map((f) => t(theme.fg("dim", "  " + f)))
+				? this._findings.map((f) => t(theme.fg("dim", `  ${f}`)))
 				: [t(theme.fg("dim", "  No live findings connected"))]),
 		];
 		const sec2: string[] = [
 			t(theme.fg("warning", "2. UPDATES")),
 			t(theme.fg("muted", "Devices needing updates")),
 			...(this._updates.length > 0
-				? this._updates.map((u) => t(theme.fg("dim", "  " + u)))
+				? this._updates.map((u) => t(theme.fg("dim", `  ${u}`)))
 				: [t(theme.fg("dim", "  No update data connected"))]),
 		];
 		const sec3: string[] = [
 			t(theme.fg("accent", "3. INCIDENTS")),
 			t(theme.fg("muted", "Incident Operations")),
 			...(this._incidents.length > 0
-				? this._incidents.map((inc) => t(theme.fg("dim", "  " + inc)))
+				? this._incidents.map((inc) => t(theme.fg("dim", `  ${inc}`)))
 				: [t(theme.fg("dim", "  No incidents connected"))]),
 		];
 

@@ -4,18 +4,15 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const packages = [
-	{ directory: "packages/ai", name: "@earendil-works/pi-ai" },
-	{ directory: "packages/agent", name: "@earendil-works/pi-agent-core" },
-	{ directory: "packages/tui", name: "@earendil-works/pi-tui" },
-	{ directory: "packages/coding-agent", name: "@earendil-works/pi-coding-agent" },
-];
+const packages = [{ directory: "packages/coding-agent", name: "omukuumi" }];
 
-const dryRun = process.argv.includes("--dry-run");
-const unknownArgs = process.argv.slice(2).filter((arg) => arg !== "--dry-run");
+const options = new Set(process.argv.slice(2));
+const dryRun = options.has("--dry-run");
+const prereleaseTag = options.has("--tag-alpha") ? "alpha" : "latest";
+const unknownArgs = [...options].filter((arg) => !["--dry-run", "--tag-alpha"].includes(arg));
 
 if (unknownArgs.length > 0) {
-	console.error(`Usage: node scripts/publish.mjs [--dry-run]`);
+	console.error(`Usage: node scripts/publish.mjs [--dry-run] [--tag-alpha]`);
 	process.exit(1);
 }
 
@@ -51,7 +48,11 @@ function assertBuildOutputExists(directory) {
 
 function validatePack(directory) {
 	const result = run("npm", ["pack", "--dry-run", "--ignore-scripts", "--json"], { capture: true, cwd: directory });
-	const packed = JSON.parse(result.stdout)[0];
+	const parsed = JSON.parse(result.stdout);
+	const packed = Array.isArray(parsed) ? parsed[0] : Object.values(parsed)[0];
+	if (!packed?.filename || !Array.isArray(packed.files)) {
+		throw new Error(`npm pack returned unexpected metadata for ${directory}`);
+	}
 	console.log(`  ${packed.filename}: ${packed.files.length} files, ${packed.size} bytes packed, ${packed.unpackedSize} bytes unpacked`);
 }
 
@@ -87,7 +88,7 @@ if (versions.length !== 1) {
 	throw new Error(`Publish packages are not lockstep versioned: ${versions.join(", ")}`);
 }
 
-console.log(`Publishing pi packages at ${versions[0]}${dryRun ? " (dry run)" : ""}\n`);
+console.log(`Publishing Omukuumi package at ${versions[0]}${dryRun ? " (dry run)" : ""}; npm tag=${prereleaseTag}\n`);
 
 const packageStates = packages.map((pkg) => ({
 	...pkg,
@@ -120,6 +121,6 @@ for (const pkg of packageStates) {
 		continue;
 	}
 
-	run("npm", ["publish", "--access", "public", "--provenance", "--ignore-scripts"], { cwd: pkg.directory });
+	run("npm", ["publish", "--access", "public", "--provenance", "--ignore-scripts", "--tag", prereleaseTag], { cwd: pkg.directory });
 	console.log();
 }

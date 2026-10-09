@@ -1371,6 +1371,7 @@ async function loadModelsDevData(): Promise<Model<any>[]> {
 				let api: Api;
 				let baseUrl: string;
 				let compat: OpenAICompletionsCompat | undefined;
+				let responsesCompat: OpenAIResponsesCompat | undefined;
 
 				if (npm === "@ai-sdk/openai") {
 					api = "openai-responses";
@@ -1393,13 +1394,21 @@ async function loadModelsDevData(): Promise<Model<any>[]> {
 				}
 
 				if (variant.provider === "opencode" && modelId === "grok-build-0.1") {
-					compat = { ...(compat ?? {}), supportsReasoningEffort: false };
+					if (api === "openai-completions") {
+						compat = { ...(compat ?? {}), supportsReasoningEffort: false };
+					} else if (api === "openai-responses") {
+						responsesCompat = { supportsReasoningEffort: false };
+					}
 				}
 
 				if ((variant.provider === "opencode" || variant.provider === "opencode-go") && modelId === "kimi-k2.6") {
 					// OpenCode Kimi K2.6 accepts Anthropic-style thinking objects
 					// and rejects string thinking values or combined reasoning_effort.
-					compat = { ...(compat ?? {}), thinkingFormat: "deepseek", supportsReasoningEffort: false };
+					if (api === "openai-completions") {
+						compat = { ...(compat ?? {}), thinkingFormat: "deepseek", supportsReasoningEffort: false };
+					} else if (api === "openai-responses") {
+						responsesCompat = { ...(responsesCompat ?? {}), supportsReasoningEffort: false };
+					}
 				}
 
 				// Fix known mismatches between models.dev npm data and actual
@@ -1447,7 +1456,11 @@ async function loadModelsDevData(): Promise<Model<any>[]> {
 						cacheRead: m.cost?.cache_read || 0,
 						cacheWrite: m.cost?.cache_write || 0,
 					},
-					...(compat ? { compat } : {}),
+					...(api === "openai-responses" && responsesCompat
+						? { compat: responsesCompat }
+						: compat
+							? { compat }
+							: {}),
 					contextWindow: m.limit?.context || 4096,
 					maxTokens: m.limit?.output || 4096,
 				});

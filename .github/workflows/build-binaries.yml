@@ -49,8 +49,11 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Upgrade npm for shrinkwrap-compatible packing
+        run: npm install --global npm@11.16.0 --ignore-scripts
+
       - name: Build binaries
-        run: ./scripts/build-binaries.sh --skip-ai --skip-deps
+        run: ./scripts/build-binaries.sh
 
       - name: Prepare GitHub release payload
         run: |
@@ -237,7 +240,7 @@ jobs:
           npm --version
 
       - name: Publish npm packages
-        run: node scripts/publish.mjs
+        run: node scripts/publish.mjs --tag-alpha
 
   publish-github-release:
     runs-on: ubuntu-latest

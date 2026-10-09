@@ -1,5 +1,5 @@
 import type { Component, Terminal } from "@earendil-works/pi-tui";
-import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { truncateToWidth } from "@earendil-works/pi-tui";
 import { theme } from "../theme/theme.ts";
 
 const LOGO = [
@@ -28,7 +28,6 @@ export class CenterPanel implements Component {
 
 	// Auto-scroll state
 	private autoScroll: boolean = true;
-	private userScrolledUp: boolean = false;
 	private pendingNewOutput: boolean = false;
 	private lastScrollOffset: number = 0;
 
@@ -46,33 +45,27 @@ export class CenterPanel implements Component {
 		const step = 3;
 		if (direction === "up") {
 			this.lastScrollOffset = Math.max(0, this.lastScrollOffset - step);
-			this.userScrolledUp = true;
 			this.autoScroll = false;
 		} else {
 			this.lastScrollOffset += step;
-			this.userScrolledUp = false;
 			this.autoScroll = false;
 		}
 	}
 
 	pageUp(): void {
 		this.lastScrollOffset = Math.max(0, this.lastScrollOffset - 10);
-		this.userScrolledUp = true;
 		this.autoScroll = false;
 	}
 	pageDown(): void {
 		this.lastScrollOffset += 10;
-		this.userScrolledUp = false;
 		this.autoScroll = false;
 	}
 	scrollToTop(): void {
 		this.lastScrollOffset = 0;
-		this.userScrolledUp = true;
 		this.autoScroll = false;
 	}
 	scrollToBottom(): void {
 		this.autoScroll = true;
-		this.userScrolledUp = false;
 		this.pendingNewOutput = false;
 	}
 	isUserAtBottom(): boolean {
@@ -119,7 +112,6 @@ export class CenterPanel implements Component {
 
 		if (scrollOffset >= maxOffset) {
 			this.autoScroll = true;
-			this.userScrolledUp = false;
 			this.pendingNewOutput = false;
 		}
 

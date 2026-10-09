@@ -621,7 +621,10 @@ export class DefaultResourceLoader implements ResourceLoader {
 				cwd: this.cwd,
 				agentDir: this.agentDir,
 				skillPaths,
-				includeDefaults: true,
+				// PackageManager.resolve() already supplies enabled user/project defaults.
+				// Re-scanning here bypasses disabled patterns and project trust, and loads
+				// user paths first which incorrectly wins collisions against project skills.
+				includeDefaults: false,
 			});
 		}
 		const resolvedSkills = this.skillsOverride ? this.skillsOverride(skillsResult) : skillsResult;

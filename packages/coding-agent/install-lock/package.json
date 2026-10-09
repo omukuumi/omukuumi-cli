@@ -1,10 +1,10 @@
 {
-	"name": "@earendil-works/pi-coding-agent-install",
-	"version": "0.80.6",
+	"name": "omukuumi-install",
+	"version": "0.81.0-alpha.11",
 	"private": true,
-	"description": "Lockfile root used by the Pi installer and updater.",
+	"description": "Lockfile root used by the Omukuumi installer and updater.",
 	"dependencies": {
-		"@earendil-works/pi-coding-agent": "0.80.6"
+		"omukuumi": "0.81.0-alpha.11"
 	},
 	"overrides": {
 		"rimraf": "6.1.2",

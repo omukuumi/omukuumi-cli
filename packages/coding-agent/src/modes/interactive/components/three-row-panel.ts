@@ -69,5 +69,5 @@ export class ThreeRowPanel implements Component {
 
 function trunc(s: string, w: number): string {
 	if (s.length <= w) return s;
-	return s.slice(0, Math.max(0, w - 3)) + "...";
+	return `${s.slice(0, Math.max(0, w - 3))}...`;
 }

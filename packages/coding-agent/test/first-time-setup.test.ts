@@ -8,6 +8,7 @@ import { SettingsManager } from "../src/core/settings-manager.ts";
 
 describe("shouldRunFirstTimeSetup", () => {
 	const originalPiExperimental = process.env.PI_EXPERIMENTAL;
+	const originalPiVersion = process.env.PI_VERSION;
 	const originalAgentDir = process.env[ENV_AGENT_DIR];
 	let tempDir: string;
 	let settingsPath: string;
@@ -16,6 +17,7 @@ describe("shouldRunFirstTimeSetup", () => {
 		tempDir = mkdtempSync(join(tmpdir(), "pi-first-time-setup-"));
 		settingsPath = join(tempDir, "settings.json");
 		process.env.PI_EXPERIMENTAL = "1";
+		process.env.PI_VERSION = "0.81.0-alpha.11";
 		delete process.env[ENV_AGENT_DIR];
 	});
 
@@ -25,6 +27,11 @@ describe("shouldRunFirstTimeSetup", () => {
 			delete process.env.PI_EXPERIMENTAL;
 		} else {
 			process.env.PI_EXPERIMENTAL = originalPiExperimental;
+		}
+		if (originalPiVersion === undefined) {
+			delete process.env.PI_VERSION;
+		} else {
+			process.env.PI_VERSION = originalPiVersion;
 		}
 		if (originalAgentDir === undefined) {
 			delete process.env[ENV_AGENT_DIR];

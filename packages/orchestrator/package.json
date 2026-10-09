@@ -37,7 +37,7 @@
 		"node": ">=22.19.0"
 	},
 	"dependencies": {
-		"@earendil-works/pi-coding-agent": "^0.80.6"
+		"omukuumi": "0.81.0-alpha.11"
 	},
 	"devDependencies": {
 		"shx": "0.4.0"

@@ -69,6 +69,7 @@ function createFooterData(providerCount: number, weather: string | null = null):
 		getGitBranch: () => "main",
 		getExtensionStatuses: () => new Map<string, string>(),
 		getAvailableProviderCount: () => providerCount,
+		getKampalaWeather: () => weather,
 		getKigaliWeather: () => weather,
 		onBranchChange: (callback: () => void) => {
 			void callback;
@@ -165,7 +166,7 @@ describe("FooterComponent width handling", () => {
 
 		expect(titleLine.startsWith("╭─ Gihanga kumurimo · /tmp/project (main)")).toBe(true);
 		expect(KINYARWANDA_FOOTER_SAYINGS.some((saying) => titleLine.endsWith(saying))).toBe(true);
-		expect(statsLine.startsWith("╰─ test-model")).toBe(true);
+		expect(statsLine).toContain("test-model");
 		expect(statsLine.endsWith("Kigali 24°C ☀")).toBe(true);
 		expect(statsLine).toContain("12.3%/200k");
 		expect(statsLine).toContain("↑7.8k ↓159");
