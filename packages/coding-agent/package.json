@@ -1,5 +1,5 @@
 {
-	"name": "omukuumi",
+	"name": "@earendil-works/omukuumi",
 	"version": "0.81.0-alpha.11",
 	"description": "Omukuumi Kinyarwanda-first AI coding assistant for the terminal",
 	"type": "module",

@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const packages = [{ directory: "packages/coding-agent", name: "omukuumi" }];
+const packages = [{ directory: "packages/coding-agent", name: "@earendil-works/omukuumi" }];
 
 const options = new Set(process.argv.slice(2));
 const dryRun = options.has("--dry-run");
