@@ -171,11 +171,12 @@ for platform in "${PLATFORMS[@]}"; do
         fi
     done
     
-    # Compile with bun (no externalizing except clipboard)
+    # Compile with bun from the output directory (where we have clean node_modules)
+    # Use the entry point relative to the output directory
     if [[ "$platform" == windows-* ]]; then
-        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
+        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform ../dist/bun/cli.js ../src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi.exe)
     else
-        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi"
+        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform ../dist/bun/cli.js ../src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi)
     fi
 done
 
