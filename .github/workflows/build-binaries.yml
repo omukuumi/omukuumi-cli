@@ -55,6 +55,9 @@ jobs:
       - name: Build binaries
         run: ./scripts/build-binaries.sh
 
+      - name: Regenerate coding-agent install-lock
+        run: npm run install-lock:coding-agent
+
       - name: Prepare GitHub release payload
         run: |
           set -euo pipefail
