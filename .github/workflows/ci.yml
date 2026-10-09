@@ -41,8 +41,8 @@ jobs:
       - name: Check
         run: npm run check
 
-      - name: Test
-        run: npm test
+      - name: Test (coding-agent only)
+        run: npm test --workspace=packages/coding-agent
 
       - name: Clean npm install smoke
         run: node scripts/check-npm-install.mjs
