@@ -192,15 +192,15 @@ for platform in "${PLATFORMS[@]}"; do
             ;;
     esac
     mkdir -p "$OUTPUT_DIR/$platform/node_modules/@mariozechner"
-    cp -r ../../node_modules/@mariozechner/clipboard "$OUTPUT_DIR/$platform/node_modules/@mariozechner/"
-    cp -r ../../node_modules/@mariozechner/$clipboard_native_package "$OUTPUT_DIR/$platform/node_modules/@mariozechner/"
-    cp "../../node_modules/@mariozechner/$clipboard_native_package/$clipboard_native_file" \
+    cp -r "$REPO_ROOT/node_modules/@mariozechner/clipboard" "$OUTPUT_DIR/$platform/node_modules/@mariozechner/"
+    cp -r "$REPO_ROOT/node_modules/@mariozechner/$clipboard_native_package" "$OUTPUT_DIR/$platform/node_modules/@mariozechner/"
+    cp "$REPO_ROOT/node_modules/@mariozechner/$clipboard_native_package/$clipboard_native_file" \
         "$OUTPUT_DIR/$platform/node_modules/@mariozechner/clipboard/"
 
     # Copy terminal input native helpers next to compiled binaries.
     if [[ "$platform" == darwin-* ]]; then
         mkdir -p "$OUTPUT_DIR/$platform/native/darwin/prebuilds/$platform"
-        cp ../tui/native/darwin/prebuilds/$platform/darwin-modifiers.node "$OUTPUT_DIR/$platform/native/darwin/prebuilds/$platform/"
+        cp "$REPO_ROOT/packages/tui/native/darwin/prebuilds/$platform/darwin-modifiers.node" "$OUTPUT_DIR/$platform/native/darwin/prebuilds/$platform/"
     fi
     if [[ "$platform" == windows-* ]]; then
         if [[ "$platform" == "windows-arm64" ]]; then
@@ -209,7 +209,7 @@ for platform in "${PLATFORMS[@]}"; do
             win32_arch_dir="win32-x64"
         fi
         mkdir -p "$OUTPUT_DIR/$platform/native/win32/prebuilds/$win32_arch_dir"
-        cp ../tui/native/win32/prebuilds/$win32_arch_dir/win32-console-mode.node "$OUTPUT_DIR/$platform/native/win32/prebuilds/$win32_arch_dir/"
+        cp "$REPO_ROOT/packages/tui/native/win32/prebuilds/$win32_arch_dir/win32-console-mode.node" "$OUTPUT_DIR/$platform/native/win32/prebuilds/$win32_arch_dir/"
     fi
 done
 
