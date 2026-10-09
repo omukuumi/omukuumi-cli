@@ -143,33 +143,20 @@ for platform in "${PLATFORMS[@]}"; do
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
     # Externalize only clipboard native addon; playwright-core must be bundled.
-    # Use esbuild to bundle first (resolves all imports to relative paths),
-    # then compile with bun to avoid absolute path embedding.
+    # Copy all dependencies to the output directory and compile without externalizing.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     
-    # First, use esbuild to bundle the CLI and its dependencies from the root
-    # (dependencies are hoisted to root node_modules in npm workspaces)
-    echo "  Bundling with esbuild..."
-    (cd "$REPO_ROOT" && NODE_PATH="$REPO_ROOT/node_modules" npx esbuild ./packages/coding-agent/dist/bun/cli.js \
-        --platform=node \
-        --target=node22 \
-        --format=esm \
-        --bundle \
-        --external:@mariozechner/clipboard \
-        --outfile="$OUTPUT_DIR/$platform/omukuumi-bundled.js" \
-        --packages=external \
-        --main-fields=module,main \
-        --resolve-extensions=.ts,.tsx,.js,.json)
+    # Copy all dependencies to the output directory
+    echo "  Copying dependencies..."
+    mkdir -p "$OUTPUT_DIR/$platform/node_modules"
+    cp -r "$REPO_ROOT/node_modules" "$OUTPUT_DIR/$platform/"
     
-    # Then compile with bun
+    # Compile with bun (no externalizing except clipboard)
     if [[ "$platform" == windows-* ]]; then
-        bun build --compile --target=bun-$platform "$OUTPUT_DIR/$platform/omukuumi-bundled.js" ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
+        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
     else
-        bun build --compile --target=bun-$platform "$OUTPUT_DIR/$platform/omukuumi-bundled.js" ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi"
+        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi"
     fi
-    
-    # Clean up bundled file
-    rm -f "$OUTPUT_DIR/$platform/omukuumi-bundled.js"
 done
 
 echo "==> Creating release archives..."
