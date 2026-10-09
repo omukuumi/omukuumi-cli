@@ -245,7 +245,6 @@ jobs:
     needs:
       - build
       - stage-github-release
-      - publish-npm
       - publish-github-release
     if: ${{ always() && needs.stage-github-release.result != 'skipped' && (needs.stage-github-release.result != 'success' || needs.publish-github-release.result != 'success') }}
     permissions:
