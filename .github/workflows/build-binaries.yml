@@ -58,6 +58,9 @@ jobs:
       - name: Regenerate coding-agent install-lock
         run: npm run install-lock:coding-agent
 
+      - name: Regenerate coding-agent shrinkwrap
+        run: npm run shrinkwrap:coding-agent
+
       - name: Prepare GitHub release payload
         run: |
           set -euo pipefail
