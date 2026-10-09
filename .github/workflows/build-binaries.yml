@@ -255,11 +255,6 @@ jobs:
       - name: Build (creates dist directories for publishing)
         run: npm run build
 
-      - name: Configure npm for GitHub Packages
-        run: |
-          npm config set //npm.pkg.github.com/:_authToken ${NODE_AUTH_TOKEN}
-          npm whoami
-
       - name: Publish npm packages
         run: node scripts/publish.mjs --tag-alpha
 
