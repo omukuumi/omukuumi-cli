@@ -27,9 +27,6 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 REPO_ROOT="$(pwd)"
 
-# Extract clipboard version early for use in dependency installation
-CLIPBOARD_VERSION=$(node -p "require('./packages/coding-agent/package.json').optionalDependencies['@mariozechner/clipboard']")
-
 SKIP_INSTALL=false
 SKIP_DEPS=false
 SKIP_BUILD=false
@@ -88,14 +85,13 @@ fi
 if [[ "$SKIP_INSTALL" == "false" ]]; then
     echo "==> Installing dependencies..."
     npm ci --ignore-scripts
-    # Install optional clipboard wrapper package (not installed by default as optionalDependency)
-    npm install --ignore-scripts @mariozechner/clipboard@$CLIPBOARD_VERSION
 else
     echo "==> Skipping npm ci (--skip-install)"
 fi
 
 if [[ "$SKIP_DEPS" == "false" ]]; then
     echo "==> Downloading cross-platform native bindings with npm pack..."
+    CLIPBOARD_VERSION=$(node -p "require('./packages/coding-agent/package.json').optionalDependencies['@mariozechner/clipboard']")
     NATIVE_PACKAGE_DIR="$REPO_ROOT/node_modules/@mariozechner"
     NATIVE_PACKAGE_TMP=$(mktemp -d)
     trap 'rm -rf "$NATIVE_PACKAGE_TMP"' EXIT
@@ -122,10 +118,6 @@ fi
 echo "==> Building binaries..."
 cd "$REPO_ROOT/packages/coding-agent"
 
-# Ensure bun dependencies are resolved for compilation
-echo "==> Installing bun dependencies..."
-bun install
-
 # Clean previous builds
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"/{darwin-arm64,darwin-x64,linux-x64,linux-arm64,windows-x64,windows-arm64}
@@ -143,14 +135,20 @@ for platform in "${PLATFORMS[@]}"; do
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
     # Externalize only clipboard native addon; playwright-core must be bundled.
-    # Copy all dependencies to the output directory, dereferencing symlinks to avoid
-    # embedding absolute paths from the CI runner's bun cache.
+    # Copy all source files and dependencies to the output directory, dereferencing symlinks.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
+    
+    # Create platform directory structure
+    mkdir -p "$OUTPUT_DIR/$platform/node_modules"
+    
+    # Copy source files
+    echo "  Copying source files..."
+    cp -r "$REPO_ROOT/packages/coding-agent/dist" "$OUTPUT_DIR/$platform/"
+    cp -r "$REPO_ROOT/packages/coding-agent/src" "$OUTPUT_DIR/$platform/"
     
     # Copy all dependencies to the output directory, dereferencing symlinks
     echo "  Copying dependencies..."
     mkdir -p "$OUTPUT_DIR/$platform/node_modules"
-    # Use cp -rL to dereference symlinks, but exclude the .bun cache directory
     # First copy the actual package directories from the bun cache
     if [[ -d "$REPO_ROOT/node_modules/.bun" ]]; then
         for dir in "$REPO_ROOT/node_modules/.bun"/*/; do
@@ -171,12 +169,11 @@ for platform in "${PLATFORMS[@]}"; do
         fi
     done
     
-    # Compile with bun from the output directory (where we have clean node_modules)
-    # Use the entry point relative to the output directory
+    # Compile with bun from the output directory (where we have clean node_modules and source)
     if [[ "$platform" == windows-* ]]; then
-        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform ../dist/bun/cli.js ../src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi.exe)
+        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform dist/bun/cli.js src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi.exe)
     else
-        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform ../dist/bun/cli.js ../src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi)
+        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform dist/bun/cli.js src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi)
     fi
 done
 
@@ -235,6 +232,7 @@ for platform in "${PLATFORMS[@]}"; do
     else
         echo "  WARNING: $clipboard_native_package not found, clipboard may not work on this platform"
     fi
+
     # Copy terminal input native helpers next to compiled binaries.
     if [[ "$platform" == darwin-* ]]; then
         mkdir -p "$OUTPUT_DIR/$platform/native/darwin/prebuilds/$platform"
