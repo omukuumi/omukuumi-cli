@@ -63,9 +63,15 @@ function Log-Ok   { param([string]$msg) Write-Host "[$(Get-Date -Format HH:mm:ss
 function Log-Warn { param([string]$msg) Write-Host "[$(Get-Date -Format HH:mm:ss)] ${Yellow}[WARN]${Reset} $msg" }
 function Log-Err  { param([string]$msg) Write-Host "[$(Get-Date -Format HH:mm:ss)] ${Red}[ERR]${Reset} $msg" }
 
-# Detect architecture
-$arch = (Get-CimInstance Win32_Processor).AddressWidth
-if ($arch -eq 64) { $ARCH = "x64" } else { $ARCH = "arm64" }
+# Detect process/native architecture rather than processor address width.
+$nativeArch = $env:PROCESSOR_ARCHITEW6432
+if (-not $nativeArch) { $nativeArch = $env:PROCESSOR_ARCHITECTURE }
+if ($nativeArch -match "ARM64") { $ARCH = "arm64" }
+elseif ($nativeArch -match "AMD64|x64") { $ARCH = "x64" }
+else {
+    Log-Err "Unsupported Windows architecture: $nativeArch"
+    exit 1
+}
 $OS = "windows"
 $REPO = "omukuumi/omukuumi-cli"
 
@@ -96,8 +102,9 @@ if (Test-Path $binPath -and -not $Force) {
 
 # Download
 $fileName = "omukuumi-windows-$ARCH.zip"
-$url = "https://github.com/omukuumi/omukuumi-cli/releases/download/v$Version/$fileName"
-$archive = Join-Path $env:TEMP $fileName
+$urlVersion = $Version -replace '^v', ''
+$url = "https://github.com/omukuumi/omukuumi-cli/releases/download/v$urlVersion/$fileName"
+$archive = Join-Path $env:TEMP "omukuumi-$urlVersion-windows-$ARCH.zip"
 
 Log-Info "Downloading $fileName..."
 try {
@@ -113,7 +120,7 @@ try {
 if (-not $NoVerify) {
     Log-Info "Verifying checksum..."
     try {
-        $shaUrl = "https://github.com/omukuumi/omukuumi-cli/releases/download/v$Version/SHA256SUMS"
+        $shaUrl = "https://github.com/omukuumi/omukuumi-cli/releases/download/v$urlVersion/SHA256SUMS"
         $shaRemote = (Invoke-RestMethod -Uri $shaUrl -ErrorAction SilentlyContinue) | Select-String $fileName | ForEach-Object { ($_ -split '\s+')[0] }
         $shaLocal = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLower()
 
@@ -149,7 +156,17 @@ $binPath = Join-Path $InstallDir "omukuumi.exe"
 if (-not (Test-Path $binPath)) {
     $found = Get-ChildItem $InstallDir -Recurse -Filter "omukuumi.exe" | Select-Object -First 1
     if ($found) {
-        Move-Item $found.FullName $binPath -Force
+        $payloadDir = $found.Directory.FullName
+        Get-ChildItem $payloadDir -Force | ForEach-Object {
+            if ($_.FullName -ne $binPath) {
+                Move-Item $_.FullName (Join-Path $InstallDir $_.Name) -Force
+            }
+        }
+        if ($found.FullName -ne $binPath) { Move-Item $found.FullName $binPath -Force }
+        if ($payloadDir -ne $InstallDir) { Remove-Item $payloadDir -Force -ErrorAction SilentlyContinue }
+    } else {
+        Log-Err "Archive does not contain omukuumi.exe"
+        exit 1
     }
 }
 

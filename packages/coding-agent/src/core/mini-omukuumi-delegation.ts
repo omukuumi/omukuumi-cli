@@ -77,7 +77,9 @@ class MiniOmukuumiManager {
 		const child: ChildRecord = {
 			id,
 			name: params.name?.trim()
-				? `Mini-Omukuumi ${sanitizeTerminalText(params.name.trim()).replace(/[\r\n\t]+/g, " ").slice(0, 36)}`
+				? `Mini-Omukuumi ${sanitizeTerminalText(params.name.trim())
+						.replace(/[\r\n\t]+/g, " ")
+						.slice(0, 36)}`
 				: `Mini-Omukuumi-${active.length + 1}`,
 			task: sanitizeTerminalText(params.task.trim()),
 			cwd,

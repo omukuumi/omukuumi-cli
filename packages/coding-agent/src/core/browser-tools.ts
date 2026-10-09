@@ -2,8 +2,8 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { AgentToolResult } from "@earendil-works/pi-agent-core";
 import { type Browser, type BrowserContext, chromium, type Page } from "playwright-core";
-import { CONFIG_DIR_NAME } from "../config.ts";
 import { type Static, Type } from "typebox";
+import { CONFIG_DIR_NAME } from "../config.ts";
 import type { ToolDefinition } from "./extensions/types.ts";
 
 const NAVIGATION_TIMEOUT_MS = 20_000;

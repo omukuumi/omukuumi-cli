@@ -60,7 +60,9 @@ function resolveCacheRetention(cacheRetention?: CacheRetention, env?: ProviderEn
 
 function getCompat(model: Model<"openai-responses">): Required<OpenAIResponsesCompat> {
 	return {
+		maxTokensField: model.compat?.maxTokensField ?? "max_completion_tokens",
 		supportsDeveloperRole: model.compat?.supportsDeveloperRole ?? true,
+		supportsReasoningEffort: model.compat?.supportsReasoningEffort ?? true,
 		sendSessionIdHeader: model.compat?.sendSessionIdHeader ?? true,
 		supportsLongCacheRetention: model.compat?.supportsLongCacheRetention ?? true,
 		supportsToolSearch: model.compat?.supportsToolSearch ?? false,
@@ -255,16 +257,21 @@ function buildParams(model: Model<"openai-responses">, context: Context, options
 	}
 
 	if (model.reasoning) {
-		if (options?.reasoningEffort || options?.reasoningSummary) {
-			const effort = options?.reasoningEffort
-				? (model.thinkingLevelMap?.[options.reasoningEffort] ?? options.reasoningEffort)
-				: "medium";
+		if ((options?.reasoningEffort && compat.supportsReasoningEffort) || options?.reasoningSummary) {
+			const effort =
+				options?.reasoningEffort && compat.supportsReasoningEffort
+					? (model.thinkingLevelMap?.[options.reasoningEffort] ?? options.reasoningEffort)
+					: "medium";
 			params.reasoning = {
 				effort: effort as NonNullable<typeof params.reasoning>["effort"],
 				summary: options?.reasoningSummary || "auto",
 			};
 			params.include = ["reasoning.encrypted_content"];
-		} else if (model.provider !== "github-copilot" && model.thinkingLevelMap?.off !== null) {
+		} else if (
+			model.provider !== "github-copilot" &&
+			compat.supportsReasoningEffort &&
+			model.thinkingLevelMap?.off !== null
+		) {
 			params.reasoning = {
 				effort: (model.thinkingLevelMap?.off ?? "none") as NonNullable<typeof params.reasoning>["effort"],
 			};

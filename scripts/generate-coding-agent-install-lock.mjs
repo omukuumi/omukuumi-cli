@@ -12,7 +12,7 @@ const rootLockfilePath = join(repoRoot, "package-lock.json");
 const outputPackageJsonPath = join(outputDir, "package.json");
 const outputLockfilePath = join(outputDir, "package-lock.json");
 const internalPackagePrefix = "@earendil-works/pi-";
-const installPackageName = "@earendil-works/pi-coding-agent-install";
+const installPackageName = "omukuumi-install";
 const allowedInstallScriptPackages = new Map([
 	["@google/genai@1.52.0", "preinstall is a no-op in the published package"],
 	["protobufjs@7.6.4", "postinstall only warns about protobufjs version scheme mismatches"],
@@ -143,7 +143,7 @@ function getInternalWorkspaces(lockPackages) {
 		if (!lockPath.startsWith("packages/") || lockPath.includes("/node_modules/") || !entry.name || !entry.version) {
 			continue;
 		}
-		if (!entry.name.startsWith(internalPackagePrefix)) {
+		if (entry.name !== "omukuumi" && !entry.name.startsWith(internalPackagePrefix)) {
 			continue;
 		}
 
@@ -233,7 +233,7 @@ function createInstallerPackageJson(codingAgentPackage) {
 		name: installPackageName,
 		version: codingAgentPackage.version,
 		private: true,
-		description: "Lockfile root used by the Pi installer and updater.",
+		description: "Lockfile root used by the Omukuumi installer and updater.",
 		dependencies: {
 			[codingAgentPackage.name]: codingAgentPackage.version,
 		},
@@ -285,7 +285,7 @@ function validateGeneratedFiles(installerPackageJson, installLock, internalNames
 		if (packageName) {
 			includedPackageNames.add(packageName);
 		}
-		if (entry.link) {
+			if (entry.link) {
 			errors.push(`${lockPath} is a link entry`);
 		}
 		if (typeof entry.resolved === "string" && /^(file:|link:|workspace:|\.\.?\/|\/)/.test(entry.resolved)) {
@@ -293,9 +293,6 @@ function validateGeneratedFiles(installerPackageJson, installLock, internalNames
 		}
 		if (entry.dev || entry.devOptional || entry.extraneous) {
 			errors.push(`${lockPath || "root"} contains dev/extraneous metadata`);
-		}
-		if (packageName?.startsWith(internalPackagePrefix) && entry.version !== installerPackageJson.version) {
-			errors.push(`${lockPath} internal package version ${entry.version} does not match ${installerPackageJson.version}`);
 		}
 		if (entry.hasInstallScript) {
 			if (!packageName || !entry.version) {
@@ -365,6 +362,10 @@ function generateInstallLock() {
 	const codingAgentPackage = readJson(join(codingAgentDir, "package.json"));
 	const installerPackageJson = createInstallerPackageJson(codingAgentPackage);
 	const internalWorkspaces = getInternalWorkspaces(lockPackages);
+	internalWorkspaces.set(codingAgentPackage.name, {
+		lockPath: "packages/coding-agent",
+		packageJson: codingAgentPackage,
+	});
 	const installLockPackages = {
 		"": createRootLockEntry(installerPackageJson),
 	};

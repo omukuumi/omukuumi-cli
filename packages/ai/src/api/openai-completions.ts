@@ -121,7 +121,7 @@ type ResolvedOpenAICompletionsCompat = Omit<Required<OpenAICompletionsCompat>, "
 	cacheControlFormat?: OpenAICompletionsCompat["cacheControlFormat"];
 };
 
-type ResolvedChatTemplateKwargValue = string | number | boolean | null;
+type ResolvedChatTemplateKwargValue = Exclude<ChatTemplateKwargValue, { $var: string }>;
 
 type ChatCompletionInstructionMessageParam = ChatCompletionDeveloperMessageParam | ChatCompletionSystemMessageParam;
 
@@ -715,7 +715,7 @@ function resolveChatTemplateKwargValue(
 	value: ChatTemplateKwargValue,
 ): ResolvedChatTemplateKwargValue | undefined {
 	if (typeof value !== "object" || value === null) {
-		return value;
+		return value as ResolvedChatTemplateKwargValue;
 	}
 
 	const reasoningEffort = options?.reasoningEffort;

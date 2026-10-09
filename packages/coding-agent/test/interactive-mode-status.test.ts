@@ -123,7 +123,7 @@ describe("InteractiveMode.showStatus", () => {
 		expect(renderLastLine(fakeThis.chatContainer)).toContain("STATUS_TWO");
 	});
 
-	test("uses Gihanga changelog URL in update notifications", () => {
+	test("uses Omukuumi changelog URL in update notifications", () => {
 		const fakeThis: any = {
 			chatContainer: new Container(),
 			ui: { requestRender: vi.fn() },
@@ -132,8 +132,8 @@ describe("InteractiveMode.showStatus", () => {
 		(InteractiveMode as any).prototype.showNewVersionNotification.call(fakeThis, { version: "0.81.1" });
 
 		const rendered = normalizeRenderedOutput(fakeThis.chatContainer);
-		expect(rendered).toContain("New version 0.81.1 is available. Run gihanga update");
-		expect(rendered).toContain("Changelog: https://console.upskillsafrica.org/changelog");
+		expect(rendered).toContain("New version 0.81.1 is available. Run Omukuumi update");
+		expect(rendered).toContain("Changelog: https://genesis-codeworks.com/changelog");
 		expect(rendered).not.toContain("https://pi.dev/changelog");
 	});
 });
@@ -525,17 +525,17 @@ describe("InteractiveMode.createBaseAutocompleteProvider", () => {
 		expect(isGihangaAllowedModelProvider("faux")).toBe(false);
 	});
 
-	test("Upskillsafrica account actions expose login, register, and organisation code", () => {
+	test("account actions expose login, register, and organisation code", () => {
 		expect(getUpskillsAfricaAccountActionLabels()).toEqual([
-			"Login to Upskillsafrica",
-			"Register Upskillsafrica account",
+			"Login to Genesis Codeworks",
+			"Register Genesis Codeworks account",
 			"Add organisation code",
 		]);
 	});
 
-	test("Upskillsafrica payment flow labels are compact Kinyarwanda terminal copy", () => {
+	test("payment flow labels are compact Kinyarwanda terminal copy", () => {
 		expect(getUpskillsAfricaPaymentFlowLabels()).toEqual({
-			choosePlan: "Hitamo gahunda ya Upskillsafrica:",
+			choosePlan: "Hitamo gahunda ya Genesis Codeworks:",
 			phonePrompt: "Nimero ya Mobile Money:",
 			confirmOnPhone: "Emeza ubwishyu kuri telefoni yawe...",
 			waiting: "Ndacyategereje kwemeza ubwishyu...",
@@ -596,6 +596,7 @@ describe("InteractiveMode.showLoadedResources", () => {
 				(InteractiveMode as any).prototype.formatExtensionDisplayPath.call(fakeThis, p),
 			formatContextPath: (p: string) => (InteractiveMode as any).prototype.formatContextPath.call(fakeThis, p),
 			getStartupExpansionState: () => (InteractiveMode as any).prototype.getStartupExpansionState.call(fakeThis),
+			showLoadedResources: true,
 			buildScopeGroups: () => [],
 			formatScopeGroups: () => "resource-list",
 			isPackageSource: (sourceInfo?: SourceInfo) =>
@@ -1109,8 +1110,8 @@ describe("InteractiveMode.showLoadedResources", () => {
 		expect(normalizeRenderedOutput(fakeThis.loadedResourcesContainer)).toMatchInlineSnapshot(`
 "[Extensions]
   project
-    /tmp/project/.gihanga/extensions/answer.ts
-    /tmp/project/.gihanga/extensions/local-index
+    /tmp/project/.omukuumi/extensions/answer.ts
+    /tmp/project/.omukuumi/extensions/local-index
     git:github.com/HazAT/pi-interactive-subagents
       extensions
       extensions/subagents

@@ -525,8 +525,12 @@ export interface OpenAICompletionsCompat {
 
 /** Compatibility settings for OpenAI Responses APIs. */
 export interface OpenAIResponsesCompat {
+	/** Which field to use for max tokens. Default: API-defined. */
+	maxTokensField?: "max_completion_tokens" | "max_tokens";
 	/** Whether the provider supports the `developer` role (vs `system`). Default: true. */
 	supportsDeveloperRole?: boolean;
+	/** Whether the provider supports the `reasoning.effort` field. Default: true. */
+	supportsReasoningEffort?: boolean;
 	/** Whether to send the OpenAI `session_id` cache-affinity header from `options.sessionId` when caching is enabled. Default: true. */
 	sendSessionIdHeader?: boolean;
 	/** Whether the provider supports `prompt_cache_retention: "24h"`. Default: true. */

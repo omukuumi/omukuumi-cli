@@ -8,7 +8,7 @@ import type {
 	Model,
 	OpenAICompletionsCompat,
 } from "@earendil-works/pi-ai/compat";
-import { getApiProvider, getSupportedThinkingLevels } from "@earendil-works/pi-ai/compat";
+import { getApiProvider, getModels, getSupportedThinkingLevels } from "@earendil-works/pi-ai/compat";
 import { getOAuthProvider } from "@earendil-works/pi-ai/oauth";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { AuthStorage } from "../src/core/auth-storage.ts";
@@ -662,7 +662,7 @@ describe("ModelRegistry", () => {
 			expect(sonnet?.name).toBe("Custom Sonnet Name");
 
 			// Other models should be unchanged
-			const opus = models.find((m) => m.id === "anthropic/claude-opus-4");
+			const opus = models.find((m) => m.id === "anthropic/claude-opus-4.7");
 			expect(opus?.name).not.toBe("Custom Sonnet Name");
 		});
 
@@ -716,7 +716,7 @@ describe("ModelRegistry", () => {
 						"anthropic/claude-sonnet-4": {
 							compat: { openRouterRouting: { only: ["amazon-bedrock"] } },
 						},
-						"anthropic/claude-opus-4": {
+						"anthropic/claude-opus-4.7": {
 							compat: { openRouterRouting: { only: ["anthropic"] } },
 						},
 					},
@@ -727,7 +727,7 @@ describe("ModelRegistry", () => {
 			const models = getModelsForProvider(registry, "openrouter");
 
 			const sonnet = models.find((m) => m.id === "anthropic/claude-sonnet-4");
-			const opus = models.find((m) => m.id === "anthropic/claude-opus-4");
+			const opus = models.find((m) => m.id === "anthropic/claude-opus-4.7");
 
 			const sonnetCompat = sonnet?.compat as OpenAICompletionsCompat | undefined;
 			const opusCompat = opus?.compat as OpenAICompletionsCompat | undefined;
@@ -756,7 +756,7 @@ describe("ModelRegistry", () => {
 			expect(sonnet?.name).toBe("Proxied Sonnet");
 
 			// Other models should have the baseUrl but not the name override
-			const opus = models.find((m) => m.id === "anthropic/claude-opus-4");
+			const opus = models.find((m) => m.id === "anthropic/claude-opus-4.7");
 			expect(opus?.baseUrl).toBe("https://my-proxy.example.com/v1");
 			expect(opus?.name).not.toBe("Proxied Sonnet");
 		});
@@ -1772,12 +1772,13 @@ describe("ModelRegistry", () => {
 			});
 
 			test("getAvailable filters GitHub Copilot OAuth models to account picker availability", () => {
+				const availableModelId = getModels("github-copilot")[0].id;
 				authStorage.set("github-copilot", {
 					type: "oauth",
 					refresh: "github-access-token",
 					access: "tid=test;exp=9999999999;proxy-ep=proxy.individual.githubcopilot.com;",
 					expires: Date.now() + 60_000,
-					availableModelIds: ["gpt-4.1"],
+					availableModelIds: [availableModelId],
 				});
 
 				const registry = ModelRegistry.create(authStorage, modelsJsonPath);
@@ -1787,7 +1788,7 @@ describe("ModelRegistry", () => {
 						.getAvailable()
 						.filter((m) => m.provider === "github-copilot")
 						.map((m) => m.id),
-				).toEqual(["gpt-4.1"]);
+				).toEqual([availableModelId]);
 			});
 
 			test("getApiKeyAndHeaders resolves authHeader on every request", async () => {

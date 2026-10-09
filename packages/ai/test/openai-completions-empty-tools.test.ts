@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getModel, streamSimple } from "../src/compat.ts";
+import type { Model } from "../src/types.ts";
 
 // Empty tools arrays must NOT be serialized as `tools: []` — some OpenAI-compatible
 // backends (e.g. DashScope / Aliyun Qwen via compatible-mode) reject the request with
@@ -52,6 +53,19 @@ vi.mock("openai", () => {
 
 	return { default: FakeOpenAI };
 });
+
+const workersAiModel: Model<"openai-completions"> = {
+	id: "workers-ai/@cf/moonshotai/kimi-k2.6",
+	name: "Kimi K2.6",
+	api: "openai-completions",
+	provider: "cloudflare-ai-gateway",
+	baseUrl: "https://gateway.ai.cloudflare.com/v1/{CLOUDFLARE_ACCOUNT_ID}/{CLOUDFLARE_GATEWAY_ID}/compat",
+	reasoning: true,
+	input: ["text", "image"],
+	cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+	contextWindow: 262144,
+	maxTokens: 256000,
+};
 
 describe("openai-completions empty tools handling", () => {
 	beforeEach(() => {
@@ -164,10 +178,9 @@ describe("openai-completions empty tools handling", () => {
 		process.env.CLOUDFLARE_API_KEY = "cf-token";
 		process.env.CLOUDFLARE_ACCOUNT_ID = "account-id";
 		process.env.CLOUDFLARE_GATEWAY_ID = "gateway-id";
-		const model = getModel("cloudflare-ai-gateway", "workers-ai/@cf/moonshotai/kimi-k2.6")!;
 
 		await streamSimple(
-			model,
+			workersAiModel,
 			{
 				systemPrompt: "You are helpful.",
 				messages: [{ role: "user", content: "hi", timestamp: Date.now() }],
@@ -201,9 +214,8 @@ describe("openai-completions empty tools handling", () => {
 		process.env.CLOUDFLARE_API_KEY = "cf-token";
 		process.env.CLOUDFLARE_ACCOUNT_ID = "account-id";
 		process.env.CLOUDFLARE_GATEWAY_ID = "gateway-id";
-		const model = getModel("cloudflare-ai-gateway", "workers-ai/@cf/moonshotai/kimi-k2.6")!;
 
-		await streamSimple(model, {
+		await streamSimple(workersAiModel, {
 			messages: [{ role: "user", content: "hi", timestamp: Date.now() }],
 		}).result();
 
@@ -234,10 +246,9 @@ describe("openai-completions empty tools handling", () => {
 		process.env.CLOUDFLARE_API_KEY = "cf-token";
 		process.env.CLOUDFLARE_ACCOUNT_ID = "account-id";
 		process.env.CLOUDFLARE_GATEWAY_ID = "gateway-id";
-		const workersModel = getModel("cloudflare-ai-gateway", "workers-ai/@cf/moonshotai/kimi-k2.6")!;
 
 		await streamSimple(
-			workersModel,
+			workersAiModel,
 			{
 				messages: [{ role: "user", content: "hi", timestamp: Date.now() }],
 			},

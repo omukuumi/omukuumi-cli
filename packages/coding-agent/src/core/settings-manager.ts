@@ -998,6 +998,7 @@ export class SettingsManager {
 
 	setExtensionPaths(paths: string[]): void {
 		this.globalSettings.extensions = paths;
+		this.settings.extensions = paths;
 		this.markModified("extensions");
 		this.save();
 	}
@@ -1014,6 +1015,7 @@ export class SettingsManager {
 
 	setSkillPaths(paths: string[]): void {
 		this.globalSettings.skills = paths;
+		this.settings.skills = paths;
 		this.markModified("skills");
 		this.save();
 	}
@@ -1030,6 +1032,7 @@ export class SettingsManager {
 
 	setPromptTemplatePaths(paths: string[]): void {
 		this.globalSettings.prompts = paths;
+		this.settings.prompts = paths;
 		this.markModified("prompts");
 		this.save();
 	}
@@ -1046,6 +1049,7 @@ export class SettingsManager {
 
 	setThemePaths(paths: string[]): void {
 		this.globalSettings.themes = paths;
+		this.settings.themes = paths;
 		this.markModified("themes");
 		this.save();
 	}

@@ -39,31 +39,39 @@ import { xiaomiTokenPlanSgpProvider } from "./xiaomi-token-plan-sgp.ts";
 import { zaiProvider } from "./zai.ts";
 import { zaiCodingCnProvider } from "./zai-coding-cn.ts";
 
+type ProviderModels<TProvider extends KnownProvider> = TProvider extends keyof typeof MODELS
+	? (typeof MODELS)[TProvider]
+	: never;
+
 type BuiltinModelApi<
 	TProvider extends KnownProvider,
-	TModelId extends keyof (typeof MODELS)[TProvider],
-> = (typeof MODELS)[TProvider][TModelId] extends { api: infer TApi } ? (TApi extends Api ? TApi : never) : never;
+	TModelId extends string,
+> = TModelId extends keyof ProviderModels<TProvider>
+	? ProviderModels<TProvider>[TModelId] extends { api: infer TApi }
+		? TApi extends Api
+			? TApi
+			: never
+		: never
+	: never;
 
 /** Typed read of the generated built-in catalog. */
-export function getBuiltinModel<TProvider extends KnownProvider, TModelId extends keyof (typeof MODELS)[TProvider]>(
-	provider: TProvider,
-	modelId: TModelId,
-): Model<BuiltinModelApi<TProvider, TModelId>> {
-	const models = MODELS[provider] as Record<string, Model<Api>> | undefined;
-	return models?.[modelId as string] as Model<BuiltinModelApi<TProvider, TModelId>>;
+export function getBuiltinModel<
+	TProvider extends KnownProvider,
+	TModelId extends Extract<keyof ProviderModels<TProvider>, string>,
+>(provider: TProvider, modelId: TModelId): Model<BuiltinModelApi<TProvider, TModelId>>;
+export function getBuiltinModel<TProvider extends KnownProvider>(provider: TProvider, modelId: string): Model<Api>;
+export function getBuiltinModel<TProvider extends KnownProvider>(provider: TProvider, modelId: string): Model<Api> {
+	const models = (MODELS as Record<string, Record<string, Model<Api>>>)[provider];
+	return models?.[modelId] as Model<Api>;
 }
 
 export function getBuiltinProviders(): KnownProvider[] {
 	return Object.keys(MODELS) as KnownProvider[];
 }
 
-export function getBuiltinModels<TProvider extends KnownProvider>(
-	provider: TProvider,
-): Model<BuiltinModelApi<TProvider, keyof (typeof MODELS)[TProvider]>>[] {
-	const models = MODELS[provider] as Record<string, Model<Api>> | undefined;
-	return models
-		? (Object.values(models) as Model<BuiltinModelApi<TProvider, keyof (typeof MODELS)[TProvider]>>[])
-		: [];
+export function getBuiltinModels<TProvider extends KnownProvider>(provider: TProvider): Model<Api>[] {
+	const models = (MODELS as Record<string, Record<string, Model<Api>>>)[provider];
+	return models ? Object.values(models) : [];
 }
 
 /** All built-in providers, freshly constructed. */

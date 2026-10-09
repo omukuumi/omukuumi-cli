@@ -77,18 +77,20 @@ download_binary() {
     local url filename
     if [[ "$OS" == "windows" ]]; then
         filename="omukuumi-windows-$ARCH.zip"
-        url="https://github.com/$REPO/releases/download/v$VERSION/omukuumi-windows-$ARCH.zip"
+        url="https://github.com/$REPO/releases/download/v$VERSION/$filename"
     else
         filename="omukuumi-$OS-$ARCH.tar.gz"
-        url="https://github.com/$REPO/releases/download/v$VERSION/omukuumi-$OS-$ARCH.tar.gz"
+        url="https://github.com/$REPO/releases/download/v$VERSION/$filename"
     fi
 
+    ARCHIVE="${TMPDIR:-/tmp}/omukuumi-$VERSION-$OS-$ARCH${filename#omukuumi-$OS-$ARCH}"
+    RELEASE_ASSET="$filename"
     log_info "Downloading $filename..."
-    curl -fsSL "$url" -o "/tmp/$filename" || {
+    curl -fsSL "$url" -o "$ARCHIVE" || {
         log_err "Download failed. Check version exists: https://github.com/$REPO/releases/tag/v$VERSION"
         exit 1
     }
-    log_ok "Downloaded to /tmp/$filename"
+    log_ok "Downloaded to $ARCHIVE"
 }
 
 verify_checksum() {
@@ -97,10 +99,11 @@ verify_checksum() {
         return
     fi
 
-    local sha_url sha_local sha_remote
+    local sha_url sha_local sha_remote asset_name
     sha_url="https://github.com/$REPO/releases/download/v$VERSION/SHA256SUMS"
+    asset_name="$2"
     log_info "Verifying checksum..."
-    sha_remote=$(curl -fsSL "$sha_url" 2>/dev/null | grep "$(basename "$1")" | awk '{print $1}')
+    sha_remote=$(curl -fsSL "$sha_url" 2>/dev/null | awk -v file="$asset_name" '$2 == file {print $1}')
     sha_local=$(sha256sum "$1" | awk '{print $1}')
 
     if [[ -n "$sha_remote" && "$sha_local" == "$sha_remote" ]]; then
@@ -117,29 +120,31 @@ extract_binary() {
     local archive="$1"
     local dest="$2"
 
-    mkdir -p "$dest"
+    local staging="$TMPDIR/omukuumi-extract-$VERSION-$$"
+    mkdir -p "$dest" "$staging"
     log_info "Extracting to $dest..."
 
     if [[ "$archive" == *.zip ]]; then
-        unzip -qo "$archive" -d "$dest" || { log_err "unzip failed"; exit 1; }
+        unzip -qo "$archive" -d "$staging" || { log_err "unzip failed"; rm -rf "$staging"; exit 1; }
     else
-        tar -xzf "$archive" -C "$dest" || { log_err "tar failed"; exit 1; }
+        tar -xzf "$archive" -C "$staging" || { log_err "tar failed"; rm -rf "$staging"; exit 1; }
     fi
 
-    # Find the binary (could be in a subdirectory)
-    local binary
-    binary=$(find "$dest" -maxdepth 2 -type f -name "omukuumi*" -executable 2>/dev/null | head -1)
-    if [[ -z "$binary" ]]; then
-        binary=$(find "$dest" -maxdepth 2 -type f -name "omukuumi*" | head -1)
+    local payload="$staging"
+    if [[ -d "$staging/omukuumi" ]]; then
+        payload="$staging/omukuumi"
+    fi
+    if [[ ! -f "$payload/omukuumi" && ! -f "$payload/omukuumi.exe" ]]; then
+        log_err "Archive does not contain the expected Omukuumi executable"
+        rm -rf "$staging"
+        exit 1
     fi
 
-    if [[ -n "$binary" && "$binary" != "$dest/omukuumi" && "$binary" != "$dest/omukuumi.exe" ]]; then
-        mv "$binary" "$dest/omukuumi"
-        binary="$dest/omukuumi"
-    fi
-
-    chmod +x "$binary" 2>/dev/null || true
-    log_ok "Binary installed at $binary"
+    # Keep the executable beside its runtime assets, native modules, and templates.
+    cp -a "$payload/." "$dest/"
+    chmod +x "$dest/omukuumi" 2>/dev/null || true
+    rm -rf "$staging"
+    log_ok "Binary installed at $dest/omukuumi"
 }
 
 setup_path() {
@@ -221,16 +226,12 @@ main() {
         exit 0
     fi
 
-    local archive="/tmp/omukuumi-$VERSION-$OS-$ARCH"
-    if [[ "$OS" == "windows" ]]; then
-        archive+=".zip"
-    else
-        archive+=".tar.gz"
-    fi
-
+    VERSION="${VERSION#v}"
+    TMPDIR="${TMPDIR:-/tmp}"
     download_binary
-    verify_checksum "$archive"
-    extract_binary "$archive" "$INSTALL_DIR"
+    verify_checksum "$ARCHIVE" "$RELEASE_ASSET"
+    extract_binary "$ARCHIVE" "$INSTALL_DIR"
+    rm -f "$ARCHIVE"
     setup_path "$INSTALL_DIR"
     create_wrapper "$INSTALL_DIR"
 
