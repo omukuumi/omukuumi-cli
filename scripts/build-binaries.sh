@@ -156,7 +156,9 @@ for platform in "${PLATFORMS[@]}"; do
         --bundle \
         --external:@mariozechner/clipboard \
         --outfile="$OUTPUT_DIR/$platform/omukuumi-bundled.js" \
-        --packages=external
+        --packages=external \
+        --main-fields=module,main \
+        --resolve-extensions=.ts,.tsx,.js,.json
     
     # Then compile with bun
     if [[ "$platform" == windows-* ]]; then
