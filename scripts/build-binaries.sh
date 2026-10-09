@@ -143,13 +143,20 @@ for platform in "${PLATFORMS[@]}"; do
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
     # Externalize only clipboard native addon; playwright-core must be bundled.
-    # Copy all dependencies to the output directory and compile without externalizing.
+    # Copy all dependencies to the output directory (excluding bun cache and symlinks)
+    # and compile without externalizing.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     
-    # Copy all dependencies to the output directory
+    # Copy all dependencies to the output directory (excluding bun cache and symlinks)
     echo "  Copying dependencies..."
     mkdir -p "$OUTPUT_DIR/$platform/node_modules"
-    cp -r "$REPO_ROOT/node_modules" "$OUTPUT_DIR/$platform/"
+    # Use rsync to exclude .bun cache, symlinks, and other problematic directories
+    rsync -a \
+        --exclude='.bun' \
+        --exclude='.old_modules*' \
+        --exclude='*.log' \
+        --no-links \
+        "$REPO_ROOT/node_modules/" "$OUTPUT_DIR/$platform/node_modules/"
     
     # Compile with bun (no externalizing except clipboard)
     if [[ "$platform" == windows-* ]]; then
