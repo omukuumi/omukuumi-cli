@@ -147,9 +147,9 @@ for platform in "${PLATFORMS[@]}"; do
     # then compile with bun to avoid absolute path embedding.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     
-    # First, use esbuild to bundle the CLI and its dependencies
+    # First, use esbuild to bundle the CLI and its dependencies from the coding-agent directory
     echo "  Bundling with esbuild..."
-    npx esbuild ./dist/bun/cli.js \
+    (cd "$REPO_ROOT/packages/coding-agent" && npx esbuild ./dist/bun/cli.js \
         --platform=node \
         --target=node22 \
         --format=esm \
@@ -158,7 +158,7 @@ for platform in "${PLATFORMS[@]}"; do
         --outfile="$OUTPUT_DIR/$platform/omukuumi-bundled.js" \
         --packages=external \
         --main-fields=module,main \
-        --resolve-extensions=.ts,.tsx,.js,.json
+        --resolve-extensions=.ts,.tsx,.js,.json)
     
     # Then compile with bun
     if [[ "$platform" == windows-* ]]; then
