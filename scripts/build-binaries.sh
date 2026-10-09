@@ -211,12 +211,6 @@ for platform in "${PLATFORMS[@]}"; do
         mkdir -p "$OUTPUT_DIR/$platform/node_modules"
         cp -r "$REPO_ROOT/node_modules/playwright-core" "$OUTPUT_DIR/$platform/node_modules/"
     fi
-        cp -r "$REPO_ROOT/node_modules/@mariozechner/$clipboard_native_package" "$OUTPUT_DIR/$platform/node_modules/@mariozechner/"
-        cp "$REPO_ROOT/node_modules/@mariozechner/$clipboard_native_package/$clipboard_native_file" \
-            "$OUTPUT_DIR/$platform/node_modules/@mariozechner/clipboard/"
-    else
-        echo "  WARNING: $clipboard_native_package not found, clipboard may not work on this platform"
-    fi
 
     # Copy terminal input native helpers next to compiled binaries.
     if [[ "$platform" == darwin-* ]]; then
