@@ -142,13 +142,31 @@ for platform in "${PLATFORMS[@]}"; do
     # Bun compiled executables only embed worker scripts when they are passed as
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
-    # Externalize only clipboard native addon; playwright-core must be bundled
+    # Externalize only clipboard native addon; playwright-core must be bundled.
+    # Use esbuild to bundle first (resolves all imports to relative paths),
+    # then compile with bun to avoid absolute path embedding.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
+    
+    # First, use esbuild to bundle the CLI and its dependencies
+    echo "  Bundling with esbuild..."
+    npx esbuild ./dist/bun/cli.js \
+        --platform=node \
+        --target=node22 \
+        --format=esm \
+        --bundle \
+        --external:@mariozechner/clipboard \
+        --outfile="$OUTPUT_DIR/$platform/omukuumi-bundled.js" \
+        --packages=external
+    
+    # Then compile with bun
     if [[ "$platform" == windows-* ]]; then
-        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
+        bun build --compile --target=bun-$platform "$OUTPUT_DIR/$platform/omukuumi-bundled.js" ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
     else
-        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi"
+        bun build --compile --target=bun-$platform "$OUTPUT_DIR/$platform/omukuumi-bundled.js" ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi"
     fi
+    
+    # Clean up bundled file
+    rm -f "$OUTPUT_DIR/$platform/omukuumi-bundled.js"
 done
 
 echo "==> Creating release archives..."
