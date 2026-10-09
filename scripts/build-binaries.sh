@@ -142,10 +142,12 @@ for platform in "${PLATFORMS[@]}"; do
     # Bun compiled executables only embed worker scripts when they are passed as
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
+    # Externalize packages that embed build-time paths or have native deps.
+    EXTERNAL_FLAGS=(--external playwright-core --external @mariozechner/clipboard)
     if [[ "$platform" == windows-* ]]; then
-        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
+        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
     else
-        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts --outfile "$OUTPUT_DIR/$platform/omukuumi"
+        bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi"
     fi
 done
 
