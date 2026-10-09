@@ -135,20 +135,24 @@ for platform in "${PLATFORMS[@]}"; do
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
     # Externalize only clipboard native addon; playwright-core must be bundled.
-    # Copy all source files and dependencies to the output directory, dereferencing symlinks.
+    # Use a temporary directory with a simple path to avoid embedding CI paths.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     
-    # Create platform directory structure
-    mkdir -p "$OUTPUT_DIR/$platform/node_modules"
+    # Create a temporary build directory with a simple path
+    BUILD_DIR=$(mktemp -d -t omukuumi-build-XXXXXX)
+    trap 'rm -rf "$BUILD_DIR"' EXIT
+    
+    # Create platform directory structure in build dir
+    mkdir -p "$BUILD_DIR/node_modules"
     
     # Copy source files
     echo "  Copying source files..."
-    cp -r "$REPO_ROOT/packages/coding-agent/dist" "$OUTPUT_DIR/$platform/"
-    cp -r "$REPO_ROOT/packages/coding-agent/src" "$OUTPUT_DIR/$platform/"
+    cp -r "$REPO_ROOT/packages/coding-agent/dist" "$BUILD_DIR/"
+    cp -r "$REPO_ROOT/packages/coding-agent/src" "$BUILD_DIR/"
     
-    # Copy all dependencies to the output directory, dereferencing symlinks
+    # Copy all dependencies to the build dir, dereferencing symlinks
     echo "  Copying dependencies..."
-    mkdir -p "$OUTPUT_DIR/$platform/node_modules"
+    mkdir -p "$BUILD_DIR/node_modules"
     # First copy the actual package directories from the bun cache
     if [[ -d "$REPO_ROOT/node_modules/.bun" ]]; then
         for dir in "$REPO_ROOT/node_modules/.bun"/*/; do
@@ -157,23 +161,23 @@ for platform in "${PLATFORMS[@]}"; do
             if [[ "$pkg_name" != "node_modules" ]]; then
                 # Extract the actual package name (remove version suffix)
                 real_name=$(echo "$pkg_name" | sed 's/@[0-9].*$//' | sed 's/@[0-9].*$//')
-                mkdir -p "$OUTPUT_DIR/$platform/node_modules/$(dirname "$real_name")"
-                cp -rL "$dir" "$OUTPUT_DIR/$platform/node_modules/$real_name" 2>/dev/null || true
+                mkdir -p "$BUILD_DIR/node_modules/$(dirname "$real_name")"
+                cp -rL "$dir" "$BUILD_DIR/node_modules/$real_name" 2>/dev/null || true
             fi
         done
     fi
     # Also copy any non-symlink directories from node_modules
     for dir in "$REPO_ROOT/node_modules"/*/; do
         if [[ -d "$dir" && ! -L "$dir" ]]; then
-            cp -r "$dir" "$OUTPUT_DIR/$platform/node_modules/"
+            cp -r "$dir" "$BUILD_DIR/node_modules/"
         fi
     done
     
-    # Compile with bun from the output directory (where we have clean node_modules and source)
+    # Compile with bun from the temp build dir (simple path, no CI paths)
     if [[ "$platform" == windows-* ]]; then
-        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform dist/bun/cli.js src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi.exe)
+        (cd "$BUILD_DIR" && bun build --compile --target=bun-$platform dist/bun/cli.js src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe")
     else
-        (cd "$OUTPUT_DIR/$platform" && bun build --compile --target=bun-$platform dist/bun/cli.js src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile omukuumi)
+        (cd "$BUILD_DIR" && bun build --compile --target=bun-$platform dist/bun/cli.js src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi")
     fi
 done
 
