@@ -143,20 +143,33 @@ for platform in "${PLATFORMS[@]}"; do
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
     # Externalize only clipboard native addon; playwright-core must be bundled.
-    # Copy all dependencies to the output directory (excluding bun cache and symlinks)
-    # and compile without externalizing.
+    # Copy all dependencies to the output directory, dereferencing symlinks to avoid
+    # embedding absolute paths from the CI runner's bun cache.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     
-    # Copy all dependencies to the output directory (excluding bun cache and symlinks)
+    # Copy all dependencies to the output directory, dereferencing symlinks
     echo "  Copying dependencies..."
     mkdir -p "$OUTPUT_DIR/$platform/node_modules"
-    # Use rsync to exclude .bun cache, symlinks, and other problematic directories
-    rsync -a \
-        --exclude='.bun' \
-        --exclude='.old_modules*' \
-        --exclude='*.log' \
-        --no-links \
-        "$REPO_ROOT/node_modules/" "$OUTPUT_DIR/$platform/node_modules/"
+    # Use cp -rL to dereference symlinks, but exclude the .bun cache directory
+    # First copy the actual package directories from the bun cache
+    if [[ -d "$REPO_ROOT/node_modules/.bun" ]]; then
+        for dir in "$REPO_ROOT/node_modules/.bun"/*/; do
+            pkg_name=$(basename "$dir")
+            # Skip the node_modules directory inside .bun to avoid recursion
+            if [[ "$pkg_name" != "node_modules" ]]; then
+                # Extract the actual package name (remove version suffix)
+                real_name=$(echo "$pkg_name" | sed 's/@[0-9].*$//' | sed 's/@[0-9].*$//')
+                mkdir -p "$OUTPUT_DIR/$platform/node_modules/$(dirname "$real_name")"
+                cp -rL "$dir" "$OUTPUT_DIR/$platform/node_modules/$real_name" 2>/dev/null || true
+            fi
+        done
+    fi
+    # Also copy any non-symlink directories from node_modules
+    for dir in "$REPO_ROOT/node_modules"/*/; do
+        if [[ -d "$dir" && ! -L "$dir" ]]; then
+            cp -r "$dir" "$OUTPUT_DIR/$platform/node_modules/"
+        fi
+    done
     
     # Compile with bun (no externalizing except clipboard)
     if [[ "$platform" == windows-* ]]; then
