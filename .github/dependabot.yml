@@ -1,0 +1,135 @@
+# Dependabot configuration for automated security updates
+version: 2
+updates:
+  # npm dependencies for the monorepo
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "@omukuumi/core-team"
+    assignees:
+      - "@omukuumi/core-team"
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    ignore:
+      # Ignore major version updates that require manual review
+      - dependency-name: "*"
+        update-type: "version-update:semver-major"
+
+  # npm dependencies for coding-agent workspace
+  - package-ecosystem: "npm"
+    directory: "/packages/coding-agent"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@omukuumi/core-team"
+    assignees:
+      - "@omukuumi/core-team"
+    labels:
+      - "dependencies"
+      - "automated"
+      - "coding-agent"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    ignore:
+      - dependency-name: "*"
+        update-type: "version-update:semver-major"
+
+  # npm dependencies for ai workspace
+  - package-ecosystem: "npm"
+    directory: "/packages/ai"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@omukuumi/core-team"
+    assignees:
+      - "@omukuumi/core-team"
+    labels:
+      - "dependencies"
+      - "automated"
+      - "ai"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    ignore:
+      - dependency-name: "*"
+        update-type: "version-update:semver-major"
+
+  # npm dependencies for tui workspace
+  - package-ecosystem: "npm"
+    directory: "/packages/tui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@omukuumi/core-team"
+    assignees:
+      - "@omukuumi/core-team"
+    labels:
+      - "dependencies"
+      - "automated"
+      - "tui"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    ignore:
+      - dependency-name: "*"
+        update-type: "version-update:semver-major"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@omukuumi/core-team"
+    assignees:
+      - "@omukuumi/core-team"
+    labels:
+      - "dependencies"
+      - "automated"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"

@@ -1,0 +1,71 @@
+name: Pull Request
+description: Standard pull request template
+title: "[PR] "
+body:
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have read the [CONTRIBUTING.md](CONTRIBUTING.md)
+          required: true
+        - label: My code follows the project's coding standards
+          required: true
+        - label: I have added tests for my changes
+          required: true
+        - label: All CI checks pass
+          required: true
+        - label: I have updated documentation if needed
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What does this PR do?
+      placeholder: Describe the changes and why they are needed
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type of Change
+      options:
+        - "🐛 Bug Fix"
+        - "✨ New Feature"
+        - "🔧 Refactoring"
+        - "📝 Documentation"
+        - "🧪 Tests"
+        - "🔒 Security"
+        - "🚀 Release"
+        - "🏗️ CI/CD"
+        - "♻️ Chore"
+    validations:
+      required: true
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing
+      description: How did you test these changes?
+      placeholder: |
+        - Unit tests: npm test
+        - Manual testing: describe steps
+        - CI checks: all passed
+    validations:
+      required: true
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Security Considerations
+      options:
+        - label: This PR introduces no new security risks
+          required: true
+        - label: I have considered potential attack vectors
+          required: true
+        - label: No secrets or credentials are committed
+          required: true
+  - type: textarea
+    id: breaking
+    attributes:
+      label: Breaking Changes
+      description: Does this PR introduce any breaking changes? If so, describe them and the migration path.
+      placeholder: "None" or describe breaking changes

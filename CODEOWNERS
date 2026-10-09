@@ -1,0 +1,34 @@
+# Global owners - all changes require review from core team
+* @omukuumi/core-team
+
+# Security-sensitive files require security team review
+**/scripts/*.sh @omukuumi/security-team
+**/scripts/*.mjs @omukuumi/security-team
+**/scripts/*.ps1 @omukuumi/security-team
+.github/workflows/*.yml @omukuumi/security-team
+.github/dependabot.yml @omukuumi/security-team
+
+# Crypto/auth related code
+packages/coding-agent/src/core/auth* @omukuumi/security-team
+packages/ai/src/auth* @omukuumi/security-team
+packages/ai/src/utils/oauth* @omukuumi/security-team
+
+# Release/publish scripts
+scripts/publish.mjs @omukuumi/security-team
+scripts/release.mjs @omukuumi/security-team
+scripts/local-release.mjs @omukuumi/security-team
+
+# Binary build scripts
+scripts/build-binaries.sh @omukuumi/security-team
+
+# Package configurations
+packages/coding-agent/package.json @omukuumi/core-team
+packages/ai/package.json @omukuumi/core-team
+package.json @omukuumi/core-team
+package-lock.json @omukuumi/core-team
+packages/coding-agent/install-lock/ @omukuumi/core-team
+packages/coding-agent/npm-shrinkwrap.json @omukuumi/core-team
+
+# Docker/containerization
+packages/coding-agent/containerization.md @omukuumi/core-team
+packages/coding-agent/.dockerignore @omukuumi/core-team

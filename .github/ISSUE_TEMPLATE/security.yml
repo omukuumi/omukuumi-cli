@@ -1,0 +1,66 @@
+name: Security Vulnerability Report
+description: Report a security vulnerability privately
+title: "[SECURITY] "
+labels: ["security", "vulnerability"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **⚠️ Do not report security vulnerabilities in public issues.**
+
+        Please report security vulnerabilities privately by emailing **security@omukuumi.org**.
+
+        This form is for tracking purposes only after you have reported the vulnerability privately.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Vulnerability Summary
+      description: Brief description of the vulnerability
+      placeholder: e.g., "Path traversal in file upload handler"
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact Assessment
+      description: What is the potential impact? Who is affected?
+      placeholder: e.g., "Allows unauthenticated users to read arbitrary files on the server"
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (CVSS 9.0-10.0)
+        - High (CVSS 7.0-8.9)
+        - Medium (CVSS 4.0-6.9)
+        - Low (CVSS 0.1-3.9)
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the vulnerability
+      placeholder: |
+        1. Configure X
+        2. Send request to Y
+        3. Observe Z
+    validations:
+      required: true
+  - type: textarea
+    id: poc
+    attributes:
+      label: Proof of Concept
+      description: Any proof-of-concept code or exploit
+      render: code
+  - type: checkboxes
+    id: disclosure
+    attributes:
+      label: Disclosure Agreement
+      options:
+        - label: I have reported this privately to security@omukuumi.org
+          required: true
+        - label: I agree to coordinated disclosure and will not publish until a fix is released
+          required: true

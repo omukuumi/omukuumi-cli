@@ -1,84 +1,75 @@
 # Security Policy
 
-This document should guide you about understanding the security concept behind
-Omukuumi CLI and also where the boundaries are.
+## Supported Versions
 
-In general Omukuumi CLI is a coding agent that runs locally within the security boundary
-of the user that is running it.  It's the responsibiltiy of the user to monitor
-its operations or to contain it within a container, virtual machine or other
-Sandbox solution.
+We provide security updates for the following versions:
 
-Omukuumi treats the local user account and files writable by that account as inside
-the same trust boundary as the Omukuumi process itself.  If an attacker can modify files
-under the user's home directory, workspace, shell startup files, environment, or
-Omukuumi configuration, they can generally influence Omukuumi or other local developer tools.
-Reports that depend on such prior local write access are not security
-vulnerabilities unless they demonstrate how Omukuumi grants that write access or crosses
-an operating-system privilege boundary.
-
-Omukuumi relies on users installing trustworthy extensions and loading trustworthy
-ubumenyi and only to use Omukuumi within trusted repositories.  This is because files
-like `AGENTS.md` or instructions in comments can be used to prompt inject the
-coding agent trivially and this cannot be protected against.
+| Version | Supported          |
+| ------- | ------------------ |
+| 0.81.x  | :white_check_mark: |
+| < 0.81  | :x:                |
 
 ## Reporting a Vulnerability
 
-If you believe you found a security vulnerability in Omukuumi or another package in
-this repository, please report it privately by either:
+We take security vulnerabilities seriously. If you discover a security issue, please report it responsibly:
 
-- Emailing `security@earendil.com`, or
-- Opening a private report through GitHub Security Advisories for this repository
+1. **Do not** open a public GitHub issue
+2. Email us at **security@omukuumi.org** with details
+3. Include steps to reproduce, impact assessment, and any proof-of-concept
 
-Please include:
+We will acknowledge receipt within 48 hours and provide a timeline for fix.
 
-- A description of the issue and its impact
-- Steps to reproduce, proof of concept, or relevant logs
-- Affected package, version, commit, or configuration
-- Any known mitigations
+## Security Features
 
-Do not open a public issue for security-sensitive reports.  We will review
-reports and coordinate disclosure as appropriate.
+### Enabled Protections
+- ✅ **Secret Scanning** - Detects leaked secrets in commits
+- ✅ **Secret Scanning Push Protection** - Blocks pushes containing secrets
+- ✅ **Dependabot Security Updates** - Auto-PRs for vulnerable dependencies
+- ✅ **Secret Scanning Validity Checks** - Validates detected secrets
 
-## Scope
+### Branch Protection
+- `main` branch requires:
+  - PR review from code owners (see [CODEOWNERS](CODEOWNERS))
+  - Status checks to pass (CI, tests, shrinkwrap validation)
+  - No force pushes
+  - No deletions
 
-Security issues in the distributed packages, command-line tools, APIs, and
-repository code are in scope.
+### Dependency Security
+- All dependencies pinned to exact versions
+- `npm-shrinkwrap.json` and install-lock for deterministic installs
+- `npm-audit` run in CI
+- No `npm install` with `--legacy-peer-deps` in CI
 
-## Out Of Scope
+### Release Security
+- Releases signed with npm provenance
+- SHA256SUMS published with each release
+- Installers verify checksums before execution
+- npm packages published with `--access public --provenance`
 
-- Local code execution or sandboxing behavior (Omukuumi intentionally does not have a sandbox)
-- Behavior of Omukuumi extensions or ubumenyi installed by the user
-- Risks from working in untrusted repositories
-- Risks from installing untrusted extensions, skills, packages, or tools
-- Isuses caused by non trustworthy MITM proxies
-- Public internet exposure of a Pi installation
-- Prompt injection attacks
-- Exposed secrets that are third-party/user-controlled credentials
-- Reports requiring the ability to create, modify, delete, or replace files,
-  directories, symlinks, environment variables, shell configuration, or other
-  user-controlled local state on the target machine. This includes `~/.omukuumi`,
-  `~/.omukuumi/agent/models.json`, workspace files, `AGENTS.md`, ubumenyi, extensions,
-  extension configuration, dotfiles, and files synchronized through NFS, roaming
-  profiles, or dotfile managers, unless the report shows how Omukuumi itself grants
-  that access.
-- Issues caused by intentionally weakened user configuration.
-- Resource/DOS claims that require trusted local input/config against Omukuumi.
-- Reports about malicious model output.
-- User-approved or user-initiated local actions presented as vulnerabilities.
+## Threat Model
 
-## Notes for Reporters
+### Supply Chain
+- All dependencies pinned to exact versions
+- Lockfiles committed and validated in CI
+- No unpinned ranges in production dependencies
 
-The most useful reports show a current, reproducible security boundary bypass
-with demonstrated impact.  Reports that only show expected local-agent behavior,
-prompt injection, or a malicious trusted extension/skill are not security
-vulnerabilities under this model.
+### Secrets Management
+- No secrets in code or history
+- Secret scanning on every push
+- Push protection blocks accidental leaks
+- CI uses ephemeral tokens (`GITHUB_TOKEN`)
 
-For example, a report showing that malicious contents written to a trusted Omukuumi
-configuration file cause Omukuumi to execute commands, load attacker-controlled tools,
-send credentials to an attacker-controlled endpoint, or otherwise change behavior
-is out of scope.
+### Binary Distribution
+- Binaries built in isolated CI environment
+- SHA256SUMS published with releases
+- Installers verify checksums before execution
+- No installer auto-updates without verification
 
-When possible, include the exact affected path, package version or commit SHA,
-configuration, and a proof of concept against the latest release or latest
-`main`.  For dependency reports, include evidence that the shipped dependency is
-affected and that the issue is reachable through Omukuumi.
+## Security Contacts
+
+- **Security Team**: security@omukuumi.org
+- **Core Team**: core@omukuumi.org
+
+## Responsible Disclosure
+
+We follow coordinated vulnerability disclosure. We ask that you give us reasonable time to address issues before public disclosure. We will credit reporters who follow this process.
