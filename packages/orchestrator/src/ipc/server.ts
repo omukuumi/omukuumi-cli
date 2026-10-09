@@ -1,6 +1,6 @@
 import { existsSync, unlinkSync } from "node:fs";
 import { createConnection, createServer, type Server } from "node:net";
-import type { AgentSessionEvent, RpcExtensionUIRequest, RpcResponse } from "omukuumi";
+import type { AgentSessionEvent, RpcExtensionUIRequest, RpcResponse } from "@omukuumi/omukuumi";
 import { getSocketPath } from "../config.ts";
 import {
 	type ErrorResponse,

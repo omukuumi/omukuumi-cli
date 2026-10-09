@@ -4,7 +4,7 @@ import type {
 	RpcExtensionUIRequest,
 	RpcExtensionUIResponse,
 	RpcResponse,
-} from "omukuumi";
+} from "@omukuumi/omukuumi";
 import type { InstanceStatus } from "../types.ts";
 
 export interface SpawnRequest {
