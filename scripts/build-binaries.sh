@@ -142,8 +142,8 @@ for platform in "${PLATFORMS[@]}"; do
     # Bun compiled executables only embed worker scripts when they are passed as
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
-    # Externalize packages that embed build-time paths or have native deps.
-    EXTERNAL_FLAGS=(--external playwright-core --external @mariozechner/clipboard)
+    # Externalize only clipboard native addon; playwright-core must be bundled
+    EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     if [[ "$platform" == windows-* ]]; then
         bun build --compile --target=bun-$platform ./dist/bun/cli.js ./src/utils/image-resize-worker.ts "${EXTERNAL_FLAGS[@]}" --outfile "$OUTPUT_DIR/$platform/omukuumi.exe"
     else
@@ -206,12 +206,6 @@ for platform in "${PLATFORMS[@]}"; do
     else
         echo "  WARNING: $clipboard_native_package not found, clipboard may not work on this platform"
     fi
-    # Copy playwright-core for externalized package
-    if [[ -d "$REPO_ROOT/node_modules/playwright-core" ]]; then
-        mkdir -p "$OUTPUT_DIR/$platform/node_modules"
-        cp -r "$REPO_ROOT/node_modules/playwright-core" "$OUTPUT_DIR/$platform/node_modules/"
-    fi
-
     # Copy terminal input native helpers next to compiled binaries.
     if [[ "$platform" == darwin-* ]]; then
         mkdir -p "$OUTPUT_DIR/$platform/native/darwin/prebuilds/$platform"
