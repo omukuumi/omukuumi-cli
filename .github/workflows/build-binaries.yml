@@ -232,8 +232,9 @@ jobs:
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: 'https://npm.pkg.github.com'
           cache: npm
+          scope: '@omukuumi'
 
       - name: Download build output
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
@@ -253,12 +254,14 @@ jobs:
       - name: Build (creates dist directories for publishing)
         run: npm run build
 
-      - name: Upgrade npm for trusted publishing
+      - name: Configure npm for GitHub Packages
         run: |
-          npm install -g npm@11.16.0 --ignore-scripts
-          npm --version
+          npm config set //npm.pkg.github.com/:_authToken ${NODE_AUTH_TOKEN}
+          npm whoami
 
       - name: Publish npm packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/publish.mjs --tag-alpha
 
   publish-github-release:
