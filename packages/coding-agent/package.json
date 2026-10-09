@@ -1,7 +1,10 @@
 {
-	"name": "@earendil-works/omukuumi",
+	"name": "@omukuumi/omukuumi",
 	"version": "0.81.0-alpha.11",
 	"description": "Omukuumi Kinyarwanda-first AI coding assistant for the terminal",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"type": "module",
 	"piConfig": {
 		"name": "Omukuumi",
