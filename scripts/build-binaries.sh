@@ -147,9 +147,10 @@ for platform in "${PLATFORMS[@]}"; do
     # then compile with bun to avoid absolute path embedding.
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     
-    # First, use esbuild to bundle the CLI and its dependencies from the coding-agent directory
+    # First, use esbuild to bundle the CLI and its dependencies from the root
+    # (dependencies are hoisted to root node_modules in npm workspaces)
     echo "  Bundling with esbuild..."
-    (cd "$REPO_ROOT/packages/coding-agent" && npx esbuild ./dist/bun/cli.js \
+    (cd "$REPO_ROOT" && npx esbuild ./packages/coding-agent/dist/bun/cli.js \
         --platform=node \
         --target=node22 \
         --format=esm \
