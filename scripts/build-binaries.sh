@@ -118,6 +118,10 @@ fi
 echo "==> Building binaries..."
 cd "$REPO_ROOT/packages/coding-agent"
 
+# Ensure bun dependencies are resolved for compilation
+echo "==> Installing bun dependencies..."
+bun install
+
 # Clean previous builds
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"/{darwin-arm64,darwin-x64,linux-x64,linux-arm64,windows-x64,windows-arm64}
