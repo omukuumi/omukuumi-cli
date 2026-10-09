@@ -27,6 +27,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 REPO_ROOT="$(pwd)"
 
+# Extract clipboard version early for use in dependency installation
+CLIPBOARD_VERSION=$(node -p "require('./packages/coding-agent/package.json').optionalDependencies['@mariozechner/clipboard']")
+
 SKIP_INSTALL=false
 SKIP_DEPS=false
 SKIP_BUILD=false
@@ -85,13 +88,14 @@ fi
 if [[ "$SKIP_INSTALL" == "false" ]]; then
     echo "==> Installing dependencies..."
     npm ci --ignore-scripts
+    # Install optional clipboard wrapper package (not installed by default as optionalDependency)
+    npm install --ignore-scripts @mariozechner/clipboard@$CLIPBOARD_VERSION
 else
     echo "==> Skipping npm ci (--skip-install)"
 fi
 
 if [[ "$SKIP_DEPS" == "false" ]]; then
     echo "==> Downloading cross-platform native bindings with npm pack..."
-    CLIPBOARD_VERSION=$(node -p "require('./packages/coding-agent/package.json').optionalDependencies['@mariozechner/clipboard']")
     NATIVE_PACKAGE_DIR="$REPO_ROOT/node_modules/@mariozechner"
     NATIVE_PACKAGE_TMP=$(mktemp -d)
     trap 'rm -rf "$NATIVE_PACKAGE_TMP"' EXIT
