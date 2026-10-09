@@ -4,7 +4,7 @@
 	"private": true,
 	"description": "Lockfile root used by the Omukuumi installer and updater.",
 	"dependencies": {
-		"omukuumi": "0.81.0-alpha.11"
+		"@omukuumi/omukuumi": "0.81.0-alpha.11"
 	},
 	"overrides": {
 		"rimraf": "6.1.2",
