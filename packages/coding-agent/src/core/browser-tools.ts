@@ -331,3 +331,5 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 		},
 	];
 }
+
+// tsgo compiler bug workaround - ensures file ends with newline and extra byte
