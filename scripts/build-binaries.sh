@@ -135,7 +135,7 @@ for platform in "${PLATFORMS[@]}"; do
     # explicit build entrypoints. The runtime can still use new URL(...), but the
     # worker must be present in the compiled executable.
     # Externalize only clipboard native addon; playwright-core must be bundled.
-    # Use a temporary directory with a simple path to avoid embedding CI paths.
+    # Use a temporary build directory with a simple path
     EXTERNAL_FLAGS=(--external @mariozechner/clipboard)
     
     # Create a temporary build directory with a simple path
@@ -170,6 +170,27 @@ for platform in "${PLATFORMS[@]}"; do
     for dir in "$REPO_ROOT/node_modules"/*/; do
         if [[ -d "$dir" && ! -L "$dir" ]]; then
             cp -r "$dir" "$BUILD_DIR/node_modules/"
+        fi
+    done
+    # Copy workspace packages (they are symlinks in node_modules)
+    for ws_dir in "$REPO_ROOT/packages"/*/; do
+        if [[ -d "$ws_dir" ]]; then
+            ws_name=$(basename "$ws_dir")
+            if [[ -f "$ws_dir/package.json" ]]; then
+                pkg_name=$(node -p "require('$ws_dir/package.json').name" 2>/dev/null || echo "@earendil-works/$ws_name")
+                mkdir -p "$BUILD_DIR/node_modules/$(dirname "$pkg_name")"
+                # Copy the package's dist and package.json
+                if [[ -d "$ws_dir/dist" ]]; then
+                    cp -r "$ws_dir/dist" "$BUILD_DIR/node_modules/$pkg_name/"
+                fi
+                if [[ -f "$ws_dir/package.json" ]]; then
+                    cp "$ws_dir/package.json" "$BUILD_DIR/node_modules/$pkg_name/"
+                fi
+                # If it has a src dir, copy that too
+                if [[ -d "$ws_dir/src" ]]; then
+                    cp -r "$ws_dir/src" "$BUILD_DIR/node_modules/$pkg_name/"
+                fi
+            fi
         fi
     done
     
