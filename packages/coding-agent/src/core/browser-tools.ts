@@ -1,7 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { AgentToolResult } from "@earendil-works/pi-agent-core";
-import { type Browser, type BrowserContext, chromium, type Page } from "playwright-core";
 import { type Static, Type } from "typebox";
 import { CONFIG_DIR_NAME } from "../config.ts";
 import type { ToolDefinition } from "./extensions/types.ts";
@@ -33,7 +32,7 @@ type TargetParams = Static<typeof targetSchema>;
 type TypeParams = Static<typeof typeSchema>;
 type ScrollParams = Static<typeof scrollSchema>;
 
-type BrowserState = "closed" | "opening" | "ready" | "working" | "error";
+type BrowserState = "closed" | "opening" | "ready" | "working" | "error" | "unavailable";
 
 interface BrowserSummary {
 	state: BrowserState;
@@ -42,17 +41,55 @@ interface BrowserSummary {
 	message?: string;
 }
 
+interface PlaywrightModule {
+	chromium: { launch: (options: { headless: boolean }) => Promise<any> };
+	webkit?: { launch: (options: { headless: boolean }) => Promise<any> };
+	firefox?: { launch: (options: { headless: boolean }) => Promise<any> };
+}
+
 class BrowserSessionManager {
-	private browser?: Browser;
-	private context?: BrowserContext;
-	private page?: Page;
+	private browser?: any;
+	private context?: any;
+	private page?: any;
 	private summary: BrowserSummary = { state: "closed" };
+	private playwrightPromise: Promise<PlaywrightModule> | null = null;
+	private playwrightError: Error | null = null;
+
+	private async loadPlaywright(): Promise<PlaywrightModule> {
+		if (this.playwrightPromise) return this.playwrightPromise;
+		if (this.playwrightError) throw this.playwrightError;
+
+		this.playwrightPromise = (async () => {
+			try {
+				// Dynamic import - only loads when browser tools are actually used
+				const playwright = await import("playwright-core");
+				return playwright as PlaywrightModule;
+			} catch (error) {
+				this.playwrightError = new Error(
+					"Browser tools require playwright-core. Install with: omukuumi browser install\n" +
+					"Or install manually: npm install -g playwright-core && npx playwright install chromium"
+				);
+				throw this.playwrightError;
+			}
+		})();
+		return this.playwrightPromise;
+	}
+
+	isAvailable(): boolean {
+		return this.playwrightError === null;
+	}
+
+	getError(): Error | null {
+		return this.playwrightError;
+	}
 
 	async open(url: string): Promise<BrowserSummary> {
 		if (!/^https?:\/\//i.test(url)) throw new Error("Only http:// and https:// URLs are allowed.");
 		await this.close();
 		this.summary = { state: "opening", url };
-		this.browser = await chromium.launch({ headless: true });
+		
+		const playwright = await this.loadPlaywright();
+		this.browser = await playwright.chromium.launch({ headless: true });
 		this.context = await this.browser.newContext({ viewport: { width: 1280, height: 800 } });
 		this.page = await this.context.newPage();
 		this.page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT_MS);
@@ -62,7 +99,7 @@ class BrowserSessionManager {
 		return this.summary;
 	}
 
-	getPage(): Page {
+	getPage(): any {
 		if (!this.page) throw new Error("No browser page is open. Use browser_open first.");
 		return this.page;
 	}
@@ -86,6 +123,10 @@ class BrowserSessionManager {
 
 	setReady(): void {
 		this.summary = { ...this.summary, state: "ready", url: this.page?.url() ?? this.summary.url };
+	}
+
+	setUnavailable(error: Error): void {
+		this.summary = { state: "unavailable", message: error.message };
 	}
 }
 
@@ -111,6 +152,14 @@ function renderBrowserStatus(ctx: {
 	const summary = browserSession.getSummary();
 	if (summary.state === "closed") {
 		ctx.ui.setWidget("omukuumi-browser", undefined, { placement: "aboveEditor" });
+		return;
+	}
+	if (summary.state === "unavailable") {
+		ctx.ui.setWidget(
+			"omukuumi-browser",
+			[`${ansi("#DC3C3C", "Browser:")} ⚠ ${summary.message || "Unavailable"}`],
+			{ placement: "aboveEditor" },
+		);
 		return;
 	}
 	const color = summary.state === "ready" ? "#20603D" : summary.state === "error" ? "#DC3C3C" : "#E5BE01";
@@ -142,7 +191,7 @@ function rejectSensitiveTarget(target: string): void {
 	}
 }
 
-async function snapshotPage(page: Page): Promise<string> {
+async function snapshotPage(page: any): Promise<string> {
 	const title = await page.title();
 	const url = page.url();
 	const body = safeText(
@@ -184,7 +233,7 @@ async function snapshotPage(page: Page): Promise<string> {
 		.slice(0, MAX_SNAPSHOT_CHARS);
 }
 
-async function findTarget(page: Page, target: string): Promise<ReturnType<Page["getByText"]>> {
+async function findTarget(page: any, target: string): Promise<any> {
 	const exactText = page.getByText(target, { exact: true }).first();
 	if (await exactText.count()) return exactText;
 	const roleButton = page.getByRole("button", { name: target }).first();
@@ -192,6 +241,52 @@ async function findTarget(page: Page, target: string): Promise<ReturnType<Page["
 	const roleLink = page.getByRole("link", { name: target }).first();
 	if (await roleLink.count()) return roleLink;
 	return page.getByText(target, { exact: false }).first();
+}
+
+async function installBrowserTools(): Promise<{ success: boolean; message: string }> {
+	// This can be called from a tool to install browser dependencies
+	try {
+		const { spawn } = await import("node:child_process");
+		const { promisify } = await import("node:util");
+		
+		return new Promise((resolve) => {
+			// Try to install playwright-core globally
+			const proc = spawn("npm", ["install", "-g", "playwright-core@latest"], {
+				stdio: "pipe",
+				shell: true,
+			});
+			
+			let stdout = "";
+			let stderr = "";
+			proc.stdout?.on("data", (d) => stdout += d.toString());
+			proc.stderr?.on("data", (d) => stderr += d.toString());
+			
+			proc.on("close", async (code) => {
+				if (code === 0) {
+					// Now install chromium
+					const proc2 = await import("node:child_process").then(m => m.spawn("npx", ["playwright", "install", "chromium"], {
+						stdio: "pipe",
+						shell: true,
+					}));
+					let stdout2 = "";
+					let stderr2 = "";
+					proc2.stdout?.on("data", (d) => stdout2 += d.toString());
+					proc2.stderr?.on("data", (d) => stderr2 += d.toString());
+					proc2.on("close", (code2) => {
+						if (code2 === 0) {
+							resolve({ success: true, message: "Browser tools installed successfully. Restart Omukuumi to use browser tools." });
+						} else {
+							resolve({ success: false, message: `Chromium install failed: ${stderr2}` });
+						}
+					});
+				} else {
+					resolve({ success: false, message: `npm install failed: ${stderr}` });
+				}
+			});
+		});
+	} catch (error) {
+		return { success: false, message: `Install failed: ${error instanceof Error ? error.message : String(error)}` };
+	}
 }
 
 export function createBrowserTools(cwd: string): ToolDefinition[] {
@@ -208,6 +303,11 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 			],
 			parameters: openSchema,
 			async execute(_id, params, _signal, _update, ctx) {
+				if (!browserSession.isAvailable()) {
+					browserSession.setUnavailable(browserSession.getError()!);
+					renderBrowserStatus(ctx);
+					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
+				}
 				const summary = await browserSession.open((params as OpenParams).url);
 				renderBrowserStatus(ctx);
 				return result(`Opened ${summary.url}\nTitle: ${summary.title || "(untitled)"}`, summary);
@@ -220,6 +320,9 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 			promptSnippet: "Read visible page text and controls",
 			parameters: Type.Object({}),
 			async execute(_id, _params, _signal, _update, ctx) {
+				if (!browserSession.isAvailable()) {
+					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
+				}
 				const page = browserSession.getPage();
 				browserSession.setWorking();
 				renderBrowserStatus(ctx);
@@ -236,6 +339,9 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 				"Click a visible link or button by its text. Sensitive or destructive actions should be confirmed by the user first.",
 			parameters: targetSchema,
 			async execute(_id, params, _signal, _update, ctx) {
+				if (!browserSession.isAvailable()) {
+					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
+				}
 				const { target } = params as TargetParams;
 				rejectSensitiveTarget(target);
 				const page = browserSession.getPage();
@@ -257,6 +363,9 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 				"Type non-sensitive text into a visible field by label or placeholder. Passwords and secrets are blocked.",
 			parameters: typeSchema,
 			async execute(_id, params, _signal, _update, ctx) {
+				if (!browserSession.isAvailable()) {
+					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
+				}
 				const { target, text } = params as TypeParams;
 				rejectSensitiveTarget(target);
 				if (/(password|passcode|one[- ]?time|otp|2fa|credit.?card|cvv|secret|api.?key|token)/i.test(text)) {
@@ -280,6 +389,9 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 			description: "Scroll the current browser page by a small bounded amount.",
 			parameters: scrollSchema,
 			async execute(_id, params, _signal, _update, ctx) {
+				if (!browserSession.isAvailable()) {
+					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
+				}
 				const { direction, amount = 3 } = params as ScrollParams;
 				const page = browserSession.getPage();
 				await page.mouse.wheel(0, (direction === "down" ? 1 : -1) * amount * 500);
@@ -293,6 +405,9 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 			description: "Navigate back one page in the isolated browser session.",
 			parameters: Type.Object({}),
 			async execute(_id, _params, _signal, _update, ctx) {
+				if (!browserSession.isAvailable()) {
+					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
+				}
 				const page = browserSession.getPage();
 				await page.goBack({ waitUntil: "domcontentloaded" }).catch(() => undefined);
 				renderBrowserStatus(ctx);
@@ -305,6 +420,9 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 			description: "Capture the current browser viewport to a temporary PNG file and return its path.",
 			parameters: Type.Object({}),
 			async execute(_id, _params, _signal, _update, _ctx) {
+				if (!browserSession.isAvailable()) {
+					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
+				}
 				const page = browserSession.getPage();
 				const dir = join(cwd, CONFIG_DIR_NAME, "browser-screenshots");
 				await mkdir(dir, { recursive: true });
@@ -322,6 +440,16 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 				await browserSession.close();
 				renderBrowserStatus(ctx);
 				return result("Browser session closed.");
+			},
+		},
+		{
+			name: "browser_install",
+			label: "install browser tools",
+			description: "Install browser dependencies (playwright-core and Chromium) for browser automation tools.",
+			parameters: Type.Object({}),
+			async execute(_id, _params, _signal, _update, _ctx) {
+				const result = await installBrowserTools();
+				return result(result.message, { success: result.success });
 			},
 		},
 	];

@@ -541,6 +541,13 @@ export async function main(args: string[], options?: MainOptions) {
 		process.exit(0);
 	}
 
+	if (parsed.browserInstall) {
+		const { installBrowserTools } = await import("./core/browser-tools.ts");
+		const result = await installBrowserTools();
+		console.log(result.message);
+		process.exit(result.success ? 0 : 1);
+	}
+
 	if (parsed.export) {
 		let result: string;
 		try {

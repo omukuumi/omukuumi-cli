@@ -49,6 +49,7 @@ export interface Args {
 	offline?: boolean;
 	verbose?: boolean;
 	projectTrustOverride?: boolean;
+	browserInstall?: boolean;
 	messages: string[];
 	fileArgs: string[];
 	/** Unknown flags (potentially extension flags) - map of flag name to value */
@@ -79,6 +80,13 @@ export function parseArgs(args: string[]): Args {
 			result.version = true;
 		} else if (arg === "vuga") {
 			result.vuga = true;
+		} else if (arg === "browser" && i + 1 < args.length) {
+			const sub = args[++i];
+			if (sub === "install") {
+				result.browserInstall = true;
+			} else {
+				result.diagnostics.push({ type: "error", message: `Unknown browser subcommand: ${sub}` });
+			}
 		} else if (arg === "doctor") {
 			result.doctor = true;
 		} else if (arg === "--mode" && i + 1 < args.length) {
