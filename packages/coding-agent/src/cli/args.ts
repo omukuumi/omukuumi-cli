@@ -49,6 +49,21 @@ export interface Args {
 	offline?: boolean;
 	verbose?: boolean;
 	projectTrustOverride?: boolean;
+	browserInstall?: boolean;
+	browserOpen?: boolean;
+	browserUrl?: string;
+	browserClose?: boolean;
+	browserSnapshot?: boolean;
+	browserClick?: boolean;
+	browserTarget?: string;
+	browserType?: boolean;
+	browserText?: string;
+	browserScroll?: boolean;
+	browserDirection?: string;
+	browserAmount?: number;
+	browserBack?: boolean;
+	browserScreenshot?: boolean;
+	browserCloseCmd?: boolean;
 	messages: string[];
 	fileArgs: string[];
 	/** Unknown flags (potentially extension flags) - map of flag name to value */
