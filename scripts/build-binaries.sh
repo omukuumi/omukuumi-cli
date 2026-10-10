@@ -150,33 +150,8 @@ for platform in "${PLATFORMS[@]}"; do
     cp -r "$REPO_ROOT/packages/coding-agent/dist" "$BUILD_DIR/"
     cp -r "$REPO_ROOT/packages/coding-agent/src" "$BUILD_DIR/"
     
-    # Copy all dependencies to the build dir, dereferencing symlinks
-    echo "  Copying dependencies..."
-    mkdir -p "$BUILD_DIR/node_modules"
-    # First copy the actual package directories from the bun cache, but skip workspace packages
-    if [[ -d "$REPO_ROOT/node_modules/.bun" ]]; then
-        for dir in "$REPO_ROOT/node_modules/.bun"/*/; do
-            pkg_name=$(basename "$dir")
-            # Skip the node_modules directory inside .bun to avoid recursion
-            if [[ "$pkg_name" != "node_modules" ]]; then
-                # Extract the actual package name (remove version suffix)
-                real_name=$(echo "$pkg_name" | sed 's/@[0-9].*$//' | sed 's/@[0-9].*$//')
-                # Skip workspace packages - we'll copy them separately from the packages directory
-                if [[ "$real_name" == @earendil-works/* ]]; then
-                    continue
-                fi
-                mkdir -p "$BUILD_DIR/node_modules/$(dirname "$real_name")"
-                cp -rL "$dir" "$BUILD_DIR/node_modules/$real_name" 2>/dev/null || true
-            fi
-        done
-    fi
-    # Also copy any non-symlink directories from node_modules
-    for dir in "$REPO_ROOT/node_modules"/*/; do
-        if [[ -d "$dir" && ! -L "$dir" ]]; then
-            cp -r "$dir" "$BUILD_DIR/node_modules/"
-        fi
-    done
-    # Copy workspace packages (they are symlinks in node_modules)
+    # FIRST: Copy workspace packages (they are symlinks in node_modules)
+    # This ensures they're copied before the bun cache, avoiding conflicts
     for ws_dir in "$REPO_ROOT/packages"/*/; do
         if [[ -d "$ws_dir" ]]; then
             ws_name=$(basename "$ws_dir")
@@ -195,6 +170,38 @@ for platform in "${PLATFORMS[@]}"; do
                 if [[ -d "$ws_dir/src" ]]; then
                     cp -r "$ws_dir/src" "$target_dir/"
                 fi
+            fi
+        fi
+    done
+    
+    # Then copy the actual package directories from the bun cache
+    if [[ -d "$REPO_ROOT/node_modules/.bun" ]]; then
+        for dir in "$REPO_ROOT/node_modules/.bun"/*/; do
+            pkg_name=$(basename "$dir")
+            # Skip the node_modules directory inside .bun to avoid recursion
+            if [[ "$pkg_name" != "node_modules" ]]; then
+                # Extract the actual package name (remove version suffix)
+                real_name=$(echo "$pkg_name" | sed 's/@[0-9].*$//' | sed 's/@[0-9].*$//')
+                # Skip workspace packages - we already copied them
+                if [[ "$real_name" == @earendil-works/* ]]; then
+                    continue
+                fi
+                # Skip if already copied from workspace packages
+                if [[ -d "$BUILD_DIR/node_modules/$real_name" ]]; then
+                    continue
+                fi
+                mkdir -p "$BUILD_DIR/node_modules/$(dirname "$real_name")"
+                cp -rL "$dir" "$BUILD_DIR/node_modules/$real_name" 2>/dev/null || true
+            fi
+        done
+    fi
+    # Also copy any non-symlink directories from node_modules
+    for dir in "$REPO_ROOT/node_modules"/*/; do
+        if [[ -d "$dir" && ! -L "$dir" ]]; then
+            pkg_name=$(basename "$dir")
+            target_dir="$BUILD_DIR/node_modules/$pkg_name"
+            if [[ ! -d "$target_dir" ]]; then
+                cp -r "$dir" "$BUILD_DIR/node_modules/"
             fi
         fi
     done
