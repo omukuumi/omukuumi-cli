@@ -178,17 +178,21 @@ for platform in "${PLATFORMS[@]}"; do
             ws_name=$(basename "$ws_dir")
             if [[ -f "$ws_dir/package.json" ]]; then
                 pkg_name=$(node -p "require('$ws_dir/package.json').name" 2>/dev/null || echo "@earendil-works/$ws_name")
-                mkdir -p "$BUILD_DIR/node_modules/$(dirname "$pkg_name")"
-                # Copy the package's dist and package.json
-                if [[ -d "$ws_dir/dist" ]]; then
-                    cp -r "$ws_dir/dist" "$BUILD_DIR/node_modules/$pkg_name/"
-                fi
-                if [[ -f "$ws_dir/package.json" ]]; then
-                    cp "$ws_dir/package.json" "$BUILD_DIR/node_modules/$pkg_name/"
-                fi
-                # If it has a src dir, copy that too
-                if [[ -d "$ws_dir/src" ]]; then
-                    cp -r "$ws_dir/src" "$BUILD_DIR/node_modules/$pkg_name/"
+                target_dir="$BUILD_DIR/node_modules/$pkg_name"
+                # Only copy if not already present (avoid conflict with bun cache copies)
+                if [[ ! -d "$target_dir" ]]; then
+                    mkdir -p "$BUILD_DIR/node_modules/$(dirname "$pkg_name")"
+                    # Copy the package's dist and package.json
+                    if [[ -d "$ws_dir/dist" ]]; then
+                        cp -r "$ws_dir/dist" "$target_dir/"
+                    fi
+                    if [[ -f "$ws_dir/package.json" ]]; then
+                        cp "$ws_dir/package.json" "$target_dir/"
+                    fi
+                    # If it has a src dir, copy that too
+                    if [[ -d "$ws_dir/src" ]]; then
+                        cp -r "$ws_dir/src" "$target_dir/"
+                    fi
                 fi
             fi
         fi
