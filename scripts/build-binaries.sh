@@ -110,13 +110,7 @@ fi
 if [[ "$SKIP_BUILD" == "false" ]]; then
     echo "==> Building all workspace packages..."
     cd "$REPO_ROOT"
-    # Use tsgo for main build, but exclude browser-tools.ts which crashes tsgo
-    echo "==> Building with tsgo (excluding browser-tools.ts)..."
-    # Temporarily move browser-tools.ts out of the way so tsgo doesn't crash
-    mv packages/coding-agent/src/core/browser-tools.ts packages/coding-agent/src/core/browser-tools.ts.hidden
     npm run build
-    # Restore the file
-    mv packages/coding-agent/src/core/browser-tools.ts.hidden packages/coding-agent/src/core/browser-tools.ts
 else
     echo "==> Skipping package build (--skip-build)"
 fi
