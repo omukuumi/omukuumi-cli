@@ -82,6 +82,7 @@ import { FooterDataProvider, type ReadonlyFooterDataProvider } from "../../core/
 import { configureHttpDispatcher, formatHttpIdleTimeoutMs } from "../../core/http-dispatcher.ts";
 import { type AppKeybinding, KeybindingsManager } from "../../core/keybindings.ts";
 import { createCompactionSummaryMessage } from "../../core/messages.ts";
+import { subscribeMiniOmukuumiSnapshots } from "../../core/mini-omukuumi-delegation.ts";
 import { defaultModelPerProvider, findExactModelReferenceMatch, resolveModelScope } from "../../core/model-resolver.ts";
 import { DefaultPackageManager } from "../../core/package-manager.ts";
 import { BUILT_IN_PROVIDER_DISPLAY_NAMES } from "../../core/provider-display-names.ts";
@@ -91,7 +92,6 @@ import { type SessionEntry, SessionManager, sessionEntryToContextMessages } from
 import { BUILTIN_SLASH_COMMANDS } from "../../core/slash-commands.ts";
 import type { SourceInfo } from "../../core/source-info.ts";
 import { isInstallTelemetryEnabled } from "../../core/telemetry.ts";
-import { subscribeMiniOmukuumiSnapshots } from "../../core/mini-omukuumi-delegation.ts";
 import type { TruncationResult } from "../../core/tools/truncate.ts";
 import { hasTrustRequiringProjectResources, ProjectTrustStore } from "../../core/trust-manager.ts";
 import { getChangelogPath, getNewEntries, normalizeChangelogLinks, parseChangelog } from "../../utils/changelog.ts";
@@ -918,7 +918,7 @@ export class InteractiveMode {
 			const rwandaVector = [
 				theme.fg("accent", "      /\\        ") + theme.fg("warning", "✦"),
 				theme.fg("accent", " ____/  \\____   ") + theme.fg("success", "Rwanda"),
-				theme.fg("success", "| imisozi igihumbi | ") + theme.fg("warning", "sun"),
+				theme.fg("success", "| ebisozi ebikumi | ") + theme.fg("warning", "enjuba"),
 				theme.fg("success", "‾‾‾‾‾‾‾‾‾‾‾‾‾"),
 			].join("\n");
 			const onboarding = theme.fg(

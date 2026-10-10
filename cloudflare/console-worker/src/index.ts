@@ -547,7 +547,7 @@ $ omukuumi
 
        /\\        ✦
   ____/  \\____   Rwanda
- | imisozi igihumbi | sun
+ | ebisozi ebikumi | enjuba
  ‾‾‾‾‾‾‾‾‾‾‾‾‾
  Omukuumi CLI · Powered by Upskillsafrica Foundation
 
