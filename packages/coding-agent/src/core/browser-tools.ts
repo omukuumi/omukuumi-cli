@@ -200,10 +200,10 @@ async function snapshotPage(page: any): Promise<string> {
 			.innerText()
 			.catch(() => "")) || "",
 	).slice(0, MAX_SNAPSHOT_CHARS);
-	const controls = await page.locator("a,button,input,textarea,select").evaluateAll((elements) =>
+	const controls = await page.locator("a,button,input,textarea,select").evaluateAll((elements: any[]) =>
 		elements
 			.slice(0, 100)
-			.map((element) => {
+			.map((element: any) => {
 				const node = element as {
 					tagName: string;
 					innerText?: string;
@@ -218,7 +218,7 @@ async function snapshotPage(page: any): Promise<string> {
 				).trim();
 				return text ? `${tag}: ${text.slice(0, 160)}` : undefined;
 			})
-			.filter((item): item is string => item !== undefined),
+			.filter((item: any): item is string => item !== undefined),
 	);
 	return [
 		`Page: ${title || "(untitled)"}`,
@@ -243,7 +243,7 @@ async function findTarget(page: any, target: string): Promise<any> {
 	return page.getByText(target, { exact: false }).first();
 }
 
-async function installBrowserTools(): Promise<{ success: boolean; message: string }> {
+export async function installBrowserTools(): Promise<{ success: boolean; message: string }> {
 	// This can be called from a tool to install browser dependencies
 	try {
 		const { spawn } = await import("node:child_process");
