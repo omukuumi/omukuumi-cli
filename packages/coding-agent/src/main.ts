@@ -557,7 +557,7 @@ export async function main(args: string[], options?: MainOptions) {
 			process.exit(1);
 		}
 		const summary = await openTool.execute("cli", { url: parsed.browserUrl }, undefined, undefined, {
-			ui: { setWidget() {} },
+			ui: minimalUIContext,
 		});
 		console.log(summary);
 		process.exit(0);
@@ -571,7 +571,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const result = await closeTool.execute("cli", {}, undefined, undefined, { ui: { setWidget() {} } });
+		const result = await closeTool.execute("cli", {}, undefined, undefined, { ui: minimalUIContext });
 		console.log(result);
 		process.exit(0);
 	}
@@ -584,7 +584,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const snapshot = await snapshotTool.execute("cli", {}, undefined, undefined, { ui: { setWidget() {} } });
+		const snapshot = await snapshotTool.execute("cli", {}, undefined, undefined, { ui: minimalUIContext });
 		console.log(snapshot);
 		process.exit(0);
 	}
@@ -597,7 +597,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const result = await clickTool.execute("cli", { target: parsed.browserTarget }, undefined, undefined, { ui: { setWidget() {} } });
+		const result = await clickTool.execute("cli", { target: parsed.browserTarget }, undefined, undefined, { ui: minimalUIContext });
 		console.log(result);
 		process.exit(0);
 	}
@@ -610,7 +610,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const result = await typeTool.execute("cli", { target: parsed.browserTarget, text: parsed.browserText }, undefined, undefined, { ui: { setWidget() {} } });
+		const result = await typeTool.execute("cli", { target: parsed.browserTarget, text: parsed.browserText }, undefined, undefined, { ui: minimalUIContext });
 		console.log(result);
 		process.exit(0);
 	}
@@ -623,7 +623,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const result = await scrollTool.execute("cli", { direction: parsed.browserDirection, amount: parsed.browserAmount }, undefined, undefined, { ui: { setWidget() {} } });
+		const result = await scrollTool.execute("cli", { direction: parsed.browserDirection, amount: parsed.browserAmount }, undefined, undefined, { ui: minimalUIContext });
 		console.log(result);
 		process.exit(0);
 	}
@@ -636,7 +636,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const result = await backTool.execute("cli", {}, undefined, undefined, { ui: { setWidget() {} } });
+		const result = await backTool.execute("cli", {}, undefined, undefined, { ui: minimalUIContext });
 		console.log(result);
 		process.exit(0);
 	}
@@ -649,7 +649,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const result = await screenshotTool.execute("cli", {}, undefined, undefined, { ui: { setWidget() {} } });
+		const result = await screenshotTool.execute("cli", {}, undefined, undefined, { ui: minimalUIContext });
 		console.log(result);
 		process.exit(0);
 	}
@@ -662,7 +662,7 @@ export async function main(args: string[], options?: MainOptions) {
 			console.error(chalk.red("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies."));
 			process.exit(1);
 		}
-		const result = await closeTool.execute("cli", {}, undefined, undefined, { ui: { setWidget() {} } });
+		const result = await closeTool.execute("cli", {}, undefined, undefined, { ui: minimalUIContext });
 		console.log(result);
 		process.exit(0);
 	}
