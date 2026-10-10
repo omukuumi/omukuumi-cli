@@ -918,8 +918,6 @@ export class InteractiveMode {
 			const rwandaVector = [
 				theme.fg("accent", "      /\\        ") + theme.fg("warning", "✦"),
 				theme.fg("accent", " ____/  \\____   ") + theme.fg("success", "Rwanda"),
-				theme.fg("success", "| ebisozi ebikumi | ") + theme.fg("warning", "enjuba"),
-				theme.fg("success", "‾‾‾‾‾‾‾‾‾‾‾‾‾"),
 			].join("\n");
 			const onboarding = theme.fg(
 				"dim",

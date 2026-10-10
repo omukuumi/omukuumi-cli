@@ -545,12 +545,6 @@ Gushyira Omukuumi muri terminal...
 
 $ omukuumi
 
-       /\\        ✦
-  ____/  \\____   Rwanda
- | ebisozi ebikumi | enjuba
- ‾‾‾‾‾‾‾‾‾‾‾‾‾
- Omukuumi CLI · Powered by Upskillsafrica Foundation
-
 ╭─ Omukuumi kumurimo · ~/Projects/app
 
 /kwinjira    injira muri Upskillsafrica
