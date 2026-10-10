@@ -110,10 +110,14 @@ fi
 if [[ "$SKIP_BUILD" == "false" ]]; then
     echo "==> Building all workspace packages..."
     cd "$REPO_ROOT"
-    npm run build
-    # Compile browser-tools.ts with tsc (excluded from tsgo due to compiler bug)
-    echo "==> Compiling browser-tools.ts with tsc..."
+    # First, compile browser-tools.ts with tsc (tsgo has a bug that crashes on this file)
+    echo "==> Pre-compiling browser-tools.ts with tsc..."
     npx tsc --project packages/coding-agent/tsconfig.browser-tools.json
+    # Temporarily move browser-tools.ts out of the way so tsgo doesn't crash
+    mv packages/coding-agent/src/core/browser-tools.ts packages/coding-agent/src/core/browser-tools.ts.hidden
+    npm run build
+    # Restore the file
+    mv packages/coding-agent/src/core/browser-tools.ts.hidden packages/coding-agent/src/core/browser-tools.ts
 else
     echo "==> Skipping package build (--skip-build)"
 fi
