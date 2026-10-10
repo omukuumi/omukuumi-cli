@@ -61,7 +61,6 @@ class BrowserSessionManager {
 
 		this.playwrightPromise = (async () => {
 			try {
-				// Dynamic import - only loads when browser tools are actually used
 				const playwright = await import("playwright-core");
 				return playwright as PlaywrightModule;
 			} catch (error) {
@@ -244,13 +243,10 @@ async function findTarget(page: any, target: string): Promise<any> {
 }
 
 export async function installBrowserTools(): Promise<{ success: boolean; message: string }> {
-	// This can be called from a tool to install browser dependencies
 	try {
 		const { spawn } = await import("node:child_process");
-		const { promisify } = await import("node:util");
 		
 		return new Promise((resolve) => {
-			// Try to install playwright-core globally
 			const proc = spawn("npm", ["install", "-g", "playwright-core@latest"], {
 				stdio: "pipe",
 				shell: true,
@@ -263,7 +259,6 @@ export async function installBrowserTools(): Promise<{ success: boolean; message
 			
 			proc.on("close", async (code) => {
 				if (code === 0) {
-					// Now install chromium
 					const proc2 = await import("node:child_process").then(m => m.spawn("npx", ["playwright", "install", "chromium"], {
 						stdio: "pipe",
 						shell: true,
@@ -311,124 +306,6 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 				const summary = await browserSession.open((params as OpenParams).url);
 				renderBrowserStatus(ctx);
 				return result(`Opened ${summary.url}\nTitle: ${summary.title || "(untitled)"}`, summary);
-			},
-		},
-		{
-			name: "browser_snapshot",
-			label: "read browser page",
-			description: "Read a bounded, compact snapshot of the visible page text and interactive elements.",
-			promptSnippet: "Read visible page text and controls",
-			parameters: Type.Object({}),
-			async execute(_id, _params, _signal, _update, ctx) {
-				if (!browserSession.isAvailable()) {
-					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
-				}
-				const page = browserSession.getPage();
-				browserSession.setWorking();
-				renderBrowserStatus(ctx);
-				const snapshot = await snapshotPage(page);
-				browserSession.setReady();
-				renderBrowserStatus(ctx);
-				return result(snapshot);
-			},
-		},
-		{
-			name: "browser_click",
-			label: "click browser control",
-			description:
-				"Click a visible link or button by its text. Sensitive or destructive actions should be confirmed by the user first.",
-			parameters: targetSchema,
-			async execute(_id, params, _signal, _update, ctx) {
-				if (!browserSession.isAvailable()) {
-					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
-				}
-				const { target } = params as TargetParams;
-				rejectSensitiveTarget(target);
-				const page = browserSession.getPage();
-				browserSession.setWorking();
-				renderBrowserStatus(ctx);
-				const locator = await findTarget(page, target);
-				if (!(await locator.count())) throw new Error(`Could not find a visible browser control named: ${target}`);
-				await locator.click();
-				await page.waitForLoadState("domcontentloaded", { timeout: NAVIGATION_TIMEOUT_MS }).catch(() => undefined);
-				browserSession.setReady();
-				renderBrowserStatus(ctx);
-				return result(`Clicked: ${target}\nURL: ${page.url()}`);
-			},
-		},
-		{
-			name: "browser_type",
-			label: "type in browser field",
-			description:
-				"Type non-sensitive text into a visible field by label or placeholder. Passwords and secrets are blocked.",
-			parameters: typeSchema,
-			async execute(_id, params, _signal, _update, ctx) {
-				if (!browserSession.isAvailable()) {
-					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
-				}
-				const { target, text } = params as TypeParams;
-				rejectSensitiveTarget(target);
-				if (/(password|passcode|one[- ]?time|otp|2fa|credit.?card|cvv|secret|api.?key|token)/i.test(text)) {
-					throw new Error("Sensitive values are blocked from browser input.");
-				}
-				const page = browserSession.getPage();
-				browserSession.setWorking();
-				renderBrowserStatus(ctx);
-				const field = page.getByLabel(target, { exact: true }).first();
-				const fallback = (await field.count()) ? field : page.getByPlaceholder(target, { exact: true }).first();
-				if (!(await fallback.count())) throw new Error(`Could not find a visible input named: ${target}`);
-				await fallback.fill(text);
-				browserSession.setReady();
-				renderBrowserStatus(ctx);
-				return result(`Typed non-sensitive text into: ${target}`);
-			},
-		},
-		{
-			name: "browser_scroll",
-			label: "scroll browser page",
-			description: "Scroll the current browser page by a small bounded amount.",
-			parameters: scrollSchema,
-			async execute(_id, params, _signal, _update, ctx) {
-				if (!browserSession.isAvailable()) {
-					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
-				}
-				const { direction, amount = 3 } = params as ScrollParams;
-				const page = browserSession.getPage();
-				await page.mouse.wheel(0, (direction === "down" ? 1 : -1) * amount * 500);
-				renderBrowserStatus(ctx);
-				return result(`Scrolled ${direction}.`);
-			},
-		},
-		{
-			name: "browser_back",
-			label: "go back in browser",
-			description: "Navigate back one page in the isolated browser session.",
-			parameters: Type.Object({}),
-			async execute(_id, _params, _signal, _update, ctx) {
-				if (!browserSession.isAvailable()) {
-					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
-				}
-				const page = browserSession.getPage();
-				await page.goBack({ waitUntil: "domcontentloaded" }).catch(() => undefined);
-				renderBrowserStatus(ctx);
-				return result(`Current URL: ${page.url()}`);
-			},
-		},
-		{
-			name: "browser_screenshot",
-			label: "capture browser page",
-			description: "Capture the current browser viewport to a temporary PNG file and return its path.",
-			parameters: Type.Object({}),
-			async execute(_id, _params, _signal, _update, _ctx) {
-				if (!browserSession.isAvailable()) {
-					throw new Error("Browser tools unavailable. Run 'omukuumi browser install' to install browser dependencies.");
-				}
-				const page = browserSession.getPage();
-				const dir = join(cwd, CONFIG_DIR_NAME, "browser-screenshots");
-				await mkdir(dir, { recursive: true });
-				const path = join(dir, `page-${Date.now()}.png`);
-				await page.screenshot({ path, fullPage: false });
-				return result(`Screenshot saved to ${path}`, { path, maxBytes: MAX_SCREENSHOT_BYTES });
 			},
 		},
 		{
