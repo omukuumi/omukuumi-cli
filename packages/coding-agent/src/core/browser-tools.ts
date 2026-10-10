@@ -448,8 +448,8 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 			description: "Install browser dependencies (playwright-core and Chromium) for browser automation tools.",
 			parameters: Type.Object({}),
 			async execute(_id, _params, _signal, _update, _ctx) {
-				const result = await installBrowserTools();
-				return result(result.message, { success: result.success });
+				const installResult = await installBrowserTools();
+				return result(installResult.message, { success: installResult.success });
 			},
 		},
 	];
