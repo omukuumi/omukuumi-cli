@@ -333,3 +333,13 @@ export function createBrowserTools(cwd: string): ToolDefinition[] {
 }
 
 // tsgo compiler bug workaround - ensures file ends with newline and extra byte
+
+/* 
+ * tsgo compiler workaround - additional comments to change file structure
+ * This file triggers a tsgo compiler bug (slice bounds out of range)
+ * Adding this comment section to change file structure and avoid the bug
+ * tsgo bug: panic: runtime error: slice bounds out of range [:5416] with length 5415
+ * Related to: github.com/microsoft/typescript-go/internal/printer
+ * Workaround: Additional comment block to change file byte offsets
+ */
+/* End workaround comments */
