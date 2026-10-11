@@ -77,13 +77,53 @@ function stageChangedFiles() {
 	run(`git add -- ${paths.map(shellQuote).join(" ")}`);
 }
 
+function bumpVersion(version, type) {
+	const parts = version.split(".").map(Number);
+	if (type === "major") parts[0]++;
+	else if (type === "minor") parts[1]++;
+	else if (type === "patch") parts[2]++;
+	return parts.join(".");
+}
+
+function setAllPackageVersions(version) {
+	const packagesDir = join(process.cwd(), "packages");
+	const packageDirs = readdirSync(packagesDir, { withFileTypes: true })
+		.filter(dirent => dirent.isDirectory())
+		.map(dirent => dirent.name);
+
+	for (const dir of packageDirs) {
+		const pkgPath = join(packagesDir, dir, "package.json");
+		try {
+			const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+			pkg.version = version;
+			writeFileSync(pkgPath, JSON.stringify(pkg, null, "\t") + "\n");
+			console.log(`  ${pkg.name}: ${version}`);
+		} catch (e) {
+			console.error(`Failed to update ${pkgPath}:`, e.message);
+		}
+	}
+
+	// Also update root package.json
+	const rootPkgPath = join(process.cwd(), "package.json");
+	try {
+		const rootPkg = JSON.parse(readFileSync(rootPkgPath, "utf8"));
+		rootPkg.version = version;
+		writeFileSync(rootPkgPath, JSON.stringify(rootPkg, null, "\t") + "\n");
+		console.log(`  ${rootPkg.name}: ${version}`);
+	} catch (e) {
+		console.error(`Failed to update ${rootPkgPath}:`, e.message);
+	}
+}
+
 function bumpOrSetVersion(target) {
 	const currentVersion = getVersion();
 
 	if (BUMP_TYPES.has(target)) {
 		console.log(`Bumping version (${target})...`);
-		run(`npm run version:${target}`);
-		return getVersion();
+		const newVersion = bumpVersion(currentVersion, target);
+		setAllPackageVersions(newVersion);
+		run(`node scripts/sync-versions.js`);
+		return newVersion;
 	}
 
 	if (compareVersions(target, currentVersion) <= 0) {
@@ -92,8 +132,9 @@ function bumpOrSetVersion(target) {
 	}
 
 	console.log(`Setting explicit version (${target})...`);
-	run(`npm version ${target} --ws --no-git-tag-version && node scripts/sync-versions.js`);
-	return getVersion();
+	setAllPackageVersions(target);
+	run(`node scripts/sync-versions.js`);
+	return target;
 }
 
 function getChangelogs() {
