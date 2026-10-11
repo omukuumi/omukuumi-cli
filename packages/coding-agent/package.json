@@ -1,6 +1,6 @@
 {
 	"name": "omukuumi",
-	"version": "0.81.0-alpha.11",
+	"version": "0.81.0",
 	"description": "Omukuumi Kinyarwanda-first AI coding assistant for the terminal",
 	"type": "module",
 	"piConfig": {
