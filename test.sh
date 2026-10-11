@@ -74,6 +74,8 @@ unset AWS_CONTAINER_CREDENTIALS_FULL_URI
 unset AWS_WEB_IDENTITY_TOKEN_FILE
 unset BEDROCK_EXTENSIVE_MODEL_TEST
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 echo "Running tests without API keys (skipping known-failing tests)..."
 
 # Skip known-failing test files:
@@ -86,8 +88,10 @@ echo "Running tests without API keys (skipping known-failing tests)..."
 # - packages/coding-agent/test/suite/lax-message-content.test.ts
 
 # Run tests in each package, excluding known failures
-cd packages/ai && node ../node_modules/vitest/dist/cli.js --run --exclude="test/github-copilot-oauth.test.ts" --exclude="test/openai-completions-tool-choice.test.ts" --exclude="test/sdk-openrouter-attribution.test.ts" --exclude="test/sdk-stream-options.test.ts" && cd ../..
-cd packages/coding-agent && node ../node_modules/vitest/dist/cli.js --run --exclude="test/suite/agent-session-prompt.test.ts" --exclude="test/suite/agent-session-queue.test.ts" --exclude="test/suite/lax-message-content.test.ts" && cd ../..
-cd packages/tui && node --test --test-reporter=dot --test-reporter-destination=stdout test/*.test.ts && cd ../..
-cd packages/agent && node ../node_modules/vitest/dist/cli.js --run && cd ../..
-cd packages/orchestrator && node ../node_modules/vitest/dist/cli.js --run && cd ../..
+cd "$ROOT_DIR/packages/ai" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --exclude="test/github-copilot-oauth.test.ts" --exclude="test/openai-completions-tool-choice.test.ts" --exclude="test/sdk-openrouter-attribution.test.ts" --exclude="test/sdk-stream-options.test.ts"
+cd "$ROOT_DIR/packages/coding-agent" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --exclude="test/suite/agent-session-prompt.test.ts" --exclude="test/suite/agent-session-queue.test.ts" --exclude="test/suite/lax-message-content.test.ts"
+cd "$ROOT_DIR/packages/tui" && node --test --test-reporter=dot --test-reporter-destination=stdout test/*.test.ts
+cd "$ROOT_DIR/packages/agent" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
+cd "$ROOT_DIR/packages/orchestrator" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
+
+cd "$ROOT_DIR"
