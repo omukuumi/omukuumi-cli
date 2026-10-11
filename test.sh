@@ -78,18 +78,12 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Running tests without API keys (skipping known-failing tests)..."
 
-# Skip known-failing test files:
-# - packages/ai/test/github-copilot-oauth.test.ts
-# - packages/ai/test/openai-completions-tool-choice.test.ts
-# - packages/ai/test/sdk-openrouter-attribution.test.ts
-# - packages/ai/test/sdk-stream-options.test.ts
-# - packages/coding-agent/test/suite/agent-session-prompt.test.ts
-# - packages/coding-agent/test/suite/agent-session-queue.test.ts
-# - packages/coding-agent/test/suite/lax-message-content.test.ts
+# Skip known-failing test files by running vitest with --testNamePattern to exclude
+# For vitest, use --testPathIgnorePatterns to exclude files
 
 # Run tests in each package, excluding known failures
-cd "$ROOT_DIR/packages/ai" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --exclude="test/github-copilot-oauth.test.ts" --exclude="test/openai-completions-tool-choice.test.ts" --exclude="test/sdk-openrouter-attribution.test.ts" --exclude="test/sdk-stream-options.test.ts"
-cd "$ROOT_DIR/packages/coding-agent" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --exclude="test/suite/agent-session-prompt.test.ts" --exclude="test/suite/agent-session-queue.test.ts" --exclude="test/suite/lax-message-content.test.ts"
+cd "$ROOT_DIR/packages/ai" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --testPathIgnorePatterns="github-copilot-oauth|openai-completions-tool-choice|sdk-openrouter-attribution|sdk-stream-options"
+cd "$ROOT_DIR/packages/coding-agent" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --testPathIgnorePatterns="agent-session-prompt|agent-session-queue|lax-message-content"
 cd "$ROOT_DIR/packages/tui" && node --test --test-reporter=dot --test-reporter-destination=stdout test/*.test.ts
 cd "$ROOT_DIR/packages/agent" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
 cd "$ROOT_DIR/packages/orchestrator" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
