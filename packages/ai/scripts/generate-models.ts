@@ -2278,9 +2278,9 @@ async function generateModels() {
 	const sortedProviderIds = Object.keys(providers).sort();
 	const providersDir = join(packageRoot, "src/providers");
 
-	// Remove stale per-provider catalogs
+	// Remove stale per-provider catalogs (except kimi-coding which is manually maintained)
 	for (const entry of readdirSync(providersDir)) {
-		if (entry.endsWith(".models.ts")) {
+		if (entry.endsWith(".models.ts") && entry !== "kimi-coding.models.ts") {
 			rmSync(join(providersDir, entry));
 		}
 	}
