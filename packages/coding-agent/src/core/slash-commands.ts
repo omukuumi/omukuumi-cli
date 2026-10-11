@@ -19,11 +19,11 @@ export interface BuiltinSlashCommand {
 export const BUILTIN_SLASH_COMMANDS: ReadonlyArray<BuiltinSlashCommand> = [
 	{ name: "settings", description: "Fungura menu y'igenamiterere" },
 	{ name: "model", description: "Hitamo icyitegererezo (ifungura selector UI)", argumentHint: "<provider/model>" },
-	{ name: "scoped-models", description: "Emera cyangwa uhagarike ibyitegererezo byo guhinduranya na Ctrl+P" },
+	{ name: "scoped-models", description: "Emera cyangwa uhagarike ibyitegererezo byo changenya na Ctrl+P" },
 	{ name: "export", description: "Ohereza ikiganiro (HTML ni default, cyangwa tanga path: .html/.jsonl)" },
 	{ name: "import", description: "Injiza kandi ukomeze ikiganiro kiva muri dosiye ya JSONL" },
 	{ name: "share", description: "Sangiza ikiganiro nka GitHub gist y'ibanga" },
-	{ name: "copy", description: "Koporora ubutumwa bwa nyuma bw'umufasha muri clipboard" },
+	{ name: "copy", description: "Koporora ubutumwa bwa nyuma bw'assistant muri clipboard" },
 	{ name: "name", description: "Gena izina ry'ikiganiro rigaragara" },
 	{ name: "session", description: "Erekana amakuru n'imibare by'ikiganiro" },
 	{ name: "changelog", description: "Erekana ibyahindutse muri changelog" },
@@ -32,10 +32,10 @@ export const BUILTIN_SLASH_COMMANDS: ReadonlyArray<BuiltinSlashCommand> = [
 	{ name: "clone", description: "Koporora ikiganiro kiriho aho kigeze ubu" },
 	{ name: "tree", description: "Genda mu giti cy'ikiganiro (hindura amashami)" },
 	{ name: "trust", description: "Bika icyemezo cyo kwizera poroje ku biganiro bizaza" },
-	{ name: "kwinjira", description: "Tegura authentication ya provider", argumentHint: "<provider>" },
+	{ name: "login", description: "Tegura authentication ya provider", argumentHint: "<provider>" },
 	{
 		name: "org",
-		description: "Reba cyangwa wongere organisation code ya Upskillsafrica",
+		description: "Reba cyangwa wongere organisation code ya Genesis Codeworks",
 		argumentHint: "status|add|remove",
 	},
 	{ name: "doctor", description: "Suzuma installation, auth, models, na backend" },
@@ -45,7 +45,7 @@ export const BUILTIN_SLASH_COMMANDS: ReadonlyArray<BuiltinSlashCommand> = [
 	{ name: "continue", description: "Komeza ikiganiro" },
 	{
 		name: "reload",
-		description: "Ongera ufungure keybindings, ingereko, ubumenyi, prompts, themes, na context files",
+		description: "Ongera ufungure keybindings, ingereko, skills, prompts, themes, na context files",
 	},
 	{ name: "sohoka", description: `Sohoka muri ${APP_NAME}` },
 ];

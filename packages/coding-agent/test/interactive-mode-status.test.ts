@@ -492,7 +492,7 @@ describe("InteractiveMode.createBaseAutocompleteProvider", () => {
 		};
 
 		const provider = createBaseAutocompleteProvider.call(fakeThis);
-		const line = "/kwinjira anthrop";
+		const line = "/login anthrop";
 		const suggestions = await provider.getSuggestions([line], 0, line.length, {
 			signal: new AbortController().signal,
 		});

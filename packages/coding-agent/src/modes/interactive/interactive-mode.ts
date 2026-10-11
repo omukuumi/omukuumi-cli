@@ -686,7 +686,7 @@ export class InteractiveMode {
 			};
 		}
 
-		const loginCommand = slashCommands.find((command) => command.name === "kwinjira");
+		const loginCommand = slashCommands.find((command) => command.name === "login");
 		if (loginCommand) {
 			loginCommand.getArgumentCompletions = (prefix: string): AutocompleteItem[] | null => {
 				const providers = getLoginProviderCompletionOptions(this.getLoginProviderOptions());
@@ -721,7 +721,7 @@ export class InteractiveMode {
 		const skillCommandList: SlashCommand[] = [];
 		if (this.settingsManager.getEnableSkillCommands()) {
 			for (const skill of this.session.resourceLoader.getSkills().skills) {
-				const commandName = `ubumenyi:${skill.name}`;
+				const commandName = `skills:${skill.name}`;
 				this.skillCommands.set(commandName, skill.filePath);
 				skillCommandList.push({
 					name: commandName,
@@ -913,21 +913,21 @@ export class InteractiveMode {
 			].join(theme.fg("muted", " · "));
 			const compactOnboarding = theme.fg(
 				"dim",
-				`Press ${keyText("app.tools.expand")} to show full startup help, ubumenyi data, and loaded resources.`,
+				`Press ${keyText("app.tools.expand")} to show full startup help, skills data, and loaded resources.`,
 			);
-			const rwandaVector = [
+			const ugandaVector = [
 				theme.fg("accent", "      /\\        ") + theme.fg("warning", "✦"),
-				theme.fg("accent", " ____/  \\____   ") + theme.fg("success", "Rwanda"),
-				theme.fg("success", "| imisozi igihumbi | ") + theme.fg("warning", "sun"),
+				theme.fg("accent", " ____/  \\____   ") + theme.fg("success", "Uganda"),
+				theme.fg("success", "| enkumi z'obusozi | ") + theme.fg("warning", "sun"),
 				theme.fg("success", "‾‾‾‾‾‾‾‾‾‾‾‾‾"),
 			].join("\n");
 			const onboarding = theme.fg(
 				"dim",
-				`Omukuumi can explain its features and help with kode, providers, and ubumenyi.\nSponsored by Genesis Codeworks Foundation.`,
+				`Omukuumi can explain its features and help with kode, providers, and skills.\nSponsored by Genesis Codeworks Foundation.`,
 			);
 			this.builtInHeader = new ExpandableText(
-				() => `${rwandaVector}\n${logo}\n${compactInstructions}\n${compactOnboarding}\n\n${onboarding}`,
-				() => `${rwandaVector}\n${logo}\n${expandedInstructions}\n\n${onboarding}`,
+				() => `${ugandaVector}\n${logo}\n${compactInstructions}\n${compactOnboarding}\n\n${onboarding}`,
+				() => `${ugandaVector}\n${logo}\n${expandedInstructions}\n\n${onboarding}`,
 				this.getStartupExpansionState(),
 				1,
 				0,
@@ -2893,8 +2893,8 @@ export class InteractiveMode {
 				this.editor.setText("");
 				return;
 			}
-			if (text === "/kwinjira" || text.startsWith("/kwinjira ") || text === "/login" || text.startsWith("/login ")) {
-				const providerRef = text.startsWith("/kwinjira ")
+			if (text === "/login" || text.startsWith("/login ") || text === "/login" || text.startsWith("/login ")) {
+				const providerRef = text.startsWith("/login ")
 					? text.slice(10).trim()
 					: text.startsWith("/login ")
 						? text.slice(7).trim()
@@ -5217,7 +5217,7 @@ export class InteractiveMode {
 			});
 			const data = (await response.json()) as { token?: string; message?: string; user?: { email?: string } };
 			if (!response.ok || !data.token) {
-				throw new Error(data.message || `Upskillsafrica ${mode} failed.`);
+				throw new Error(data.message || `Genesis Codeworks ${mode} failed.`);
 			}
 			this.saveUpskillsAfricaCredentials(data.token);
 			restoreEditor();
@@ -5228,7 +5228,7 @@ export class InteractiveMode {
 		} catch (error: unknown) {
 			restoreEditor();
 			const errorMsg = error instanceof Error ? error.message : String(error);
-			if (errorMsg !== "Login cancelled") this.showError(`Upskillsafrica ${mode} failed: ${errorMsg}`);
+			if (errorMsg !== "Login cancelled") this.showError(`Genesis Codeworks ${mode} failed: ${errorMsg}`);
 		}
 	}
 
@@ -5267,7 +5267,7 @@ export class InteractiveMode {
 
 	private removeUpskillsAfricaOrganisationCode(): void {
 		const snapshot = this.getUpskillsAfricaCredentialSnapshot();
-		if (!snapshot.token) throw new Error("No Upskillsafrica login found.");
+		if (!snapshot.token) throw new Error("No Genesis Codeworks login found.");
 		const env: Record<string, string> = { ...snapshot.env, UPSKILLSAFRICA_BACKEND_URL: UPSKILLS_AFRICA_BACKEND_URL };
 		delete env.UPSKILLSAFRICA_ORG_CODE;
 		for (const providerId of [UPSKILLS_AFRICA_PROVIDER_ID, UPSKILLS_AFRICA_MODEL_PROVIDER_ID]) {
@@ -5301,7 +5301,7 @@ export class InteractiveMode {
 			UPSKILLS_AFRICA_PROVIDER_ID,
 			(_success, _message) => {},
 			UPSKILLS_AFRICA_PROVIDER_NAME,
-			"Upskillsafrica organisation code",
+			"Genesis Codeworks organisation code",
 		);
 		this.editorContainer.clear();
 		this.editorContainer.addChild(dialog);
@@ -5324,7 +5324,7 @@ export class InteractiveMode {
 			this.session.modelRegistry.refresh();
 			await this.updateAvailableProviderCount();
 			this.showStatus(
-				`Upskillsafrica organisation code verified and saved${verified.label ? ` for ${verified.label}` : ""}. Choose an organisation model to continue.`,
+				`Genesis Codeworks organisation code verified and saved${verified.label ? ` for ${verified.label}` : ""}. Choose an organisation model to continue.`,
 			);
 			this.showModelSelector("upskillsafrica");
 		} catch (error: unknown) {
@@ -5346,10 +5346,10 @@ export class InteractiveMode {
 		const [, action = "status", ...rest] = text.split(/\s+/);
 		if (action === "status") {
 			const snapshot = this.getUpskillsAfricaCredentialSnapshot();
-			this.addInfoPanel("Upskillsafrica organisation access", [
+			this.addInfoPanel("Genesis Codeworks organisation access", [
 				`Login: ${snapshot.token ? "configured" : "not configured"}`,
 				`Organisation code: ${snapshot.organisationCode ? this.maskOrganisationCode(snapshot.organisationCode) : "not set"}`,
-				snapshot.token ? "Use /org add <code> to verify a new code." : "Use /kwinjira to login first.",
+				snapshot.token ? "Use /org add <code> to verify a new code." : "Use /login to login first.",
 			]);
 			return;
 		}
@@ -5361,7 +5361,7 @@ export class InteractiveMode {
 			}
 			try {
 				const snapshot = this.getUpskillsAfricaCredentialSnapshot();
-				if (!snapshot.token) throw new Error("Login first with /kwinjira before saving an organisation code.");
+				if (!snapshot.token) throw new Error("Login first with /login before saving an organisation code.");
 				const verified = await this.verifyUpskillsAfricaOrganisationCode(snapshot.token, organisationCode);
 				this.saveUpskillsAfricaCredentials(undefined, organisationCode);
 				this.session.modelRegistry.refresh();
@@ -5395,7 +5395,7 @@ export class InteractiveMode {
 		checks.push(`Version: ${VERSION}`);
 		checks.push(`Agent directory: ${getAgentDir()}`);
 		checks.push(`models.json: ${modelsJsonError ? `error - ${modelsJsonError}` : "OK"}`);
-		checks.push(`Upskillsafrica auth: ${snapshot.token ? "configured" : "not configured"}`);
+		checks.push(`Genesis Codeworks auth: ${snapshot.token ? "configured" : "not configured"}`);
 		checks.push(
 			`Organisation code: ${snapshot.organisationCode ? this.maskOrganisationCode(snapshot.organisationCode) : "not set"}`,
 		);
@@ -5404,9 +5404,9 @@ export class InteractiveMode {
 		);
 		try {
 			const response = await fetch(`${UPSKILLS_AFRICA_BACKEND_URL}/health`);
-			checks.push(`Upskillsafrica backend: ${response.ok ? "reachable" : `HTTP ${response.status}`}`);
+			checks.push(`Genesis Codeworks backend: ${response.ok ? "reachable" : `HTTP ${response.status}`}`);
 		} catch (error) {
-			checks.push(`Upskillsafrica backend: ${error instanceof Error ? error.message : String(error)}`);
+			checks.push(`Genesis Codeworks backend: ${error instanceof Error ? error.message : String(error)}`);
 		}
 		this.addInfoPanel("Omukuumi doctor", checks);
 	}
@@ -5422,18 +5422,18 @@ export class InteractiveMode {
 				message?: string;
 			};
 			if ((data.entitlements || []).length > 0) {
-				this.showStatus("Upskillsafrica subscription active. Choose a model to continue.");
+				this.showStatus("Genesis Codeworks subscription active. Choose a model to continue.");
 				this.showModelSelector();
 				return;
 			}
 			const plans = data.plans || [];
-			this.showWarning("No active Upskillsafrica subscription found. Choose a plan to continue.");
+			this.showWarning("No active Genesis Codeworks subscription found. Choose a plan to continue.");
 			if (plans.length > 0) {
 				this.showUpskillsAfricaPlanSelector(token, email, plans);
 			}
 		} catch (error) {
 			this.showWarning(
-				`Upskillsafrica login saved, but subscription check failed: ${error instanceof Error ? error.message : String(error)}`,
+				`Genesis Codeworks login saved, but subscription check failed: ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 	}
@@ -5535,7 +5535,7 @@ export class InteractiveMode {
 				return;
 			}
 		}
-		this.showWarning("Ubwishyu buracyategerejwe. Nibwemezwa, ongera ufungure /kwinjira cyangwa /model.");
+		this.showWarning("A required password. Nibwemezwa, ongera ufungure /login cyangwa /model.");
 	}
 
 	private showLoginProviderSelector(
@@ -5591,7 +5591,7 @@ export class InteractiveMode {
 		const providerOptions = this.getLogoutProviderOptions();
 		if (providerOptions.length === 0) {
 			this.showStatus(
-				"No stored credentials to remove. /logout only removes credentials saved by /kwinjira; environment variables and models.json config are unchanged.",
+				"No stored credentials to remove. /logout only removes credentials saved by /login; environment variables and models.json config are unchanged.",
 			);
 			return;
 		}
@@ -5922,7 +5922,7 @@ export class InteractiveMode {
 		reloadBox.addChild(new Spacer(1));
 		reloadBox.addChild(
 			new Text(
-				theme.fg("muted", "Reloading keybindings, extensions, ubumenyi, prompts, themes, and context files..."),
+				theme.fg("muted", "Reloading keybindings, extensions, skills, prompts, themes, and context files..."),
 				1,
 				0,
 			),
@@ -5995,8 +5995,8 @@ export class InteractiveMode {
 			}
 			this.showStatus(
 				savedImplicitProjectTrust
-					? "Reloaded keybindings, extensions, ubumenyi, prompts, themes, and context files; saved project trust"
-					: "Reloaded keybindings, extensions, ubumenyi, prompts, themes, and context files",
+					? "Reloaded keybindings, extensions, skills, prompts, themes, and context files; saved project trust"
+					: "Reloaded keybindings, extensions, skills, prompts, themes, and context files",
 			);
 			dismissReloadBox(this.editor as Component);
 			reloadBoxDismissed = true;

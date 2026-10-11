@@ -2,12 +2,12 @@
 	"$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
 	"name": "dark",
 	"vars": {
-		"rwandaBlue": "#00A1DE",
-		"rwandaYellow": "#FAD201",
-		"rwandaGreen": "#20603D",
-		"rwandaGoldenYellow": "#E5BE01",
+		"ugandaYellow": "#FCDC04",
+		"ugandaRed": "#D90000",
+		"ugandaBlack": "#000000",
+		"ugandaGrey": "#9CA69C",
 		"green": "#20603D",
-		"red": "#E5484D",
+		"red": "#D90000",
 		"text": "#E6F7FF",
 		"gray": "#8AA6B2",
 		"dimGray": "#5F7884",
@@ -20,13 +20,13 @@
 		"customMsgBg": "#332B07"
 	},
 	"colors": {
-		"accent": "rwandaBlue",
-		"border": "rwandaGreen",
-		"borderAccent": "rwandaBlue",
+		"accent": "ugandaYellow",
+		"border": "ugandaGrey",
+		"borderAccent": "ugandaRed",
 		"borderMuted": "darkGray",
-		"success": "rwandaGreen",
-		"error": "red",
-		"warning": "rwandaYellow",
+		"success": "green",
+		"error": "ugandaRed",
+		"warning": "ugandaYellow",
 		"muted": "gray",
 		"dim": "dimGray",
 		"text": "text",
@@ -37,26 +37,26 @@
 		"userMessageText": "text",
 		"customMessageBg": "customMsgBg",
 		"customMessageText": "text",
-		"customMessageLabel": "rwandaGoldenYellow",
+		"customMessageLabel": "ugandaGoldenYellow",
 		"toolPendingBg": "toolPendingBg",
 		"toolSuccessBg": "toolSuccessBg",
 		"toolErrorBg": "toolErrorBg",
 		"toolTitle": "text",
 		"toolOutput": "gray",
 
-		"mdHeading": "rwandaYellow",
-		"mdLink": "rwandaBlue",
+		"mdHeading": "ugandaYellow",
+		"mdLink": "ugandaYellow",
 		"mdLinkUrl": "dimGray",
-		"mdCode": "rwandaGoldenYellow",
-		"mdCodeBlock": "rwandaGreen",
+		"mdCode": "ugandaYellow",
+		"mdCodeBlock": "green",
 		"mdCodeBlockBorder": "gray",
 		"mdQuote": "gray",
-		"mdQuoteBorder": "rwandaGreen",
+		"mdQuoteBorder": "ugandaGrey",
 		"mdHr": "darkGray",
-		"mdListBullet": "rwandaBlue",
+		"mdListBullet": "ugandaYellow",
 
-		"toolDiffAdded": "rwandaGreen",
-		"toolDiffRemoved": "red",
+		"toolDiffAdded": "green",
+		"toolDiffRemoved": "ugandaRed",
 		"toolDiffContext": "gray",
 
 		"syntaxComment": "#6FAF86",
@@ -71,17 +71,20 @@
 
 		"thinkingOff": "darkGray",
 		"thinkingMinimal": "dimGray",
-		"thinkingLow": "rwandaGreen",
-		"thinkingMedium": "rwandaBlue",
-		"thinkingHigh": "rwandaGoldenYellow",
-		"thinkingXhigh": "rwandaYellow",
+		"thinkingLow": "green",
+		"thinkingMedium": "ugandaYellow",
+		"thinkingHigh": "ugandaGoldenYellow",
+		"thinkingXhigh": "ugandaYellow",
 		"thinkingMax": "#FFE55C",
 
-		"bashMode": "rwandaGreen"
+		"bashMode": "green"
 	},
 	"export": {
 		"pageBg": "#061923",
 		"cardBg": "#0B2633",
 		"infoBg": "#332B07"
 	}
-}
+}<tool_call>
+<function=read>
+<parameter=path>
+/home/irunva/Projects/omukuumi-cli/packages/coding-agent/src/modes/interactive/theme/light.json

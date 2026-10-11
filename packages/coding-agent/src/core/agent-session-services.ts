@@ -149,12 +149,12 @@ export async function createAgentSessionServices(
 	if (modelRefreshResult?.updated) {
 		diagnostics.push({
 			type: "info",
-			message: `Updated Upskillsafrica model catalog from backend (${modelRefreshResult.modelCount ?? "unknown"} models).`,
+			message: `Updated Genesis Codeworks model catalog from backend (${modelRefreshResult.modelCount ?? "unknown"} models).`,
 		});
 	} else if (modelRefreshResult?.error) {
 		diagnostics.push({
 			type: "warning",
-			message: `Could not refresh Upskillsafrica model catalog: ${modelRefreshResult.error}`,
+			message: `Could not refresh Genesis Codeworks model catalog: ${modelRefreshResult.error}`,
 		});
 	}
 	const modelRegistry = options.modelRegistry ?? ModelRegistry.create(authStorage, join(agentDir, "models.json"));

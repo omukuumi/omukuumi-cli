@@ -37,10 +37,10 @@ async function checkBackend(): Promise<DoctorCheck> {
 	try {
 		const response = await fetch(`${UPSKILLSAFRICA_BACKEND_URL}/health`, { signal: controller.signal });
 		if (!response.ok)
-			return check("warn", "Upskillsafrica backend", `reachable but returned HTTP ${response.status}`);
-		return check("ok", "Upskillsafrica backend", "reachable");
+			return check("warn", "Genesis Codeworks backend", `reachable but returned HTTP ${response.status}`);
+		return check("ok", "Genesis Codeworks backend", "reachable");
 	} catch (error) {
-		return check("warn", "Upskillsafrica backend", error instanceof Error ? error.message : String(error));
+		return check("warn", "Genesis Codeworks backend", error instanceof Error ? error.message : String(error));
 	} finally {
 		clearTimeout(timeout);
 	}
@@ -65,7 +65,7 @@ function checkModelsJson(agentDir: string): DoctorCheck {
 			return check("fail", "models.json", `${invalidInputs.length} invalid input entries`);
 		if (missingCost.length > 0)
 			return check("warn", "models.json", `${missingCost.length} models missing cost rates`);
-		return check("ok", "models.json", `${models.length} Upskillsafrica models at ${path}`);
+		return check("ok", "models.json", `${models.length} Genesis Codeworks models at ${path}`);
 	} catch (error) {
 		return check("fail", "models.json", error instanceof Error ? error.message : String(error));
 	}
@@ -74,9 +74,9 @@ function checkModelsJson(agentDir: string): DoctorCheck {
 function checkAuth(authStorage: AuthStorage): DoctorCheck {
 	const status = authStorage.getAuthStatus(UPSKILLSAFRICA_PROVIDER_ID);
 	if (authStorage.hasAuth(UPSKILLSAFRICA_PROVIDER_ID)) {
-		return check("ok", "Upskillsafrica auth", status.label ?? status.source ?? "configured");
+		return check("ok", "Genesis Codeworks auth", status.label ?? status.source ?? "configured");
 	}
-	return check("warn", "Upskillsafrica auth", "not configured; run /kwinjira or set UPSKILLSAFRICA_API_KEY");
+	return check("warn", "Genesis Codeworks auth", "not configured; run /login or set GENESIS_CODEWORKS_API_KEY");
 }
 
 function checkDefaultModel(settingsManager: SettingsManager, modelRegistry: ModelRegistry): DoctorCheck {

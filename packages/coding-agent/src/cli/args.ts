@@ -226,7 +226,7 @@ export function printHelp(extensionFlags?: ExtensionFlag[]): void {
 					})
 					.join("\n")}\n`
 			: "";
-	console.log(`${chalk.bold(APP_NAME)} - Umufasha wa AI mu kwandika kode ufite ibikoresho byo gusoma, gukoresha bash, guhindura, no kwandika dosiye
+	console.log(`${chalk.bold(APP_NAME)} - Umufasha wa AI mu write kode ufite tools byo read, gukoresha bash, change, no write dosiye
 
 ${chalk.bold("Imikoreshereze:")}
   ${APP_NAME} [options] [@files...] [messages...]
@@ -239,7 +239,7 @@ ${chalk.bold("Amategeko:")}
   ${APP_NAME} list                      Erekana ingereko zinjijwe ziri mu igenamiterere
   ${APP_NAME} config [-l]               Fungura TUI kugira ngo wemere cyangwa uhagarike umutungo w'amapakeji (Tab ihindura scope)
   ${APP_NAME} doctor                    Suzuma installation, auth, models, na backend
-  ${APP_NAME} org add <code>            Bika organisation code ya Upskillsafrica
+  ${APP_NAME} org add <code>            Bika organisation code ya Genesis Codeworks
   ${APP_NAME} org status                Reba uko organisation access ihagaze
   ${APP_NAME} <command> --help          Erekana ubufasha ku mategeko install/remove/uninstall/update/list/config
 
@@ -247,7 +247,7 @@ ${chalk.bold("Amahitamo:")}
   --provider <name>              Izina rya provider (default: google)
   --model <pattern>              Imiterere cyangwa ID y'icyitegererezo (yemera "provider/id" na ":<thinking>" itari ngombwa)
   --api-key <key>                Urufunguzo rwa API (default: env vars)
-  --system-prompt <text>         Amabwiriza remezo ya sisitemu (default: amabwiriza y'umufasha wa kode)
+  --system-prompt <text>         Amabwiriza remezo ya sisitemu (default: amabwiriza y'assistant wa kode)
   --append-system-prompt <text>  Ongeraho umwandiko cyangwa ibiri muri dosiye ku mabwiriza remezo ya sisitemu (bishobora gusubirwamo)
   --mode <mode>                  Uburyo bwo kwerekana ibisubizo: text (default), json, cyangwa rpc
   --print, -p                    Uburyo butari ibiganiro: kora ibwiriza hanyuma usohoke
@@ -259,19 +259,19 @@ ${chalk.bold("Amahitamo:")}
   --session-dir <dir>            Ububiko bwo kubikamo no gushakiramo ibiganiro
   --no-session                   Ntubike ikiganiro (ephemeral)
   --name, -n <name>              Gena izina ry'ikiganiro rigaragara
-  --models <patterns>            Imiterere y'ibyitegererezo itandukanijwe n'utwatuzo, ikoreshwa mu guhinduranya na Ctrl+P
+  --models <patterns>            Imiterere y'ibyitegererezo itandukanijwe n'utwatuzo, ikoreshwa mu changenya na Ctrl+P
                                  Yemera glob patterns (anthropic/*, *sonnet*) na fuzzy matching
-  --no-tools, -nt                Hagarika ibikoresho byose ku buryo busanzwe (ibisanzwe n'ingereko)
-  --no-builtin-tools, -nbt       Hagarika ibikoresho bisanzwe birimo, ariko ugumane ingereko n'ibikoresho byihariye bikora
-  --tools, -t <tools>            Urutonde rw'ibikoresho byemewe gukora, bitandukanijwe n'utwatuzo
-                                 Bikora ku bikoresho bisanzwe, ingereko, n'ibikoresho byihariye
-  --exclude-tools, -xt <tools>   Urutonde rw'ibikoresho bigomba guhagarikwa, bitandukanijwe n'utwatuzo
-                                 Bikora ku bikoresho bisanzwe, ingereko, n'ibikoresho byihariye
+  --no-tools, -nt                Hagarika tools byose ku buryo busanzwe (ibisanzwe n'ingereko)
+  --no-builtin-tools, -nbt       Hagarika tools bisanzwe birimo, ariko ugumane ingereko n'tools byihariye bikora
+  --tools, -t <tools>            Urutonde rw'tools byemewe gukora, bitandukanijwe n'utwatuzo
+                                 Bikora ku bikoresho bisanzwe, ingereko, n'tools byihariye
+  --exclude-tools, -xt <tools>   Urutonde rw'tools bigomba guhagarikwa, bitandukanijwe n'utwatuzo
+                                 Bikora ku bikoresho bisanzwe, ingereko, n'tools byihariye
   --thinking <level>             Gena urwego rwo gutekereza: off, minimal, low, medium, high, xhigh, max
   --extension, -e <path>         Fungura dosiye y'ingereko (bishobora gusubirwamo)
   --no-extensions, -ne           Hagarika gushakisha ingereko (inzira za -e zitanzwe ziracyakora)
-  --skill <path>                 Fungura dosiye cyangwa ububiko bw'ubumenyi (bishobora gusubirwamo)
-  --no-skills, -ns               Hagarika gushakisha no gufungura ubumenyi
+  --skill <path>                 Fungura dosiye cyangwa ububiko bw'skills (bishobora gusubirwamo)
+  --no-skills, -ns               Hagarika gushakisha no gufungura skills
   --prompt-template <path>       Fungura dosiye cyangwa ububiko bw'inyandikorugero y'amabwiriza (bishobora gusubirwamo)
   --no-prompt-templates, -np     Hagarika gushakisha no gufungura inyandikorugero z'amabwiriza
   --theme <path>                 Fungura dosiye cyangwa ububiko bw'insanganyamatsiko (bishobora gusubirwamo)
@@ -285,7 +285,7 @@ ${chalk.bold("Amahitamo:")}
   --offline                      Hagarika ibikorwa by'urusobe mu gutangira (kimwe na GIHANGA_OFFLINE=1)
   --help, -h                     Erekana ubu bufasha
   --version, -v                  Erekana nomero ya version
-  vuga                           Tangira ibiganiro by'ijwi bya Upskillsafrica (bisaba subscription)
+  vuga                           Tangira ibiganiro by'ijwi bya Genesis Codeworks (bisaba subscription)
 
 Ingereko zishobora kongeramo flags nshya (urugero: --plan iva muri plan-mode extension).${extensionFlagsText}
 
@@ -320,7 +320,7 @@ ${chalk.bold("Ingero:")}
   # Koresha icyitegererezo gifite impine y'urwego rwo gutekereza
   ${APP_NAME} --model sonnet:high "Solve this complex problem"
 
-  # Garukira gusa ku byitegererezo byatoranyijwe mu guhinduranya
+  # Garukira gusa ku byitegererezo byatoranyijwe mu changenya
   ${APP_NAME} --models claude-sonnet,claude-haiku,gpt-4o
 
   # Garukira kuri provider runaka ukoresheje glob pattern
@@ -332,7 +332,7 @@ ${chalk.bold("Ingero:")}
   # Tangira n'urwego rwo gutekereza runaka
   ${APP_NAME} --thinking high "Solve this complex problem"
 
-  # Uburyo bwo gusoma gusa (nta guhindura dosiye)
+  # Uburyo bwo read gusa (nta change dosiye)
   ${APP_NAME} --tools read,grep,find,ls -p "Review the code in src/"
 
   # Hagarika igikoresho kimwe mu gihe ibindi bigumye gukora
@@ -388,13 +388,13 @@ ${chalk.bold("Impinduka z'ibidukikije bya porogaramu:")}
   GIHANGA_TELEMETRY                - Simbuza install telemetry iyo ari 1/true/yes cyangwa 0/false/no
   GIHANGA_SHARE_VIEWER_URL         - Base URL ya /share command
 
-${chalk.bold("Amazina y'ibikoresho bisanzwe birimo:")}
+${chalk.bold("Amazina y'tools bisanzwe birimo:")}
   read   - Soma ibiri muri dosiye
   bash   - Koresha amategeko ya bash
   edit   - Hindura dosiye ukoresheje gushaka no gusimbura
   write  - Andika dosiye (irema cyangwa isimbura)
-  grep   - Shakisha mu bikubiye muri dosiye (gusoma gusa, izimye ku buryo busanzwe)
-  find   - Shakisha dosiye ukoresheje glob pattern (gusoma gusa, izimye ku buryo busanzwe)
-  ls     - Erekana ibiri mu bubiko (gusoma gusa, izimye ku buryo busanzwe)
+  grep   - Shakisha mu bikubiye muri dosiye (read gusa, izimye ku buryo busanzwe)
+  find   - Shakisha dosiye ukoresheje glob pattern (read gusa, izimye ku buryo busanzwe)
+  ls     - Erekana ibiri mu bubiko (read gusa, izimye ku buryo busanzwe)
 `);
 }

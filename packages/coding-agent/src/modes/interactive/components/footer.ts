@@ -42,16 +42,20 @@ export function formatCwdForFooter(cwd: string, home: string | undefined): strin
 	return relativeToHome === "" ? "~" : `~${sep}${relativeToHome}`;
 }
 
-const USD_TO_RWF_RATE = 1500;
-
-export const KINYARWANDA_FOOTER_SAYINGS = [
-	"Akebo kajya iwa mugarura",
-	"Ushaka inka aryama nkayo",
-	"Uwitonze akama ishashi",
-	"Iyo Omukuumi icecetse, iba irimo kubaka",
-	"Kode mbi ni nka brochette idahiye: igora kuyihekenya",
-	"Nta debug iruta gusoma neza",
-	"Agaciro kari mu murimo unoze",
+export const LUGANDA_FOOTER_SAYINGS = [
+	"Mpola mpola, amazzi gayira olubaju.",
+	"Amagezi si ga muntu omu.",
+	"Omuntu ye muntu ku bantu.",
+	"Omuti ogutalina mirandira gugwa mangu.",
+	"Ebigambo ebingi si bye bimalawo omulimu.",
+	"Ekibala kimanyibwa ku muti gwe kivaako.",
+	"Akati akalamu ke kawanika ekibbo.",
+	"Mpola mpola, amazzi gayira olubaju.",
+	"Amagezi si ga muntu omu.",
+	"Omuntu ye muntu ku bantu.",
+	"Omuti ogutalina mirandira gugwa mangu.",
+	"Ebigambo ebingi si bye bimalawo omulimu.",
+	"Ekibala kimanyibwa ku muti gwe kivaako.",
 ] as const;
 
 function stableIndex(text: string, modulo: number): number {
@@ -64,18 +68,20 @@ function stableIndex(text: string, modulo: number): number {
 
 const FOOTER_SAYING_ROTATION_MS = 7000;
 
-function pickKinyarwandaFooterSaying(seed: string, now = Date.now()): string {
+const USD_TO_UGX_RATE = 3800;
+
+function pickLugandaFooterSaying(seed: string, now = Date.now()): string {
 	const rotation = Math.floor(now / FOOTER_SAYING_ROTATION_MS);
 	return (
-		KINYARWANDA_FOOTER_SAYINGS[stableIndex(`${seed}:${rotation}`, KINYARWANDA_FOOTER_SAYINGS.length)] ??
-		KINYARWANDA_FOOTER_SAYINGS[0]
+		LUGANDA_FOOTER_SAYINGS[stableIndex(`${seed}:${rotation}`, LUGANDA_FOOTER_SAYINGS.length)] ??
+		LUGANDA_FOOTER_SAYINGS[0]
 	);
 }
 
-function formatRwfCost(usdCost: number): string {
-	const rwfCost = usdCost * USD_TO_RWF_RATE;
-	if (usdCost > 0 && rwfCost < 1) return "<1 RWF";
-	return `${Math.round(rwfCost + 1e-9).toLocaleString()} RWF`;
+function formatUgxCost(usdCost: number): string {
+	const ugxCost = usdCost * USD_TO_UGX_RATE;
+	if (usdCost > 0 && ugxCost < 1) return "<1 UGX";
+	return `${Math.round(ugxCost + 1e-9).toLocaleString()} UGX`;
 }
 
 function alignFooterLine(left: string, right: string | null | undefined, width: number): string {
@@ -184,7 +190,7 @@ export class FooterComponent implements Component {
 		}
 
 		const usingSubscription = state.model ? this.session.modelRegistry.isUsingOAuth(state.model) : false;
-		const costStr = `${formatRwfCost(totalCost)}${usingSubscription ? " (sub)" : ""}`;
+		const costStr = `${formatUgxCost(totalCost)}${usingSubscription ? " (sub)" : ""}`;
 		const kampalaWeather = this.footerData.getKampalaWeather();
 
 		let contextPercentStr: string;
@@ -210,7 +216,7 @@ export class FooterComponent implements Component {
 			}
 		}
 
-		const footerSaying = pickKinyarwandaFooterSaying(`${pwd}:${sessionName}`);
+		const footerSaying = pickLugandaFooterSaying(`${pwd}:${sessionName}`);
 		const statsParts = [modelPart, contextPercentStr, tokenParts.join(" "), costStr].filter(
 			(part): part is string => typeof part === "string" && part.length > 0,
 		);
@@ -222,7 +228,7 @@ export class FooterComponent implements Component {
 			kampalaWeather,
 			Math.max(1, width - 3),
 		);
-		const titleText = truncateToWidth(`╭─ Gihanga kumurimo · ${pwd} · ${footerSaying}`, width, "...");
+		const titleText = truncateToWidth(`╭─ Omukuumi kumurimo · ${pwd} · ${footerSaying}`, width, "...");
 		const statsLine = `╰─ ${statsText}`;
 
 		const lines = [theme.fg("dim", titleText), theme.fg("dim", statsLine)];

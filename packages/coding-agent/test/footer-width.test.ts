@@ -5,7 +5,7 @@ import type { ReadonlyFooterDataProvider } from "../src/core/footer-data-provide
 import {
 	FooterComponent,
 	formatCwdForFooter,
-	KINYARWANDA_FOOTER_SAYINGS,
+	LUGANDA_FOOTER_SAYINGS,
 } from "../src/modes/interactive/components/footer.ts";
 import { initTheme } from "../src/modes/interactive/theme/theme.ts";
 import { stripAnsi } from "../src/utils/ansi.ts";
@@ -165,7 +165,7 @@ describe("FooterComponent width handling", () => {
 		const [titleLine, statsLine] = lines;
 
 		expect(titleLine.startsWith("╭─ Gihanga kumurimo · /tmp/project (main)")).toBe(true);
-		expect(KINYARWANDA_FOOTER_SAYINGS.some((saying) => titleLine.endsWith(saying))).toBe(true);
+		expect(LUGANDA_FOOTER_SAYINGS.some((saying) => titleLine.endsWith(saying))).toBe(true);
 		expect(statsLine).toContain("test-model");
 		expect(statsLine.endsWith("Kigali 24°C ☀")).toBe(true);
 		expect(statsLine).toContain("12.3%/200k");
@@ -187,7 +187,7 @@ describe("FooterComponent width handling", () => {
 			for (let i = 0; i < 12; i += 1) {
 				dateSpy.mockReturnValue(i * 7000);
 				const titleLine = stripAnsi(footer.render(120)[0]);
-				const saying = KINYARWANDA_FOOTER_SAYINGS.find((candidate) => titleLine.endsWith(candidate));
+				const saying = LUGANDA_FOOTER_SAYINGS.find((candidate) => titleLine.endsWith(candidate));
 				if (saying) renderedSayings.add(saying);
 			}
 			expect(renderedSayings.size).toBeGreaterThan(1);

@@ -84,10 +84,10 @@ export async function handleOrgCommand(args: string[], options: { agentDir: stri
 	const currentCode = env.UPSKILLSAFRICA_ORG_CODE;
 
 	if (action === "status") {
-		console.log(chalk.bold("Upskillsafrica organisation access"));
+		console.log(chalk.bold("Genesis Codeworks organisation access"));
 		console.log(`Login: ${token ? chalk.green("configured") : chalk.yellow("not configured")}`);
 		console.log(`Organisation code: ${currentCode ? chalk.green(maskCode(currentCode)) : chalk.yellow("not set")}`);
-		if (!token) console.log(chalk.dim("Run `gihanga`, type `/kwinjira`, and login/register first."));
+		if (!token) console.log(chalk.dim("Run `gihanga`, type `/login`, and login/register first."));
 		return true;
 	}
 
@@ -101,7 +101,7 @@ export async function handleOrgCommand(args: string[], options: { agentDir: stri
 		}
 		if (!token) {
 			console.error(chalk.red("Error: login first before saving an organisation code."));
-			console.error(chalk.dim("Run `gihanga`, type `/kwinjira`, and login/register with Upskillsafrica."));
+			console.error(chalk.dim("Run `gihanga`, type `/login`, and login/register with Genesis Codeworks."));
 			process.exitCode = 1;
 			return true;
 		}
@@ -128,7 +128,7 @@ export async function handleOrgCommand(args: string[], options: { agentDir: stri
 
 	if (action === "remove" || action === "rm" || action === "clear") {
 		if (!token) {
-			console.log(chalk.yellow("No Upskillsafrica login found."));
+			console.log(chalk.yellow("No Genesis Codeworks login found."));
 			return true;
 		}
 		const nextEnv: Record<string, string> = { ...env, UPSKILLSAFRICA_BACKEND_URL: UPSKILLS_AFRICA_BACKEND_URL };

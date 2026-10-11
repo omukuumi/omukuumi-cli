@@ -10,7 +10,7 @@ const TAILWIND_CSS = "*,:after,:before{--tw-border-spacing-x:0;--tw-border-spaci
 const SITE_WEBMANIFEST = JSON.stringify({
 	name: "Omukuumi CLI",
 	short_name: "Omukuumi",
-	description: "Kinyarwanda-first terminal AI coding assistant by Upskillsafrica.",
+	description: "English-first terminal AI coding assistant by Genesis Codeworks.",
 	start_url: "/",
 	display: "standalone",
 	background_color: "#07111F",
@@ -129,7 +129,7 @@ fi
 cp "$INSTALL_DIR"/resources/omukuumi/agent/scripts/* "$GIHANGA_AGENT_DIR/scripts/"
 
 if [ "\${GIHANGA_INSTALL_MBAZA_NLP:-0}" = "1" ] || [ "\${GIHANGA_INSTALL_MBAZA_NLP:-}" = "true" ]; then
-	MBAZA_ARGS=(--dataset "\${GIHANGA_MBAZA_NLP_DATASET:-mbazaNLP/kinyarwanda_monolingual_v01.0}")
+	MBAZA_ARGS=(--dataset "\${GIHANGA_MBAZA_NLP_DATASET:-mbazaNLP/English_monolingual_v01.0}")
 	if [ "\${GIHANGA_MBAZA_METADATA_ONLY:-0}" = "1" ] || [ "\${GIHANGA_MBAZA_METADATA_ONLY:-}" = "true" ]; then
 		MBAZA_ARGS+=(--metadata-only)
 	fi
@@ -163,7 +163,7 @@ fi
 
 echo ""
 echo "Omukuumi CLI installed successfully."
-echo "Kinyarwanda keyword data installed in: $GIHANGA_AGENT_DIR"
+echo "English keyword data installed in: $GIHANGA_AGENT_DIR"
 if command -v omukuumi >/dev/null 2>&1; then
 	GIHANGA_BIN="$(command -v omukuumi)"
 	echo "Installed command: $GIHANGA_BIN"
@@ -255,7 +255,7 @@ if (Test-Path -LiteralPath $ModelsJson) {
 Copy-Item -Force (Join-Path $InstallDir "resources/omukuumi/agent/scripts/*") (Join-Path $OmukuumiAgentDir "scripts")
 
 if ($env:GIHANGA_INSTALL_MBAZA_NLP -eq "1" -or $env:GIHANGA_INSTALL_MBAZA_NLP -eq "true") {
-	$MbazaDataset = if ($env:GIHANGA_MBAZA_NLP_DATASET) { $env:GIHANGA_MBAZA_NLP_DATASET } else { "mbazaNLP/kinyarwanda_monolingual_v01.0" }
+	$MbazaDataset = if ($env:GIHANGA_MBAZA_NLP_DATASET) { $env:GIHANGA_MBAZA_NLP_DATASET } else { "mbazaNLP/English_monolingual_v01.0" }
 	$MbazaArgs = @((Join-Path $OmukuumiAgentDir "scripts/import-mbaza-nlp.mjs"), "--dataset", $MbazaDataset)
 	if ($env:GIHANGA_MBAZA_METADATA_ONLY -eq "1" -or $env:GIHANGA_MBAZA_METADATA_ONLY -eq "true") {
 		$MbazaArgs += "--metadata-only"
@@ -285,7 +285,7 @@ if ($env:AZURE_OPENAI_API_KEY -and ($env:AZURE_OPENAI_BASE_URL -or $env:AZURE_OP
 
 Write-Host ""
 Write-Host "Omukuumi CLI installed successfully."
-Write-Host "Kinyarwanda keyword data installed in: $OmukuumiAgentDir"
+Write-Host "English keyword data installed in: $OmukuumiAgentDir"
 Write-Host "Run: omukuumi --help"
 `;
 
@@ -299,7 +299,7 @@ const SITE_NAV = `
       </span>
       <div class="brand-copy min-w-0">
         <p class="truncate text-base font-black tracking-tight sm:text-lg">Omukuumi CLI <span class="ml-1 rounded-md border border-omukuumi-emerald/30 bg-omukuumi-emerald/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-omukuumi-emerald sm:ml-2 sm:px-2 sm:py-1 sm:text-[10px]">Alpha</span></p>
-        <p class="hidden text-xs text-omukuumi-muted sm:block">Kinyarwanda-first terminal AI · v0.1.0-alpha.3</p>
+        <p class="hidden text-xs text-omukuumi-muted sm:block">English-first terminal AI · v0.1.0-alpha.3</p>
       </div>
     </a>
     <button type="button" class="menu-toggle inline-flex h-11 w-11 items-center justify-center rounded-full border border-omukuumi-emerald/20 bg-gradient-to-br from-white/12 to-omukuumi-emerald/10 text-omukuumi-text shadow-inner shadow-white/5 backdrop-blur sm:hidden" aria-controls="primary-nav" aria-expanded="false" aria-label="Open navigation menu">
@@ -318,7 +318,7 @@ const SITE_NAV = `
 const SITE_FOOTER = `
   <footer class="relative mx-auto w-[90%] max-w-[1200px] px-0 py-10 text-sm text-slate-500">
     <div class="grid gap-5 border-t border-white/10 pt-6 sm:grid-cols-[1fr_auto] sm:items-start">
-      <p>Omukuumi CLI - Kinyarwanda-first terminal AI coding assistant · Alpha v0.1.0-alpha.3</p>
+      <p>Omukuumi CLI - English-first terminal AI coding assistant · Alpha v0.1.0-alpha.3</p>
       <nav aria-label="Footer navigation" class="flex flex-wrap gap-x-4 gap-y-2 sm:justify-end">
         <a class="text-omukuumi-emerald hover:text-[#68fcbf]" href="/docs">Docs</a>
         <a class="text-omukuumi-emerald hover:text-[#68fcbf]" href="/credits">Credits</a>
@@ -503,8 +503,8 @@ function pageShell(title: string, description: string, body: string): string {
 }
 
 const HOME_HTML = pageShell(
-	"Omukuumi CLI - Kinyarwanda-first AI coding assistant",
-	"Install Omukuumi CLI, a Kinyarwanda-first terminal AI coding assistant powered by Upskillsafrica.",
+	"Omukuumi CLI - English-first AI coding assistant",
+	"Install Omukuumi CLI, a English-first terminal AI coding assistant powered by Genesis Codeworks.",
 	`
   <main id="content" class="relative">
     <section class="mx-auto grid w-[90%] max-w-[1200px] items-center gap-8 py-6 sm:py-10 lg:grid-cols-[1.03fr_0.97fr] lg:py-16">
@@ -514,10 +514,10 @@ const HOME_HTML = pageShell(
           Console live · install Omukuumi today
         </div>
         <h1 class="max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.055em] text-omukuumi-text sm:text-6xl lg:text-7xl">
-          AI coding muri terminal, Kinyarwanda-first.
+          AI coding muri terminal, English-first.
         </h1>
         <p class="mt-5 max-w-2xl text-base leading-7 text-[#dce1fb] sm:mt-6 sm:text-lg sm:leading-8">
-          Install Omukuumi CLI, injira muri Upskillsafrica, wishyure credits na Mobile Money, ukoreshe models muri terminal yawe. Commands nka <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-omukuumi-emerald">/kwinjira</code>, <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-omukuumi-emerald">/ubumenyi</code>, na <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-omukuumi-emerald">/sohoka</code> ziri local-workflow friendly.
+          Install Omukuumi CLI, login to Genesis Codeworks, wishyure credits na Mobile Money, use models muri terminal yawe. Commands nka <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-omukuumi-emerald">/login</code>, <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-omukuumi-emerald">/skills</code>, na <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-omukuumi-emerald">/sohoka</code> ziri local-workflow friendly.
         </p>
         <div class="mt-7 flex flex-col gap-3 sm:flex-row">
           <a href="#install" class="inline-flex items-center justify-center gap-2 rounded-xl bg-omukuumi-emerald px-6 py-4 font-black text-[#003825] shadow-glow transition hover:-translate-y-0.5 hover:bg-[#5af0b3]">Tangira install <i data-lucide="arrow-right" class="h-5 w-5"></i></a>
@@ -526,7 +526,7 @@ const HOME_HTML = pageShell(
         </div>
         <div class="mt-8 grid max-w-2xl gap-3 text-sm text-[#cbd5e1] sm:grid-cols-3">
           <div class="rounded-xl border border-white/10 bg-white/[0.04] p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Access</p><p class="mt-1 font-bold text-omukuumi-text">One account</p></div>
-          <div class="rounded-xl border border-white/10 bg-white/[0.04] p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Models</p><p class="mt-1 font-bold text-omukuumi-text">Upskillsafrica</p></div>
+          <div class="rounded-xl border border-white/10 bg-white/[0.04] p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Models</p><p class="mt-1 font-bold text-omukuumi-text">Genesis Codeworks</p></div>
           <div class="rounded-xl border border-white/10 bg-white/[0.04] p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Payments</p><p class="mt-1 font-bold text-omukuumi-text">Mobile Money</p></div>
         </div>
       </div>
@@ -546,15 +546,15 @@ Gushyira Omukuumi muri terminal...
 $ omukuumi
 
        /\\        ✦
-  ____/  \\____   Rwanda
- | imisozi igihumbi | sun
+  ____/  \\____   Uganda
+ | enkumi z'obusozi | sun
  ‾‾‾‾‾‾‾‾‾‾‾‾‾
- Omukuumi CLI · Powered by Upskillsafrica Foundation
+ Omukuumi CLI · Powered by Genesis Codeworks Foundation
 
 ╭─ Omukuumi kumurimo · ~/Projects/app
 
-/kwinjira    injira muri Upskillsafrica
-/ubumenyi    koresha ubumenyi bwa project
+/login    login to Genesis Codeworks
+/skills    koresha skills bwa project
 /sohoka      sohoka muri Omukuumi</code></pre>
         </div>
       </div>
@@ -565,7 +565,7 @@ $ omukuumi
         <div>
           <p class="font-mono text-xs font-bold uppercase tracking-[0.14em] text-omukuumi-emerald">Install scripts</p>
           <h2 class="mt-2 text-3xl font-black text-omukuumi-text sm:text-4xl">Install kuri mudasobwa yawe</h2>
-          <p class="mt-2 max-w-2xl text-omukuumi-muted">Hitamo command ijyanye na mudasobwa yawe. Installer itegura Omukuumi CLI, ubumenyi bwa project, scripts zifasha, na Upskillsafrica models kuri machine yawe.</p>
+          <p class="mt-2 max-w-2xl text-omukuumi-muted">Hitamo command ijyanye na mudasobwa yawe. Installer itegura Omukuumi CLI, skills bwa project, scripts zifasha, na Genesis Codeworks models kuri machine yawe.</p>
         </div>
         <a href="/docs#subscription" class="text-sm font-semibold text-omukuumi-emerald hover:text-[#68fcbf]">Reba uko credits zikora →</a>
       </div>
@@ -606,7 +606,7 @@ hash -r
     </section>
 
     <section data-reveal class="mx-auto grid w-[90%] max-w-[1200px] gap-5 py-10 lg:grid-cols-3">
-      <article class="rounded-2xl border border-emerald-400/20 bg-omukuumi-emerald/10 p-6"><i data-lucide="languages" class="mb-4 h-8 w-8 text-omukuumi-emerald"></i><h3 class="text-xl font-bold text-omukuumi-text">Kinyarwanda-first</h3><p class="mt-2 text-[#dce1fb]">Answers default to Kinyarwanda unless English is requested. The interface uses familiar local commands and clear terminal language.</p></article>
+      <article class="rounded-2xl border border-emerald-400/20 bg-omukuumi-emerald/10 p-6"><i data-lucide="languages" class="mb-4 h-8 w-8 text-omukuumi-emerald"></i><h3 class="text-xl font-bold text-omukuumi-text">English-first</h3><p class="mt-2 text-[#dce1fb]">Answers default to English unless English is requested. The interface uses familiar local commands and clear terminal language.</p></article>
       <article class="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-6"><i data-lucide="brain-circuit" class="mb-4 h-8 w-8 text-omukuumi-cyan"></i><h3 class="text-xl font-bold text-omukuumi-text">Ubumenyi bwa project</h3><p class="mt-2 text-[#dce1fb]">Bundled Omukuumi community guidance and project context help the assistant understand your workflow.</p></article>
       <article class="rounded-2xl border border-amber-400/20 bg-omukuumi-amber/10 p-6"><i data-lucide="wallet-cards" class="mb-4 h-8 w-8 text-omukuumi-amber"></i><h3 class="text-xl font-bold text-omukuumi-text">Mobile Money credits</h3><p class="mt-2 text-[#dce1fb]">Choose a plan, enter your phone number, confirm on your phone, and continue using Omukuumi models.</p></article>
     </section>
@@ -614,8 +614,8 @@ hash -r
 );
 
 const DOCS_HTML = pageShell(
-	"Omukuumi Docs - Install, login, credits, ubumenyi",
-	"Documentation for installing and using Omukuumi CLI with Upskillsafrica models, Mobile Money subscriptions, and Kinyarwanda-first workflows.",
+	"Omukuumi Docs - Install, login, credits, skills",
+	"Documentation for installing and using Omukuumi CLI with Genesis Codeworks models, Mobile Money subscriptions, and English-first workflows.",
 	`
   <main id="content" data-reveal class="relative mx-auto w-[90%] max-w-[1200px] py-8">
     <section class="rounded-2xl border border-white/10 bg-omukuumi-glass p-8 backdrop-blur">
@@ -623,7 +623,7 @@ const DOCS_HTML = pageShell(
         <div>
           <p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-emerald">Documentation</p>
           <h1 class="mt-3 text-4xl font-black text-omukuumi-text sm:text-5xl">Omukuumi CLI docs</h1>
-          <p class="mt-4 max-w-4xl text-[#dce1fb]">Install, login, Mobile Money credits, curated models, ubumenyi commands, and troubleshooting — all in one terminal-first guide.</p>
+          <p class="mt-4 max-w-4xl text-[#dce1fb]">Install, login, Mobile Money credits, curated models, skills commands, and troubleshooting — all in one terminal-first guide.</p>
         </div>
         <a href="/#install" class="inline-flex items-center justify-center gap-2 rounded-lg bg-omukuumi-emerald px-5 py-3 font-bold text-[#003825] shadow-glow transition hover:bg-[#5af0b3]">Install now <i data-lucide="arrow-right" class="h-5 w-5"></i></a>
       </div>
@@ -642,8 +642,8 @@ const DOCS_HTML = pageShell(
       </a>
       <a href="#models" class="rounded-xl border border-cyan-400/20 bg-cyan-400/10 p-5 transition hover:border-omukuumi-cyan/60">
         <i data-lucide="brain-circuit" class="h-7 w-7 text-omukuumi-cyan"></i>
-        <h2 class="mt-4 text-xl font-bold text-omukuumi-text">Models + ubumenyi</h2>
-        <p class="mt-2 text-sm text-[#dce1fb]">Curated Upskillsafrica models and Kinyarwanda-first project knowledge.</p>
+        <h2 class="mt-4 text-xl font-bold text-omukuumi-text">Models + skills</h2>
+        <p class="mt-2 text-sm text-[#dce1fb]">Curated Genesis Codeworks models and English-first project knowledge.</p>
       </a>
     </section>
 
@@ -655,7 +655,7 @@ const DOCS_HTML = pageShell(
         <a class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-white/5 hover:text-omukuumi-text" href="#subscription"><i data-lucide="wallet-cards" class="h-4 w-4 text-omukuumi-amber"></i> Subscription</a>
         <a class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-white/5 hover:text-omukuumi-text" href="#models"><i data-lucide="cpu" class="h-4 w-4 text-omukuumi-emerald"></i> Models</a>
         <a class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-white/5 hover:text-omukuumi-text" href="#providers"><i data-lucide="key-round" class="h-4 w-4 text-omukuumi-amber"></i> API providers</a>
-        <a class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-white/5 hover:text-omukuumi-text" href="#ubumenyi"><i data-lucide="book-open-text" class="h-4 w-4 text-omukuumi-cyan"></i> Ubumenyi</a>
+        <a class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-white/5 hover:text-omukuumi-text" href="#skills"><i data-lucide="book-open-text" class="h-4 w-4 text-omukuumi-cyan"></i> Ubumenyi</a>
         <a class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-white/5 hover:text-omukuumi-text" href="#troubleshooting"><i data-lucide="wrench" class="h-4 w-4 text-omukuumi-amber"></i> Troubleshooting</a>
       </aside>
 
@@ -669,12 +669,12 @@ export PATH=&quot;$HOME/.local/bin:$PATH&quot;
 pkg install -y git nodejs
 hash -r
           </div>
-          <p class="mt-4 text-[#dce1fb]">Installer ikora clone/update, install/build/link quietly, hanyuma ishyira Omukuumi ubumenyi, scripts, data, na model catalog muri <code>~/.omukuumi/agent</code>.</p>
+          <p class="mt-4 text-[#dce1fb]">Installer ikora clone/update, install/build/link quietly, hanyuma ishyira Omukuumi skills, scripts, data, na model catalog muri <code>~/.omukuumi/agent</code>.</p>
         </article>
 
         <article data-reveal id="login" class="rounded-xl border border-white/10 bg-omukuumi-glass p-6">
           <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-cyan-400/10 text-omukuumi-cyan"><i data-lucide="user-round-check" class="h-6 w-6"></i></span><div><p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-cyan">Step 02</p><h2 class="text-2xl font-bold text-omukuumi-text">Login cyangwa register</h2></div></div>
-          <div class="mt-4 rounded-lg border border-white/10 bg-omukuumi-deep p-4 font-mono text-sm text-[#dce1fb]">/kwinjira → Upskillsafrica account → Login / Register</div>
+          <div class="mt-4 rounded-lg border border-white/10 bg-omukuumi-deep p-4 font-mono text-sm text-[#dce1fb]">/login → Genesis Codeworks account → Login / Register</div>
           <p class="mt-4 text-[#dce1fb]">Token ibikwa locally muri Omukuumi config kuri machine yawe. Niba nta subscription ihari, Omukuumi ihita ikwereka plans.</p>
         </article>
 
@@ -691,21 +691,21 @@ hash -r
         </article>
 
         <article data-reveal id="models" class="rounded-xl border border-white/10 bg-omukuumi-glass p-6">
-          <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-omukuumi-emerald/10 text-omukuumi-emerald"><i data-lucide="cpu" class="h-6 w-6"></i></span><div><p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-emerald">Models</p><h2 class="text-2xl font-bold text-omukuumi-text">Curated Upskillsafrica models</h2></div></div>
-          <p class="mt-4 text-[#dce1fb]">Omukuumi shows curated Upskillsafrica models after you log in. Some organisation models, including <code>UAF_model_one</code> and <code>uaf_model_two_alpha</code>, require organisation access.</p>
+          <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-omukuumi-emerald/10 text-omukuumi-emerald"><i data-lucide="cpu" class="h-6 w-6"></i></span><div><p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-emerald">Models</p><h2 class="text-2xl font-bold text-omukuumi-text">Curated Genesis Codeworks models</h2></div></div>
+          <p class="mt-4 text-[#dce1fb]">Omukuumi shows curated Genesis Codeworks models after you log in. Some organisation models, including <code>UAF_model_one</code> and <code>uaf_model_two_alpha</code>, require organisation access.</p>
         </article>
 
         <article data-reveal id="providers" class="rounded-xl border border-white/10 bg-omukuumi-glass p-6">
           <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-omukuumi-amber/10 text-omukuumi-amber"><i data-lucide="key-round" class="h-6 w-6"></i></span><div><p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-amber">Optional</p><h2 class="text-2xl font-bold text-omukuumi-text">Add another provider with an API key</h2></div></div>
-          <p class="mt-4 text-[#dce1fb]">Upskillsafrica is the recommended default, but Omukuumi can also use your own provider API key. Use this if you already have OpenRouter, Anthropic, OpenAI, Gemini, or another supported provider account.</p>
+          <p class="mt-4 text-[#dce1fb]">Genesis Codeworks is the recommended default, but Omukuumi can also use your own provider API key. Use this if you already have OpenRouter, Anthropic, OpenAI, Gemini, or another supported provider account.</p>
           <div class="mt-4 grid gap-4 lg:grid-cols-2">
             <div class="rounded-lg border border-white/10 bg-omukuumi-deep p-4">
               <p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-muted">CLI flow</p>
-              <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm text-[#dce1fb]"><li>Run <code>omukuumi</code>.</li><li>Type <code>/kwinjira</code>.</li><li>Choose <strong>Use an API key</strong>.</li><li>Select your provider, for example <strong>OpenRouter</strong>.</li><li>Paste your API key and choose a model.</li></ol>
+              <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm text-[#dce1fb]"><li>Run <code>omukuumi</code>.</li><li>Type <code>/login</code>.</li><li>Choose <strong>Use an API key</strong>.</li><li>Select your provider, for example <strong>OpenRouter</strong>.</li><li>Paste your API key and choose a model.</li></ol>
             </div>
             <div class="rounded-lg border border-white/10 bg-omukuumi-deep p-4">
               <p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-muted">OpenRouter example</p>
-              <pre class="font-mono mt-3 overflow-x-auto rounded-md bg-black/30 p-3 text-sm text-[#68fcbf]"><code>/kwinjira
+              <pre class="font-mono mt-3 overflow-x-auto rounded-md bg-black/30 p-3 text-sm text-[#68fcbf]"><code>/login
 Use an API key
 OpenRouter
 Paste API key
@@ -714,15 +714,15 @@ Paste API key
           </div>
         </article>
 
-        <article data-reveal id="ubumenyi" class="rounded-xl border border-white/10 bg-omukuumi-glass p-6">
+        <article data-reveal id="skills" class="rounded-xl border border-white/10 bg-omukuumi-glass p-6">
           <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-cyan-400/10 text-omukuumi-cyan"><i data-lucide="book-open-text" class="h-6 w-6"></i></span><div><p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-cyan">Ubumenyi</p><h2 class="text-2xl font-bold text-omukuumi-text">Project knowledge commands</h2></div></div>
-          <div class="mt-4 grid gap-3 font-mono text-sm text-[#68fcbf] md:grid-cols-3"><code class="rounded-lg bg-omukuumi-deep p-3">ubumenyi:omukuumi-community</code><code class="rounded-lg bg-omukuumi-deep p-3">ubumenyi:agents-sdk</code><code class="rounded-lg bg-omukuumi-deep p-3">ubumenyi:deployment</code></div>
-          <p class="mt-4 text-[#dce1fb]">Ubumenyi bufasha Omukuumi gukurikiza Kinyarwanda-first coding, project guidance, n'ibisabwa na community.</p>
+          <div class="mt-4 grid gap-3 font-mono text-sm text-[#68fcbf] md:grid-cols-3"><code class="rounded-lg bg-omukuumi-deep p-3">skills:omukuumi-community</code><code class="rounded-lg bg-omukuumi-deep p-3">skills:agents-sdk</code><code class="rounded-lg bg-omukuumi-deep p-3">skills:deployment</code></div>
+          <p class="mt-4 text-[#dce1fb]">Ubumenyi bufasha Omukuumi gukurikiza English-first coding, project guidance, n'ibisabwa na community.</p>
         </article>
 
         <article data-reveal id="troubleshooting" class="rounded-xl border border-white/10 bg-omukuumi-glass p-6">
           <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-omukuumi-amber/10 text-omukuumi-amber"><i data-lucide="wrench" class="h-6 w-6"></i></span><div><p class="font-mono text-xs font-bold uppercase tracking-[0.1em] text-omukuumi-amber">Help</p><h2 class="text-2xl font-bold text-omukuumi-text">Troubleshooting</h2></div></div>
-          <ul class="mt-4 grid gap-3 text-[#dce1fb]"><li class="rounded-lg bg-white/5 p-4"><strong>Installer failed:</strong> reba <code>/tmp/omukuumi-install.log</code>.</li><li class="rounded-lg bg-white/5 p-4"><strong>No models:</strong> koresha <code>/kwinjira</code>.</li><li class="rounded-lg bg-white/5 p-4"><strong>Org model code missing:</strong> ongera organisation code muri account menu.</li></ul>
+          <ul class="mt-4 grid gap-3 text-[#dce1fb]"><li class="rounded-lg bg-white/5 p-4"><strong>Installer failed:</strong> reba <code>/tmp/omukuumi-install.log</code>.</li><li class="rounded-lg bg-white/5 p-4"><strong>No models:</strong> koresha <code>/login</code>.</li><li class="rounded-lg bg-white/5 p-4"><strong>Org model code missing:</strong> ongera organisation code muri account menu.</li></ul>
         </article>
       </section>
     </div>
@@ -731,17 +731,17 @@ Paste API key
 
 const PRIVACY_HTML = pageShell(
 	"Omukuumi Privacy Policy",
-	"Privacy Policy for Omukuumi CLI, Upskillsafrica AI accounts, Mobile Money credits, and terminal AI workflows.",
+	"Privacy Policy for Omukuumi CLI, Genesis Codeworks AI accounts, Mobile Money credits, and terminal AI workflows.",
 	`
   <main id="content" data-reveal class="relative mx-auto w-[90%] max-w-[1200px] py-8">
     <section class="rounded-2xl border border-white/10 bg-omukuumi-glass p-8 backdrop-blur">
       <p class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-omukuumi-emerald">Privacy Policy</p>
-      <h1 class="mt-3 max-w-4xl text-4xl font-black leading-tight tracking-[-0.035em] text-omukuumi-text sm:text-5xl">How Omukuumi and Upskillsafrica protect your data</h1>
-      <p class="mt-4 max-w-3xl text-[#dce1fb]">This explains what is processed when you use Omukuumi CLI, the console website, Upskillsafrica AI models, Mobile Money credits, and organisation-only access.</p>
+      <h1 class="mt-3 max-w-4xl text-4xl font-black leading-tight tracking-[-0.035em] text-omukuumi-text sm:text-5xl">How Omukuumi and Genesis Codeworks protect your data</h1>
+      <p class="mt-4 max-w-3xl text-[#dce1fb]">This explains what is processed when you use Omukuumi CLI, the console website, Genesis Codeworks AI models, Mobile Money credits, and organisation-only access.</p>
       <div class="mt-6 grid gap-3 text-sm sm:grid-cols-3">
         <div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Last updated</p><p class="mt-1 font-bold text-omukuumi-text">2026-07-17</p></div>
         <div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Service</p><p class="mt-1 font-bold text-omukuumi-text">Omukuumi CLI + Console</p></div>
-        <div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Operator</p><p class="mt-1 font-bold text-omukuumi-text">Upskillsafrica Foundation</p></div>
+        <div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Operator</p><p class="mt-1 font-bold text-omukuumi-text">Genesis Codeworks Foundation</p></div>
       </div>
     </section>
     <section class="mt-6 space-y-5 text-[#dce1fb]">
@@ -757,14 +757,14 @@ const PRIVACY_HTML = pageShell(
 
 const TERMS_HTML = pageShell(
 	"Omukuumi Terms of Service",
-	"Terms of Service for using Omukuumi CLI, Upskillsafrica AI models, Mobile Money credits, and organisation model access.",
+	"Terms of Service for using Omukuumi CLI, Genesis Codeworks AI models, Mobile Money credits, and organisation model access.",
 	`
   <main id="content" data-reveal class="relative mx-auto w-[90%] max-w-[1200px] py-8">
     <section class="rounded-2xl border border-white/10 bg-omukuumi-glass p-8 backdrop-blur">
       <p class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-omukuumi-emerald">Terms of Service</p>
-      <h1 class="mt-3 max-w-4xl text-4xl font-black leading-tight tracking-[-0.035em] text-omukuumi-text sm:text-5xl">Rules for using Omukuumi CLI and Upskillsafrica AI</h1>
-      <p class="mt-4 max-w-3xl text-[#dce1fb]">These terms apply when you install Omukuumi, use the console website, create an Upskillsafrica AI account, buy credits, or call AI models from the terminal.</p>
-      <div class="mt-6 grid gap-3 text-sm sm:grid-cols-3"><div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Last updated</p><p class="mt-1 font-bold text-omukuumi-text">2026-07-17</p></div><div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Product</p><p class="mt-1 font-bold text-omukuumi-text">Omukuumi CLI</p></div><div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Provider</p><p class="mt-1 font-bold text-omukuumi-text">Upskillsafrica Foundation</p></div></div>
+      <h1 class="mt-3 max-w-4xl text-4xl font-black leading-tight tracking-[-0.035em] text-omukuumi-text sm:text-5xl">Rules for using Omukuumi CLI and Genesis Codeworks AI</h1>
+      <p class="mt-4 max-w-3xl text-[#dce1fb]">These terms apply when you install Omukuumi, use the console website, create an Genesis Codeworks AI account, buy credits, or call AI models from the terminal.</p>
+      <div class="mt-6 grid gap-3 text-sm sm:grid-cols-3"><div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Last updated</p><p class="mt-1 font-bold text-omukuumi-text">2026-07-17</p></div><div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Product</p><p class="mt-1 font-bold text-omukuumi-text">Omukuumi CLI</p></div><div class="rounded-xl border border-white/10 bg-omukuumi-deep p-4"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-omukuumi-muted">Provider</p><p class="mt-1 font-bold text-omukuumi-text">Genesis Codeworks Foundation</p></div></div>
     </section>
     <section class="mt-6 grid gap-5 text-[#dce1fb] lg:grid-cols-3">
       <article data-reveal class="rounded-xl border border-emerald-400/20 bg-omukuumi-emerald/10 p-6"><i data-lucide="check-circle-2" class="mb-4 h-8 w-8 text-omukuumi-emerald"></i><h2 class="text-xl font-bold text-omukuumi-text">Use it to build</h2><p class="mt-2">Omukuumi is for lawful software development, learning, automation, documentation, debugging, and project assistance.</p></article>
@@ -772,25 +772,25 @@ const TERMS_HTML = pageShell(
       <article data-reveal class="rounded-xl border border-cyan-400/20 bg-cyan-400/10 p-6"><i data-lucide="shield-ban" class="mb-4 h-8 w-8 text-omukuumi-cyan"></i><h2 class="text-xl font-bold text-omukuumi-text">Do not abuse access</h2><p class="mt-2">Do not use Omukuumi for malware, phishing, credential theft, unauthorised access, spam, harassment, or illegal activity.</p></article>
     </section>
     <section class="mt-5 space-y-5 text-[#dce1fb]">
-      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="terminal" class="h-6 w-6 text-omukuumi-emerald"></i> The service</h2><p class="mt-3">Omukuumi provides a terminal AI coding assistant, install scripts, local skills and scripts, Upskillsafrica model access, account login, subscriptions, credits, and documentation. Features, model availability, quotas, and pricing may change as the service develops.</p></article>
+      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="terminal" class="h-6 w-6 text-omukuumi-emerald"></i> The service</h2><p class="mt-3">Omukuumi provides a terminal AI coding assistant, install scripts, local skills and scripts, Genesis Codeworks model access, account login, subscriptions, credits, and documentation. Features, model availability, quotas, and pricing may change as the service develops.</p></article>
       <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="user-round-check" class="h-6 w-6 text-omukuumi-cyan"></i> Accounts and security</h2><p class="mt-3">You are responsible for your account, device, local tokens, and organisation codes. Keep credentials private and do not share access tokens. We may suspend access to protect users, the platform, providers, or payment systems.</p></article>
-      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="wallet-cards" class="h-6 w-6 text-omukuumi-amber"></i> Credits, payments, and subscriptions</h2><p class="mt-3">Upskillsafrica model access may require active credits or an entitlement. Credits are granted after payment verification. Payment providers, network delays, expired sessions, or incorrect phone numbers can affect completion. If a payment is charged but access is not granted, contact support with the transaction reference.</p></article>
+      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="wallet-cards" class="h-6 w-6 text-omukuumi-amber"></i> Credits, payments, and subscriptions</h2><p class="mt-3">Genesis Codeworks model access may require active credits or an entitlement. Credits are granted after payment verification. Payment providers, network delays, expired sessions, or incorrect phone numbers can affect completion. If a payment is charged but access is not granted, contact support with the transaction reference.</p></article>
       <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="cpu" class="h-6 w-6 text-omukuumi-emerald"></i> Models and organisation access</h2><p class="mt-3">Model names, quality, latency, context limits, quotas, and provider availability can change. Organisation-only models require an active organisation assignment or valid code and may be removed or restricted at any time.</p></article>
       <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="brain-circuit" class="h-6 w-6 text-omukuumi-cyan"></i> AI output and commands</h2><p class="mt-3">AI output can be incorrect, incomplete, insecure, or unsuitable for your project. You are responsible for reviewing, testing, and approving code and commands. Do not run commands you do not understand.</p></article>
-      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="ban" class="h-6 w-6 text-omukuumi-amber"></i> Acceptable use</h2><p class="mt-3">You may not use Omukuumi to break laws, attack systems, evade security, steal credentials, create malware, spam people, violate privacy, infringe rights, or abuse provider/payment infrastructure. Upskillsafrica may limit or block usage that appears harmful or excessive.</p></article>
+      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="ban" class="h-6 w-6 text-omukuumi-amber"></i> Acceptable use</h2><p class="mt-3">You may not use Omukuumi to break laws, attack systems, evade security, steal credentials, create malware, spam people, violate privacy, infringe rights, or abuse provider/payment infrastructure. Genesis Codeworks may limit or block usage that appears harmful or excessive.</p></article>
       <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="cloud-off" class="h-6 w-6 text-omukuumi-cyan"></i> Availability and changes</h2><p class="mt-3">The service depends on internet access, payment providers, and AI providers. We do not guarantee uninterrupted access. We may update install scripts, pricing, docs, policies, or models as needed.</p></article>
-      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="scale" class="h-6 w-6 text-omukuumi-emerald"></i> Liability</h2><p class="mt-3">To the fullest extent allowed by law, Omukuumi and Upskillsafrica are provided without warranties. Upskillsafrica is not responsible for losses caused by unreviewed AI output, user-run commands, third-party provider outages, payment network delays, or misuse of the service.</p></article>
+      <article data-reveal class="rounded-xl border border-white/10 bg-omukuumi-glass p-6"><h2 class="flex items-center gap-3 text-2xl font-bold text-omukuumi-text"><i data-lucide="scale" class="h-6 w-6 text-omukuumi-emerald"></i> Liability</h2><p class="mt-3">To the fullest extent allowed by law, Omukuumi and Genesis Codeworks are provided without warranties. Genesis Codeworks is not responsible for losses caused by unreviewed AI output, user-run commands, third-party provider outages, payment network delays, or misuse of the service.</p></article>
     </section>
   </main>`
 );
 
 const CREDITS_HTML = pageShell(
-	"Upskillsafrica AI Credits",
-	"Buy and check Upskillsafrica AI credits for Omukuumi CLI with Mobile Money.",
+	"Genesis Codeworks AI Credits",
+	"Buy and check Genesis Codeworks AI credits for Omukuumi CLI with Mobile Money.",
 	`
   <main id="content" data-reveal class="relative mx-auto w-[90%] max-w-[1200px] py-8">
     <section class="rounded-2xl border border-white/10 bg-omukuumi-glass p-8 backdrop-blur">
-      <p class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-omukuumi-emerald">Upskillsafrica AI</p>
+      <p class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-omukuumi-emerald">Genesis Codeworks AI</p>
       <h1 class="mt-3 max-w-4xl text-4xl font-black leading-tight tracking-[-0.035em] text-omukuumi-text sm:text-5xl">Credits na Mobile Money</h1>
       <p class="mt-4 max-w-3xl text-[#dce1fb]">Pay through terminal or web, then use your receipt reference to check credits and model access.</p>
       <a href="/docs#subscription" class="mt-5 inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-[#dce1fb] hover:bg-white/10">How credits work</a>
