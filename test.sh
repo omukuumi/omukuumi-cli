@@ -78,14 +78,23 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Running tests without API keys (skipping known-failing tests)..."
 
-# Skip known-failing test files by running vitest with --testNamePattern to exclude
-# For vitest, use --testPathIgnorePatterns to exclude files
+# Run all ai tests except known-failing ones by explicitly listing test files to run
+cd "$ROOT_DIR/packages/ai"
+# Get all test files except the known-failing ones
+TEST_FILES=$(find test -name "*.test.ts" ! -name "github-copilot-oauth.test.ts" ! -name "openai-completions-tool-choice.test.ts" ! -name "sdk-openrouter-attribution.test.ts" ! -name "sdk-stream-options.test.ts" | tr '\n' ' ')
+node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run $TEST_FILES
 
-# Run tests in each package, excluding known failures
-cd "$ROOT_DIR/packages/ai" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --testPathIgnorePatterns="github-copilot-oauth|openai-completions-tool-choice|sdk-openrouter-attribution|sdk-stream-options"
-cd "$ROOT_DIR/packages/coding-agent" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run --testPathIgnorePatterns="agent-session-prompt|agent-session-queue|lax-message-content"
-cd "$ROOT_DIR/packages/tui" && node --test --test-reporter=dot --test-reporter-destination=stdout test/*.test.ts
-cd "$ROOT_DIR/packages/agent" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
-cd "$ROOT_DIR/packages/orchestrator" && node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
+cd "$ROOT_DIR/packages/coding-agent"
+TEST_FILES=$(find test -name "*.test.ts" ! -path "*/suite/agent-session-prompt.test.ts" ! -path "*/suite/agent-session-queue.test.ts" ! -path "*/suite/lax-message-content.test.ts" | tr '\n' ' ')
+node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run $TEST_FILES
+
+cd "$ROOT_DIR/packages/tui"
+node --test --test-reporter=dot --test-reporter-destination=stdout test/*.test.ts
+
+cd "$ROOT_DIR/packages/agent"
+node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
+
+cd "$ROOT_DIR/packages/orchestrator"
+node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
 
 cd "$ROOT_DIR"
