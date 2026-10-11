@@ -1195,6 +1195,9 @@ function detectCompat(model: Model<"openai-completions">): ResolvedOpenAIComplet
 	const isNvidia = provider === "nvidia" || baseUrl.includes("integrate.api.nvidia.com");
 	const isAntLing = provider === "ant-ling" || baseUrl.includes("api.ant-ling.com");
 
+	// Workers AI models through AI Gateway have model IDs starting with "workers-ai/"
+	const isWorkersAiViaGateway = isCloudflareAiGateway && model.id.startsWith("workers-ai/");
+
 	const isNonStandard =
 		isNvidia ||
 		provider === "cerebras" ||
@@ -1249,7 +1252,7 @@ function detectCompat(model: Model<"openai-completions">): ResolvedOpenAIComplet
 		zaiToolStream: false,
 		supportsStrictMode: !isMoonshot && !isTogether && !isCloudflareAiGateway && !isNvidia,
 		cacheControlFormat,
-		sendSessionAffinityHeaders: false,
+		sendSessionAffinityHeaders: isWorkersAiViaGateway,
 		supportsLongCacheRetention: !(
 			isTogether ||
 			isCloudflareWorkersAI ||

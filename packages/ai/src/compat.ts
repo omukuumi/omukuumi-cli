@@ -32,6 +32,7 @@ import { azureOpenAIResponsesApi } from "./api/azure-openai-responses.lazy.ts";
 import { bedrockConverseStreamApi } from "./api/bedrock-converse-stream.lazy.ts";
 import { googleGenerativeAIApi } from "./api/google-generative-ai.lazy.ts";
 import { googleVertexApi } from "./api/google-vertex.lazy.ts";
+import { lazyStream } from "./api/lazy.ts";
 import { mistralConversationsApi } from "./api/mistral-conversations.lazy.ts";
 import { openAICodexResponsesApi } from "./api/openai-codex-responses.lazy.ts";
 import { openAICompletionsApi } from "./api/openai-completions.lazy.ts";
@@ -226,6 +227,109 @@ function shouldUseBuiltinModels(model: Model<Api>): boolean {
 	return builtin?.api === model.api && getApiProvider(model.api) === builtinApiProviderInstances.get(model.api);
 }
 
+// Cloudflare auth resolution for compat module
+
+function getProviderEnvValue(name: string, env?: Record<string, string | undefined>): string | undefined {
+	if (!env) return undefined;
+	return env[name];
+}
+
+async function resolveValue(name: string, env?: Record<string, string | undefined>): Promise<string | undefined> {
+	if (typeof process !== "undefined" && process.env?.[name]) {
+		return process.env[name];
+	}
+	return getProviderEnvValue(name, env);
+}
+
+function resolveCloudflareBaseUrl(
+	model: { baseUrl: string; provider: string },
+	accountId: string,
+	gatewayId: string | undefined,
+): string {
+	return model.baseUrl
+		.replaceAll(`{CLOUDFLARE_ACCOUNT_ID}`, accountId)
+		.replaceAll(`{CLOUDFLARE_GATEWAY_ID}`, gatewayId ?? "");
+}
+
+async function resolveCloudflareEnv(
+	kind: "workers-ai" | "ai-gateway",
+	model: { baseUrl: string; provider: string },
+	env?: Record<string, string | undefined>,
+): Promise<{ apiKey: string; env: Record<string, string>; baseUrl: string; source: string } | undefined> {
+	const apiKey = await resolveValue("CLOUDFLARE_API_KEY", env);
+	const accountId = await resolveValue("CLOUDFLARE_ACCOUNT_ID", env);
+	const gatewayId = kind === "ai-gateway" ? await resolveValue("CLOUDFLARE_GATEWAY_ID", env) : undefined;
+
+	if (!apiKey || !accountId || (kind === "ai-gateway" && !gatewayId)) return undefined;
+
+	return {
+		apiKey,
+		env: {
+			CLOUDFLARE_ACCOUNT_ID: accountId,
+			...(gatewayId ? { CLOUDFLARE_GATEWAY_ID: gatewayId } : {}),
+		},
+		baseUrl: resolveCloudflareBaseUrl(model, accountId, gatewayId),
+		source: "env",
+	};
+}
+
+async function resolveCloudflareAuth(
+	model: { baseUrl: string; provider: string },
+	env?: Record<string, string | undefined>,
+): Promise<{ baseUrl: string; headers?: Record<string, string | null>; env?: Record<string, string> } | undefined> {
+	const isWorkersAI = model.provider === "cloudflare-workers-ai" || model.baseUrl.includes("api.cloudflare.com");
+	const isAiGateway =
+		model.provider === "cloudflare-ai-gateway" || model.baseUrl.includes("gateway.ai.cloudflare.com");
+
+	if (!isWorkersAI && !isAiGateway) return undefined;
+
+	const kind: "workers-ai" | "ai-gateway" =
+		model.provider === "cloudflare-workers-ai" || model.baseUrl.includes("api.cloudflare.com")
+			? "workers-ai"
+			: "ai-gateway";
+	const resolved = await resolveCloudflareEnv(kind, model, env);
+
+	if (!resolved) return undefined;
+
+	const headers: Record<string, string | null> = {};
+	if (resolved.apiKey) {
+		if (model.provider === "cloudflare-ai-gateway" || model.baseUrl.includes("gateway.ai.cloudflare.com")) {
+			headers["cf-aig-authorization"] = `Bearer ${resolved.apiKey}`;
+			headers.Authorization = null;
+			headers["x-api-key"] = null;
+		} else {
+			headers.Authorization = `Bearer ${resolved.apiKey}`;
+		}
+	}
+
+	return {
+		baseUrl: resolved.baseUrl,
+		headers: Object.keys(headers).length > 0 ? headers : undefined,
+		env: resolved.env,
+	};
+}
+
+async function resolveCloudflareAuthForModel(
+	model: Model<Api>,
+	options?: SimpleStreamOptions | StreamOptions,
+): Promise<{ model: Model<Api>; options: typeof options } | undefined> {
+	const env = options?.env;
+	const resolved = await resolveCloudflareAuth(model, env);
+	if (!resolved) return undefined;
+
+	const newModel = { ...model, baseUrl: resolved.baseUrl };
+	const newOptions: typeof options = { ...options };
+	if (resolved.headers) {
+		newOptions.headers = { ...resolved.headers, ...options?.headers };
+	}
+	newOptions.env = { ...resolved.env, ...options?.env };
+	// Ensure sessionId is preserved for session affinity headers
+	if (options?.sessionId) {
+		newOptions.sessionId = options.sessionId;
+	}
+	return { model: newModel, options: newOptions };
+}
+
 function resolveApiProvider(api: Api) {
 	const provider = getApiProvider(api);
 	if (!provider) {
@@ -243,7 +347,12 @@ export function stream<TApi extends Api>(
 		return compatModels.stream(model, context, options as ApiStreamOptions<TApi> | undefined);
 	}
 	const provider = resolveApiProvider(model.api);
-	return provider.stream(model, context, withEnvApiKey(model, options) as StreamOptions);
+	return lazyStream(model, async () => {
+		const resolved = await resolveCloudflareAuthForModel(model, options);
+		const finalModel = resolved?.model ?? model;
+		const finalOptions = resolved?.options ?? withEnvApiKey(model, options);
+		return provider.stream(finalModel, context, finalOptions as StreamOptions);
+	});
 }
 
 export async function complete<TApi extends Api>(
@@ -264,7 +373,12 @@ export function streamSimple<TApi extends Api>(
 		return compatModels.streamSimple(model, context, options);
 	}
 	const provider = resolveApiProvider(model.api);
-	return provider.streamSimple(model, context, withEnvApiKey(model, options));
+	return lazyStream(model, async () => {
+		const resolved = await resolveCloudflareAuthForModel(model, options);
+		const finalModel = resolved?.model ?? model;
+		const finalOptions = resolved?.options ?? withEnvApiKey(model, options);
+		return provider.streamSimple(finalModel, context, finalOptions);
+	});
 }
 
 export async function completeSimple<TApi extends Api>(
