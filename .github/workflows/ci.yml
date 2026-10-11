@@ -45,4 +45,5 @@ jobs:
         run: ./test.sh
 
       - name: Clean npm install smoke
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: node scripts/check-npm-install.mjs
