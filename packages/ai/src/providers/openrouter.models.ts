@@ -6677,9 +6677,9 @@ export const OPENROUTER_MODELS = {
 		reasoning: true,
 		input: ["text"],
 		cost: {
-			input: 0.039,
+			input: 0.07,
 			output: 4.8,
-			cacheRead: 0.038,
+			cacheRead: 0.05,
 			cacheWrite: 0,
 		},
 		contextWindow: 1048576,
@@ -7110,9 +7110,9 @@ export const OPENROUTER_MODELS = {
 		reasoning: true,
 		input: ["text"],
 		cost: {
-			input: 0.039,
+			input: 0.07,
 			output: 4.8,
-			cacheRead: 0.038,
+			cacheRead: 0.05,
 			cacheWrite: 0,
 		},
 		contextWindow: 1048576,
