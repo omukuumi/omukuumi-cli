@@ -73,7 +73,7 @@ export const MOONSHOTAI_MODELS = {
 			input: 3,
 			output: 15,
 			cacheRead: 0.3,
-			cacheWrite: 0,
+			cacheWrite: 3,
 		},
 		contextWindow: 1048576,
 		maxTokens: 1048576,

@@ -76,6 +76,23 @@ export const ANTHROPIC_MODELS = {
 		contextWindow: 200000,
 		maxTokens: 64000,
 	} satisfies Model<"anthropic-messages">,
+	"claude-haiku-5-5": {
+		id: "claude-haiku-5-5",
+		name: "Claude Haiku 5.5",
+		api: "anthropic-messages",
+		provider: "anthropic",
+		baseUrl: "https://api.anthropic.com",
+		reasoning: true,
+		input: ["text", "image"],
+		cost: {
+			input: 0.1,
+			output: 0.5,
+			cacheRead: 0.01,
+			cacheWrite: 0.125,
+		},
+		contextWindow: 1000000,
+		maxTokens: 128000,
+	} satisfies Model<"anthropic-messages">,
 	"claude-opus-4-5": {
 		id: "claude-opus-4-5",
 		name: "Claude Opus 4.5 (latest)",
@@ -215,7 +232,7 @@ export const ANTHROPIC_MODELS = {
 			cacheRead: 0.3,
 			cacheWrite: 3.75,
 		},
-		contextWindow: 1000000,
+		contextWindow: 200000,
 		maxTokens: 64000,
 	} satisfies Model<"anthropic-messages">,
 	"claude-sonnet-4-5-20250929": {
@@ -232,7 +249,7 @@ export const ANTHROPIC_MODELS = {
 			cacheRead: 0.3,
 			cacheWrite: 3.75,
 		},
-		contextWindow: 1000000,
+		contextWindow: 200000,
 		maxTokens: 64000,
 	} satisfies Model<"anthropic-messages">,
 	"claude-sonnet-4-6": {
@@ -286,7 +303,7 @@ export const ANTHROPIC_MODELS = {
 		cost: {
 			input: 2,
 			output: 10,
-			cacheRead: 0.2,
+			cacheRead: 0.1,
 			cacheWrite: 2.5,
 		},
 		contextWindow: 1000000,

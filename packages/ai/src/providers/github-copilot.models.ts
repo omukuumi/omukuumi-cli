@@ -63,6 +63,24 @@ export const GITHUB_COPILOT_MODELS = {
 		contextWindow: 200000,
 		maxTokens: 64000,
 	} satisfies Model<"anthropic-messages">,
+	"claude-haiku-5.5": {
+		id: "claude-haiku-5.5",
+		name: "Claude Haiku 5.5",
+		api: "anthropic-messages",
+		provider: "github-copilot",
+		baseUrl: "https://api.individual.githubcopilot.com",
+		headers: {"User-Agent":"GitHubCopilotChat/0.35.0","Editor-Version":"vscode/1.107.0","Editor-Plugin-Version":"copilot-chat/0.35.0","Copilot-Integration-Id":"vscode-chat"},
+		reasoning: true,
+		input: ["text", "image"],
+		cost: {
+			input: 0.1,
+			output: 0.5,
+			cacheRead: 0.01,
+			cacheWrite: 0.125,
+		},
+		contextWindow: 1000000,
+		maxTokens: 128000,
+	} satisfies Model<"anthropic-messages">,
 	"claude-opus-4.7": {
 		id: "claude-opus-4.7",
 		name: "Claude Opus 4.7",
@@ -193,7 +211,7 @@ export const GITHUB_COPILOT_MODELS = {
 		cost: {
 			input: 2,
 			output: 10,
-			cacheRead: 0.2,
+			cacheRead: 0.1,
 			cacheWrite: 2.5,
 		},
 		contextWindow: 1000000,

@@ -4,6 +4,23 @@
 import type { Model } from "../types.ts";
 
 export const OPENCODE_GO_MODELS = {
+	"claude-haiku-5-5": {
+		id: "claude-haiku-5-5",
+		name: "Claude Haiku 5.5",
+		api: "anthropic-messages",
+		provider: "opencode-go",
+		baseUrl: "https://opencode.ai/zen/go",
+		reasoning: true,
+		input: ["text", "image"],
+		cost: {
+			input: 0.1,
+			output: 0.5,
+			cacheRead: 0.01,
+			cacheWrite: 0.125,
+		},
+		contextWindow: 1000000,
+		maxTokens: 128000,
+	} satisfies Model<"anthropic-messages">,
 	"deepseek-v4-flash": {
 		id: "deepseek-v4-flash",
 		name: "DeepSeek V4 Flash",
@@ -456,10 +473,9 @@ export const OPENCODE_GO_MODELS = {
 	"qwen3.7-plus": {
 		id: "qwen3.7-plus",
 		name: "Qwen3.7 Plus",
-		api: "openai-completions",
+		api: "anthropic-messages",
 		provider: "opencode-go",
-		baseUrl: "https://opencode.ai/zen/go/v1",
-		compat: {"supportsStore":false,"supportsDeveloperRole":false,"maxTokensField":"max_tokens"},
+		baseUrl: "https://opencode.ai/zen/go",
 		reasoning: true,
 		input: ["text", "image"],
 		cost: {
@@ -470,7 +486,7 @@ export const OPENCODE_GO_MODELS = {
 		},
 		contextWindow: 1000000,
 		maxTokens: 65536,
-	} satisfies Model<"openai-completions">,
+	} satisfies Model<"anthropic-messages">,
 	"qwen3.8-flash": {
 		id: "qwen3.8-flash",
 		name: "Qwen3.8 Flash",
@@ -491,10 +507,9 @@ export const OPENCODE_GO_MODELS = {
 	"qwen3.8-max": {
 		id: "qwen3.8-max",
 		name: "Qwen3.8 Max",
-		api: "openai-completions",
+		api: "anthropic-messages",
 		provider: "opencode-go",
-		baseUrl: "https://opencode.ai/zen/go/v1",
-		compat: {"supportsStore":false,"supportsDeveloperRole":false,"maxTokensField":"max_tokens"},
+		baseUrl: "https://opencode.ai/zen/go",
 		reasoning: true,
 		input: ["text", "image"],
 		cost: {
@@ -505,10 +520,28 @@ export const OPENCODE_GO_MODELS = {
 		},
 		contextWindow: 1000000,
 		maxTokens: 131072,
+	} satisfies Model<"anthropic-messages">,
+	"space-bunny": {
+		id: "space-bunny",
+		name: "Space Bunny",
+		api: "openai-completions",
+		provider: "opencode-go",
+		baseUrl: "https://opencode.ai/zen/go/v1",
+		compat: {"supportsStore":false,"supportsDeveloperRole":false,"maxTokensField":"max_tokens"},
+		reasoning: true,
+		input: ["text", "image"],
+		cost: {
+			input: 0.15,
+			output: 0.6,
+			cacheRead: 0.03,
+			cacheWrite: 0,
+		},
+		contextWindow: 1048576,
+		maxTokens: 524288,
 	} satisfies Model<"openai-completions">,
-	"space-bunny-free": {
-		id: "space-bunny-free",
-		name: "Space Bunny Free",
+	"step-5-preview-free": {
+		id: "step-5-preview-free",
+		name: "Step 5 Preview Free",
 		api: "openai-completions",
 		provider: "opencode-go",
 		baseUrl: "https://opencode.ai/zen/go/v1",
@@ -521,7 +554,7 @@ export const OPENCODE_GO_MODELS = {
 			cacheRead: 0,
 			cacheWrite: 0,
 		},
-		contextWindow: 1048576,
-		maxTokens: 524288,
+		contextWindow: 1000000,
+		maxTokens: 65536,
 	} satisfies Model<"openai-completions">,
 } as const;

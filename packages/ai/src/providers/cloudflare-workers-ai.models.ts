@@ -54,7 +54,7 @@ export const CLOUDFLARE_WORKERS_AI_MODELS = {
 		cost: {
 			input: 0.1,
 			output: 0.3,
-			cacheRead: 0,
+			cacheRead: 0.05,
 			cacheWrite: 0,
 		},
 		contextWindow: 256000,
@@ -122,7 +122,7 @@ export const CLOUDFLARE_WORKERS_AI_MODELS = {
 		baseUrl: "https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}/ai/v1",
 		compat: {"supportsStore":false,"supportsDeveloperRole":false,"supportsLongCacheRetention":false,"sendSessionAffinityHeaders":true},
 		reasoning: false,
-		input: ["text"],
+		input: ["text", "image"],
 		cost: {
 			input: 0.351,
 			output: 0.555,

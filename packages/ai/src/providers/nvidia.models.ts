@@ -4,6 +4,45 @@
 import type { Model } from "../types.ts";
 
 export const NVIDIA_MODELS = {
+	"deepseek-ai/deepseek-v4.1-flash": {
+		id: "deepseek-ai/deepseek-v4.1-flash",
+		name: "DeepSeek V4.1 Flash",
+		api: "openai-completions",
+		provider: "nvidia",
+		baseUrl: "https://integrate.api.nvidia.com/v1",
+		headers: {"NVCF-POLL-SECONDS":"3600"},
+		compat: {"supportsStore":false,"supportsDeveloperRole":false,"supportsReasoningEffort":false,"maxTokensField":"max_tokens","supportsStrictMode":false,"supportsLongCacheRetention":false,"requiresReasoningContentOnAssistantMessages":true,"thinkingFormat":"deepseek"},
+		reasoning: true,
+		thinkingLevelMap: {"minimal":null,"low":null,"medium":null,"high":"high","max":"max"},
+		input: ["text", "image"],
+		cost: {
+			input: 0,
+			output: 0,
+			cacheRead: 0,
+			cacheWrite: 0,
+		},
+		contextWindow: 1000000,
+		maxTokens: 384000,
+	} satisfies Model<"openai-completions">,
+	"google/diffusiongemma-26b-a4b-it": {
+		id: "google/diffusiongemma-26b-a4b-it",
+		name: "DiffusionGemma 26B A4B IT",
+		api: "openai-completions",
+		provider: "nvidia",
+		baseUrl: "https://integrate.api.nvidia.com/v1",
+		headers: {"NVCF-POLL-SECONDS":"3600"},
+		compat: {"supportsStore":false,"supportsDeveloperRole":false,"supportsReasoningEffort":false,"maxTokensField":"max_tokens","supportsStrictMode":false,"supportsLongCacheRetention":false},
+		reasoning: true,
+		input: ["text", "image"],
+		cost: {
+			input: 0,
+			output: 0,
+			cacheRead: 0,
+			cacheWrite: 0,
+		},
+		contextWindow: 250000,
+		maxTokens: 32768,
+	} satisfies Model<"openai-completions">,
 	"google/gemma-3-12b-it": {
 		id: "google/gemma-3-12b-it",
 		name: "Gemma 3 12B IT",
