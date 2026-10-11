@@ -41,3 +41,6 @@ plans/
 .omukuumi/hf-sessions/
 .omukuumi/hf-sessions-backup/
 collect.sh
+
+# Cloudflare console worker (contains credentials)
+cloudflare/
