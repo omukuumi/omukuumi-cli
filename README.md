@@ -1,6 +1,6 @@
 # Omukuumi CLI
 
-**Omukuumi** is a Kinyarwanda-first AI coding assistant for the terminal.
+**Omukuumi** is an English/Luganda-first AI coding assistant for the terminal, sponsored by Genesis Codeworks Foundation.
 
 ## Quick Start
 
@@ -44,7 +44,7 @@ omukuumi --help
 ### Examples
 ```bash
 # Install specific version
-curl -fsSL https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.sh | bash -s -- --version v0.81.0
+curl -fsSL https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.sh | bash -s -- --version v0.80.15
 
 # Custom install directory
 curl -fsSL https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.sh | bash -s -- --dir "$HOME/.local/omukuumi"
@@ -56,7 +56,7 @@ curl -fsSL https://raw.githubusercontent.com/omukuumi/omukuumi-cli/main/install.
 ## Documentation
 
 - **English**: [README.en.md](README.en.md)
-- **Kinyarwanda**: [README.rw.md](README.rw.md)
+- **Luganda**: [README.lg.md](README.lg.md)
 
 ## Quick Usage
 
@@ -84,7 +84,7 @@ omukuumi --list-models
 - **Live output streaming** from child agents in right panel
 - **Multiple AI providers**: Anthropic, OpenAI, Google Gemini, GitHub Copilot, OpenRouter, Groq, Cerebras, Mistral, Amazon Bedrock, Cloudflare, etc.
 - **Cross-platform**: Linux, macOS, Windows (native binaries)
-- **Kinyarwanda-first** UI and documentation
+- **English/Luganda-first** UI and documentation
 
 ## Common Commands
 
