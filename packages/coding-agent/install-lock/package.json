@@ -1,10 +1,10 @@
 {
 	"name": "omukuumi-install",
-	"version": "0.80.9",
+	"version": "0.80.10",
 	"private": true,
 	"description": "Lockfile root used by the Omukuumi installer and updater.",
 	"dependencies": {
-		"omukuumi": "0.80.9"
+		"omukuumi": "0.80.10"
 	},
 	"overrides": {
 		"rimraf": "6.1.2",
