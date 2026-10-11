@@ -148,7 +148,7 @@ describe("FooterComponent width handling", () => {
 		expect(statsLine).toContain("CH25.0%");
 	});
 
-	it("renders the Gihanga kumurimo command bar with plain RWF amount and Kigali weather", () => {
+	it("renders the Omukuumi kumurimo command bar with plain RWF amount and Kigali weather", () => {
 		const session = createSession({
 			sessionName: "",
 			usage: {
@@ -164,7 +164,7 @@ describe("FooterComponent width handling", () => {
 		const lines = footer.render(120).map(stripAnsi);
 		const [titleLine, statsLine] = lines;
 
-		expect(titleLine.startsWith("╭─ Gihanga kumurimo · /tmp/project (main)")).toBe(true);
+		expect(titleLine.startsWith("╭─ Omukuumi kumurimo · /tmp/project (main)")).toBe(true);
 		expect(LUGANDA_FOOTER_SAYINGS.some((saying) => titleLine.endsWith(saying))).toBe(true);
 		expect(statsLine).toContain("test-model");
 		expect(statsLine.endsWith("Kigali 24°C ☀")).toBe(true);
