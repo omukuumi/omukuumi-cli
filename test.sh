@@ -78,28 +78,29 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Running tests without API keys (skipping known-failing tests)..."
 
+# Use npx to run vitest from local node_modules
+VITEST="npx vitest"
+
 # Run all ai tests except known-failing ones
 cd "$ROOT_DIR/packages/ai"
 TEST_FILES=$(find test -name "*.test.ts" ! -name "github-copilot-oauth.test.ts" ! -name "openai-completions-tool-choice.test.ts" ! -name "sdk-openrouter-attribution.test.ts" ! -name "sdk-stream-options.test.ts" | tr '\n' ' ')
-node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run $TEST_FILES
+$VITEST --run $TEST_FILES
 
 # Run coding-agent tests except known-failing ones
 cd "$ROOT_DIR/packages/coding-agent"
 TEST_FILES=$(find test -name "*.test.ts" ! -path "*/suite/agent-session-prompt.test.ts" ! -path "*/suite/agent-session-queue.test.ts" ! -path "*/suite/lax-message-content.test.ts" ! -name "sdk-openrouter-attribution.test.ts" ! -name "sdk-stream-options.test.ts" | tr '\n' ' ')
-node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run $TEST_FILES
+$VITEST --run $TEST_FILES
 
-# Run tui tests
+# Run other packages
 cd "$ROOT_DIR/packages/tui"
 node --test --test-reporter=dot --test-reporter-destination=stdout test/*.test.ts
 
-# Run agent tests
 cd "$ROOT_DIR/packages/agent"
-node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
+$VITEST --run
 
-# Run orchestrator tests if any exist
 cd "$ROOT_DIR/packages/orchestrator"
 if find test -name "*.test.ts" -o -name "*.spec.ts" 2>/dev/null | grep -q .; then
-    node "$ROOT_DIR/node_modules/vitest/dist/cli.js" --run
+    $VITEST --run
 else
     echo "No test files in orchestrator, skipping"
 fi
