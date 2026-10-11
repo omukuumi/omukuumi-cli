@@ -170,7 +170,7 @@ describe("FooterComponent width handling", () => {
 		expect(statsLine.endsWith("Kigali 24°C ☀")).toBe(true);
 		expect(statsLine).toContain("12.3%/200k");
 		expect(statsLine).toContain("↑7.8k ↓159");
-		expect(statsLine).toContain("14 RWF");
+		expect(statsLine).toContain("34 UGX");
 		expect(statsLine).toContain("Kigali 24°C ☀");
 		expect(statsLine).not.toContain("yakoreshejwe");
 		expect(statsLine).not.toContain("Codex");
