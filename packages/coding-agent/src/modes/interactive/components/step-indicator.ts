@@ -144,7 +144,7 @@ export class StepIndicator implements Component {
 		const details = step.details ? ` (${step.details})` : "";
 
 		// Format: icon + Luganda word + details
-		const text = `${prefix}${luganda}${details ? " " + details : ""}`;
+		const text = `${prefix}${luganda}${details ? ` ${details}` : ""}`;
 
 		// Pad to width
 		const visibleLength = text.replace(/\u001b\[[0-9;]*m/g, "").length;
