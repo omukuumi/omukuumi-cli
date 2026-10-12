@@ -19,7 +19,7 @@ import {
 	type SimpleStreamOptions,
 } from "@earendil-works/pi-ai/compat";
 import { registerOAuthProvider, resetOAuthProviders } from "@earendil-works/pi-ai/oauth";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { type Static, Type } from "typebox";
 import { Compile } from "typebox/compile";
@@ -871,7 +871,44 @@ export class ModelRegistry {
 	}
 
 	/**
-	 * Upsert a provider config into registeredProviders.
+	/**
+	 * Save custom providers to models.json.
+	 * Only saves providers that were registered via registerProvider (not built-in overrides).
+	 */
+	saveCustomProviders(): void {
+		if (!this.modelsJsonPath) {
+			throw new Error("Cannot save custom providers: models.json path not configured (in-memory registry).");
+		}
+		// Load existing models.json to preserve other configs (overrides, etc.)
+		let existingConfig: ModelsConfig = { providers: {} };
+		if (existsSync(this.modelsJsonPath)) {
+			const content = readFileSync(this.modelsJsonPath, "utf-8");
+			try {
+				existingConfig = JSON.parse(stripJsonComments(content)) as ModelsConfig;
+			} catch {
+				// If parse fails, start fresh
+				existingConfig = { providers: {} };
+			}
+		}
+		// Merge registered providers into existing config
+		for (const [providerName, config] of this.registeredProviders.entries()) {
+			const existing = existingConfig.providers[providerName] || {};
+			// Merge: registered config takes precedence for defined values
+			existingConfig.providers[providerName] = { ...existing, ...config };
+		}
+		writeFileSync(this.modelsJsonPath, JSON.stringify(existingConfig, null, 2) + "\n");
+	}
+
+	/**
+	 * Check if a provider is a built-in provider.
+	 */
+	isBuiltInProvider(providerName: string): boolean {
+		const builtInProviders = new Set<string>(getProviders());
+		return builtInProviders.has(providerName);
+	}
+
+	/**
+	 * Upsert a provider config into registeredProviders. into registeredProviders.
 	 * If the provider is already registered, defined values in the incoming config
 	 * override existing ones; undefined values are preserved from the stored config.
 	 * If the provider is not registered, the incoming config is stored as-is.
