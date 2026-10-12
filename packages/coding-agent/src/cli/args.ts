@@ -239,7 +239,7 @@ ${chalk.bold("Amategeko:")}
   ${APP_NAME} list                      Erekana ingereko zinjijwe ziri mu igenamiterere
   ${APP_NAME} config [-l]               Fungura TUI kugira ngo wemere cyangwa uhagarike umutungo w'amapakeji (Tab ihindura scope)
   ${APP_NAME} doctor                    Suzuma installation, auth, models, na backend
-  ${APP_NAME} org add <code>            Bika organisation code ya Genesis Codeworks
+  ${APP_NAME} org add <code>            Bika organisation code ya Genesis Codeworks Ltd
   ${APP_NAME} org status                Reba uko organisation access ihagaze
   ${APP_NAME} <command> --help          Erekana ubufasha ku mategeko install/remove/uninstall/update/list/config
 
@@ -252,7 +252,7 @@ ${chalk.bold("Amahitamo:")}
   --mode <mode>                  Uburyo bwo kwerekana ibisubizo: text (default), json, cyangwa rpc
   --print, -p                    Uburyo butari ibiganiro: kora ibwiriza hanyuma usohoke
   --continue, -c                 Komeza ikiganiro giheruka
-  --resume, -r                   Hitamo ikiganiro cyo gukomeza
+  --resume, -r                   Kwetaga ikiganiro cyo gukomeza
   --session <path|id>            Koresha dosiye y'ikiganiro yihariye cyangwa igice cya UUID
   --session-id <id>              Koresha ID nyayo y'ikiganiro cya poroje; uyireme niba itabonetse
   --fork <path|id>               Shinga ikiganiro gishya uhereye kuri dosiye y'ikiganiro cyangwa igice cya UUID
@@ -267,7 +267,7 @@ ${chalk.bold("Amahitamo:")}
                                  Bikora ku bikoresho bisanzwe, ingereko, n'tools byihariye
   --exclude-tools, -xt <tools>   Urutonde rw'tools bigomba guhagarikwa, bitandukanijwe n'utwatuzo
                                  Bikora ku bikoresho bisanzwe, ingereko, n'tools byihariye
-  --thinking <level>             Gena urwego rwo gutekereza: off, minimal, low, medium, high, xhigh, max
+  --thinking <level>             Gena ekipindi kya okutegeera: off, minimal, low, medium, high, xhigh, max
   --extension, -e <path>         Fungura dosiye y'ingereko (bishobora gusubirwamo)
   --no-extensions, -ne           Hagarika gushakisha ingereko (inzira za -e zitanzwe ziracyakora)
   --skill <path>                 Fungura dosiye cyangwa ububiko bw'skills (bishobora gusubirwamo)
@@ -285,9 +285,9 @@ ${chalk.bold("Amahitamo:")}
   --offline                      Hagarika ibikorwa by'urusobe mu gutangira (kimwe na GIHANGA_OFFLINE=1)
   --help, -h                     Erekana ubu bufasha
   --version, -v                  Erekana nomero ya version
-  vuga                           Tangira ibiganiro by'ijwi bya Genesis Codeworks (bisaba subscription)
+  vuga                           Tangira ibiganiro by'ijwi bya Genesis Codeworks Ltd (bisaba subscription)
 
-Ingereko zishobora kongeramo flags nshya (urugero: --plan iva muri plan-mode extension).${extensionFlagsText}
+Ingereko zishobora kongeramo flags nshya (urugero: --plan iva mu plan-mode extension).${extensionFlagsText}
 
 ${chalk.bold("Ingero:")}
   # Uburyo bw'ibiganiro
@@ -317,7 +317,7 @@ ${chalk.bold("Ingero:")}
   # Koresha icyitegererezo kibanzirizwa n'izina rya provider (--provider si ngombwa)
   ${APP_NAME} --model openai/gpt-4o "Help me refactor this code"
 
-  # Koresha icyitegererezo gifite impine y'urwego rwo gutekereza
+  # Koresha icyitegererezo gifite impine y'ekipindi kya okutegeera
   ${APP_NAME} --model sonnet:high "Solve this complex problem"
 
   # Garukira gusa ku byitegererezo byatoranyijwe mu changenya
@@ -326,10 +326,10 @@ ${chalk.bold("Ingero:")}
   # Garukira kuri provider runaka ukoresheje glob pattern
   ${APP_NAME} --models "github-copilot/*"
 
-  # Hinduranya ibyitegererezo bifite inzego zo gutekereza zigenwe
+  # Hinduranya ibyitegererezo bifite inzego zo okutegeera zigenwe
   ${APP_NAME} --models sonnet:high,haiku:low
 
-  # Tangira n'urwego rwo gutekereza runaka
+  # Tangira n'ekipindi kya okutegeera runaka
   ${APP_NAME} --thinking high "Solve this complex problem"
 
   # Uburyo bwo read gusa (nta change dosiye)

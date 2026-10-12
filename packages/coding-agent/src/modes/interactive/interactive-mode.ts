@@ -142,6 +142,7 @@ import {
 	type StatusIndicator,
 	WorkingStatusIndicator,
 } from "./components/status-indicator.ts";
+import { StepIndicator, type StepInfo, type StepKind } from "./components/step-indicator.ts";
 import { ToolExecutionComponent } from "./components/tool-execution.ts";
 import { TreeSelectorComponent } from "./components/tree-selector.ts";
 import { TrustSelectorComponent } from "./components/trust-selector.ts";
@@ -263,7 +264,7 @@ export function isGihangaAllowedModelProvider(providerId: string): boolean {
 }
 
 export function getUpskillsAfricaAccountActionLabels(): string[] {
-	return ["Login to Genesis Codeworks", "Register Genesis Codeworks account", "Add organisation code"];
+	return ["Login to Genesis Codeworks Ltd", "Register Genesis Codeworks Ltd account", "Add organisation code"];
 }
 
 export function getUpskillsAfricaPaymentFlowLabels(): {
@@ -274,11 +275,11 @@ export function getUpskillsAfricaPaymentFlowLabels(): {
 	paid: string;
 } {
 	return {
-		choosePlan: "Hitamo gahunda ya Genesis Codeworks:",
+		choosePlan: "Kwetaga plan ya Genesis Codeworks Ltd:",
 		phonePrompt: "Nimero ya Mobile Money:",
-		confirmOnPhone: "Emeza ubwishyu kuri telefoni yawe...",
-		waiting: "Ndacyategereje kwemeza ubwishyu...",
-		paid: "Ubwishyu bwemejwe. Hitamo model.",
+		confirmOnPhone: "Ggunula kuweerisa ku simu yawo...",
+		waiting: "Nnalindirira okugganya kuweerisa...",
+		paid: "Kuweerisa kugganyibwako. Kwetaga model.",
 	};
 }
 
@@ -329,7 +330,7 @@ function wait(ms: number): Promise<void> {
 const AUTH_TYPE_ORDER = { oauth: 0, api_key: 1 } satisfies Record<AuthSelectorProvider["authType"], number>;
 const UPSKILLS_AFRICA_PROVIDER_ID = "upskillsafrica-rask-d-technology";
 const UPSKILLS_AFRICA_MODEL_PROVIDER_ID = "upskillsafrica";
-const UPSKILLS_AFRICA_PROVIDER_NAME = "Genesis Codeworks AI";
+const UPSKILLS_AFRICA_PROVIDER_NAME = "Genesis Codeworks Ltd AI";
 const UPSKILLS_AFRICA_BACKEND_URL = "https://upskillsafrica-ai-backend.boyg87059.workers.dev";
 
 const UPSKILLS_AFRICA_PROVIDER_OPTIONS = [
@@ -429,6 +430,7 @@ export class InteractiveMode {
 	private chatContainer: Container;
 	private pendingMessagesContainer: Container;
 	private statusContainer: Container;
+	private stepIndicatorContainer: Container;
 	private defaultEditor: CustomEditor;
 	private editor: EditorComponent;
 	private editorComponentFactory: EditorFactory | undefined;
@@ -456,7 +458,7 @@ export class InteractiveMode {
 	private workingVisible = true;
 	private workingIndicatorOptions: WorkingIndicatorOptions | undefined = undefined;
 	private readonly defaultWorkingMessage = "Ndahuze...";
-	private readonly defaultHiddenThinkingLabel = "Ndigutekereza...";
+	private readonly defaultHiddenThinkingLabel = "Ndiguggya...";
 	private hiddenThinkingLabel = this.defaultHiddenThinkingLabel;
 
 	private lastSigintTime = 0;
@@ -501,6 +503,8 @@ export class InteractiveMode {
 
 	// Auto-compaction state
 	private autoCompactionEscapeHandler?: () => void;
+
+	private stepIndicator: StepIndicator | undefined;
 
 	// Auto-retry state
 	private retryEscapeHandler?: () => void;
@@ -572,6 +576,7 @@ export class InteractiveMode {
 		this.chatContainer = new Container();
 		this.pendingMessagesContainer = new Container();
 		this.statusContainer = new Container();
+		this.stepIndicatorContainer = new Container();
 		this.widgetContainerAbove = new Container();
 		this.widgetContainerBelow = new Container();
 		this.keybindings = KeybindingsManager.create();
@@ -798,6 +803,10 @@ export class InteractiveMode {
 		const [fdPath] = await Promise.all([ensureTool("fd"), ensureTool("rg")]);
 		this.fdPath = fdPath;
 
+		// Initialize step indicator
+		this.stepIndicator = new StepIndicator(this.ui);
+		this.stepIndicatorContainer.addChild(this.stepIndicator);
+
 		if (this.session.scopedModels.length > 0 && (this.options.verbose || !this.settingsManager.getQuietStartup())) {
 			const modelList = this.session.scopedModels
 				.map((sm) => {
@@ -823,6 +832,7 @@ export class InteractiveMode {
 		mainContentContainer.addChild(this.chatContainer);
 		mainContentContainer.addChild(this.pendingMessagesContainer);
 		mainContentContainer.addChild(this.statusContainer);
+		mainContentContainer.addChild(this.stepIndicatorContainer);
 		this.renderWidgets();
 		this.startFooterAnimationTimer();
 		mainContentContainer.addChild(this.widgetContainerAbove);
@@ -890,11 +900,11 @@ export class InteractiveMode {
 				hint("app.exit", "to exit (empty)"),
 				hint("app.suspend", "to suspend"),
 				keyHint("tui.editor.deleteToLineEnd", "to delete to end"),
-				hint("app.thinking.cycle", "to change gutekereza level"),
+				hint("app.thinking.cycle", "to change okutegeera level"),
 				rawKeyHint(`${keyText("app.model.cycleForward")}/${keyText("app.model.cycleBackward")}`, "to cycle models"),
 				hint("app.model.select", "to select model"),
 				hint("app.tools.expand", "to expand tools"),
-				hint("app.thinking.toggle", "to expand gutekereza"),
+				hint("app.thinking.toggle", "to expand okutegeera"),
 				hint("app.editor.external", "for external editor"),
 				rawKeyHint("/", "for commands"),
 				rawKeyHint("!", "to run bash"),
@@ -923,7 +933,7 @@ export class InteractiveMode {
 			].join("\n");
 			const onboarding = theme.fg(
 				"dim",
-				`Omukuumi can explain its features and help with kode, providers, and skills.\nSponsored by Genesis Codeworks Foundation.`,
+				`Omukuumi can explain its features and help with kode, providers, and skills.\nSponsored by Genesis Codeworks Ltd.`,
 			);
 			this.builtInHeader = new ExpandableText(
 				() => `${ugandaVector}\n${logo}\n${compactInstructions}\n${compactOnboarding}\n\n${onboarding}`,
@@ -2104,6 +2114,7 @@ export class InteractiveMode {
 		this.clearExtensionWidgets();
 		this.footerDataProvider.clearExtensionStatuses();
 		this.footer.invalidate();
+
 		this.autocompleteProviderWrappers = [];
 		this.setCustomEditorComponent(undefined);
 		this.setupAutocompleteProvider();
@@ -3068,11 +3079,13 @@ export class InteractiveMode {
 			case "session_info_changed":
 				this.updateTerminalTitle();
 				this.footer.invalidate();
+
 				this.ui.requestRender();
 				break;
 
 			case "thinking_level_changed":
 				this.footer.invalidate();
+
 				this.updateEditorBorderColor();
 				break;
 
@@ -3333,6 +3346,64 @@ export class InteractiveMode {
 	}
 
 	/** Extract text content from a user message */
+
+	/** Handle step indicator events */
+	private handleStepEvent(event: AgentSessionEvent): void {
+		switch (event.type) {
+			case "agent_start":
+				this.stepIndicator?.setThinking("Thinking...");
+				break;
+
+			case "tool_execution_start": {
+				this.stepIndicator?.setToolStep(event.toolName, "Starting...");
+				break;
+			}
+
+			case "tool_execution_update": {
+				this.stepIndicator?.setToolStep(event.toolName, event.partialResult?.output?.toString()?.slice(0, 100));
+				break;
+			}
+
+			case "tool_execution_end": {
+				this.stepIndicator?.setIdleWithMessage(`Completed ${event.toolName}`);
+				break;
+			}
+
+			case "agent_end":
+			case "agent_settled":
+				this.stepIndicator?.setIdle();
+				break;
+
+			case "compaction_start": {
+				this.stepIndicator?.setCompacting(event.reason);
+				break;
+			}
+
+			case "compaction_end": {
+				this.stepIndicator?.setIdleWithMessage("Compaction complete");
+				break;
+			}
+
+			case "thinking_level_changed": {
+				this.stepIndicator?.setThinking(`Thinking (${event.level})...`);
+				break;
+			}
+
+			case "message_start": {
+				if (event.message.role === "assistant") {
+					this.stepIndicator?.setThinking("Generating response...");
+				}
+				break;
+			}
+
+			case "message_end": {
+				if (event.message.role === "assistant") {
+					this.stepIndicator?.setIdle();
+				}
+				break;
+			}
+		}
+	}
 	private getUserMessageText(message: Message): string {
 		if (message.role !== "user") return "";
 		const textBlocks =
@@ -3503,6 +3574,7 @@ export class InteractiveMode {
 
 		if (options.updateFooter) {
 			this.footer.invalidate();
+
 			this.updateEditorBorderColor();
 		}
 
@@ -3930,11 +4002,12 @@ export class InteractiveMode {
 	private cycleThinkingLevel(): void {
 		const newLevel = this.session.cycleThinkingLevel();
 		if (newLevel === undefined) {
-			this.showStatus("Iyi model ntabwo ishyigikira gutekereza");
+			this.showStatus("Enno model siyina okusaala okutegeera");
 		} else {
 			this.footer.invalidate();
+
 			this.updateEditorBorderColor();
-			this.showStatus(`Urwego rwo gutekereza: ${newLevel}`);
+			this.showStatus(`Ekipindi kya okutegeera: ${newLevel}`);
 		}
 	}
 
@@ -3946,9 +4019,10 @@ export class InteractiveMode {
 				this.showStatus(msg);
 			} else {
 				this.footer.invalidate();
+
 				this.updateEditorBorderColor();
 				const thinkingStr =
-					result.model.reasoning && result.thinkingLevel !== "off" ? ` (gutekereza: ${result.thinkingLevel})` : "";
+					result.model.reasoning && result.thinkingLevel !== "off" ? ` (okutegeera: ${result.thinkingLevel})` : "";
 				this.showStatus(`Switched to ${result.model.name || result.model.id}${thinkingStr}`);
 				void this.maybeWarnAboutAnthropicSubscriptionAuth(result.model);
 			}
@@ -3992,7 +4066,7 @@ export class InteractiveMode {
 			this.chatContainer.addChild(this.streamingComponent);
 		}
 
-		this.showStatus(`Ibice byo gutekereza: ${this.hideThinkingBlock ? "byahishwe" : "biragaragara"}`);
+		this.showStatus(`Ebintu bya okutegeera: ${this.hideThinkingBlock ? "byaasobya" : "biragala"}`);
 	}
 
 	private async openExternalEditor(): Promise<void> {
@@ -4413,6 +4487,7 @@ export class InteractiveMode {
 					onThinkingLevelChange: (level) => {
 						this.session.setThinkingLevel(level);
 						this.footer.invalidate();
+
 						this.updateEditorBorderColor();
 					},
 					onThemeChange: (themeSetting) => {
@@ -4522,6 +4597,7 @@ export class InteractiveMode {
 			try {
 				await this.session.setModel(model);
 				this.footer.invalidate();
+
 				this.updateEditorBorderColor();
 				this.showStatus(`Model: ${model.id}`);
 				void this.maybeWarnAboutAnthropicSubscriptionAuth(model);
@@ -4657,6 +4733,7 @@ export class InteractiveMode {
 					try {
 						await this.session.setModel(model);
 						this.footer.invalidate();
+
 						this.updateEditorBorderColor();
 						done();
 						this.showStatus(`Model: ${model.id}`);
@@ -5123,7 +5200,7 @@ export class InteractiveMode {
 
 	private showLoginAuthTypeSelector(providerOptions?: AuthSelectorProvider[]): void {
 		const apiKeyLabel = "Use an API key";
-		const upskillsAfricaLabel = "Use Genesis Codeworks provider";
+		const upskillsAfricaLabel = "Use Genesis Codeworks Ltd provider";
 		const options: string[] = [apiKeyLabel, upskillsAfricaLabel];
 
 		if (providerOptions) {
@@ -5162,7 +5239,7 @@ export class InteractiveMode {
 		const [loginLabel, registerLabel, organisationLabel] = getUpskillsAfricaAccountActionLabels();
 		this.showSelector((done) => {
 			const selector = new ExtensionSelectorComponent(
-				"Genesis Codeworks account:",
+				"Genesis Codeworks Ltd account:",
 				[loginLabel, registerLabel, organisationLabel],
 				(option) => {
 					done();
@@ -5187,7 +5264,7 @@ export class InteractiveMode {
 			UPSKILLS_AFRICA_PROVIDER_ID,
 			(_success, _message) => {},
 			UPSKILLS_AFRICA_PROVIDER_NAME,
-			mode === "register" ? "Register Genesis Codeworks account" : "Login to Genesis Codeworks",
+			mode === "register" ? "Register Genesis Codeworks Ltd account" : "Login to Genesis Codeworks Ltd",
 		);
 		this.editorContainer.clear();
 		this.editorContainer.addChild(dialog);
@@ -5217,7 +5294,7 @@ export class InteractiveMode {
 			});
 			const data = (await response.json()) as { token?: string; message?: string; user?: { email?: string } };
 			if (!response.ok || !data.token) {
-				throw new Error(data.message || `Genesis Codeworks ${mode} failed.`);
+				throw new Error(data.message || `Genesis Codeworks Ltd ${mode} failed.`);
 			}
 			this.saveUpskillsAfricaCredentials(data.token);
 			restoreEditor();
@@ -5228,7 +5305,7 @@ export class InteractiveMode {
 		} catch (error: unknown) {
 			restoreEditor();
 			const errorMsg = error instanceof Error ? error.message : String(error);
-			if (errorMsg !== "Login cancelled") this.showError(`Genesis Codeworks ${mode} failed: ${errorMsg}`);
+			if (errorMsg !== "Login cancelled") this.showError(`Genesis Codeworks Ltd ${mode} failed: ${errorMsg}`);
 		}
 	}
 
@@ -5267,7 +5344,7 @@ export class InteractiveMode {
 
 	private removeUpskillsAfricaOrganisationCode(): void {
 		const snapshot = this.getUpskillsAfricaCredentialSnapshot();
-		if (!snapshot.token) throw new Error("No Genesis Codeworks login found.");
+		if (!snapshot.token) throw new Error("No Genesis Codeworks Ltd login found.");
 		const env: Record<string, string> = { ...snapshot.env, UPSKILLSAFRICA_BACKEND_URL: UPSKILLS_AFRICA_BACKEND_URL };
 		delete env.UPSKILLSAFRICA_ORG_CODE;
 		for (const providerId of [UPSKILLS_AFRICA_PROVIDER_ID, UPSKILLS_AFRICA_MODEL_PROVIDER_ID]) {
@@ -5301,7 +5378,7 @@ export class InteractiveMode {
 			UPSKILLS_AFRICA_PROVIDER_ID,
 			(_success, _message) => {},
 			UPSKILLS_AFRICA_PROVIDER_NAME,
-			"Genesis Codeworks organisation code",
+			"Genesis Codeworks Ltd organisation code",
 		);
 		this.editorContainer.clear();
 		this.editorContainer.addChild(dialog);
@@ -5324,7 +5401,7 @@ export class InteractiveMode {
 			this.session.modelRegistry.refresh();
 			await this.updateAvailableProviderCount();
 			this.showStatus(
-				`Genesis Codeworks organisation code verified and saved${verified.label ? ` for ${verified.label}` : ""}. Choose an organisation model to continue.`,
+				`Genesis Codeworks Ltd organisation code verified and saved${verified.label ? ` for ${verified.label}` : ""}. Choose an organisation model to continue.`,
 			);
 			this.showModelSelector("upskillsafrica");
 		} catch (error: unknown) {
@@ -5346,7 +5423,7 @@ export class InteractiveMode {
 		const [, action = "status", ...rest] = text.split(/\s+/);
 		if (action === "status") {
 			const snapshot = this.getUpskillsAfricaCredentialSnapshot();
-			this.addInfoPanel("Genesis Codeworks organisation access", [
+			this.addInfoPanel("Genesis Codeworks Ltd organisation access", [
 				`Login: ${snapshot.token ? "configured" : "not configured"}`,
 				`Organisation code: ${snapshot.organisationCode ? this.maskOrganisationCode(snapshot.organisationCode) : "not set"}`,
 				snapshot.token ? "Use /org add <code> to verify a new code." : "Use /login to login first.",
@@ -5395,7 +5472,7 @@ export class InteractiveMode {
 		checks.push(`Version: ${VERSION}`);
 		checks.push(`Agent directory: ${getAgentDir()}`);
 		checks.push(`models.json: ${modelsJsonError ? `error - ${modelsJsonError}` : "OK"}`);
-		checks.push(`Genesis Codeworks auth: ${snapshot.token ? "configured" : "not configured"}`);
+		checks.push(`Genesis Codeworks Ltd auth: ${snapshot.token ? "configured" : "not configured"}`);
 		checks.push(
 			`Organisation code: ${snapshot.organisationCode ? this.maskOrganisationCode(snapshot.organisationCode) : "not set"}`,
 		);
@@ -5404,9 +5481,9 @@ export class InteractiveMode {
 		);
 		try {
 			const response = await fetch(`${UPSKILLS_AFRICA_BACKEND_URL}/health`);
-			checks.push(`Genesis Codeworks backend: ${response.ok ? "reachable" : `HTTP ${response.status}`}`);
+			checks.push(`Genesis Codeworks Ltd backend: ${response.ok ? "reachable" : `HTTP ${response.status}`}`);
 		} catch (error) {
-			checks.push(`Genesis Codeworks backend: ${error instanceof Error ? error.message : String(error)}`);
+			checks.push(`Genesis Codeworks Ltd backend: ${error instanceof Error ? error.message : String(error)}`);
 		}
 		this.addInfoPanel("Omukuumi doctor", checks);
 	}
@@ -5422,18 +5499,18 @@ export class InteractiveMode {
 				message?: string;
 			};
 			if ((data.entitlements || []).length > 0) {
-				this.showStatus("Genesis Codeworks subscription active. Choose a model to continue.");
+				this.showStatus("Genesis Codeworks Ltd subscription active. Choose a model to continue.");
 				this.showModelSelector();
 				return;
 			}
 			const plans = data.plans || [];
-			this.showWarning("No active Genesis Codeworks subscription found. Choose a plan to continue.");
+			this.showWarning("No active Genesis Codeworks Ltd subscription found. Choose a plan to continue.");
 			if (plans.length > 0) {
 				this.showUpskillsAfricaPlanSelector(token, email, plans);
 			}
 		} catch (error) {
 			this.showWarning(
-				`Genesis Codeworks login saved, but subscription check failed: ${error instanceof Error ? error.message : String(error)}`,
+				`Genesis Codeworks Ltd login saved, but subscription check failed: ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 	}
@@ -5511,7 +5588,7 @@ export class InteractiveMode {
 		} catch (error: unknown) {
 			restoreEditor();
 			const errorMsg = error instanceof Error ? error.message : String(error);
-			if (errorMsg !== "Login cancelled") this.showError(`Ubwishyu ntibwatangiye: ${errorMsg}`);
+			if (errorMsg !== "Login cancelled") this.showError(`Kuweerisa kwebise kuva mu ggulu: ${errorMsg}`);
 		}
 	}
 
@@ -5531,11 +5608,11 @@ export class InteractiveMode {
 			}
 			const status = (data.status || "").toLowerCase();
 			if (["failed", "cancelled", "canceled", "rejected"].includes(status)) {
-				this.showError(`Ubwishyu ntibwemejwe: ${data.status}`);
+				this.showError(`Kuweerisa tekigganyibwako: ${data.status}`);
 				return;
 			}
 		}
-		this.showWarning("A required password. Nibwemezwa, ongera ufungure /login cyangwa /model.");
+		this.showWarning("A required password. Mwattu, ogerageza wulule /login cyangwa /model.");
 	}
 
 	private showLoginProviderSelector(
@@ -5677,6 +5754,7 @@ export class InteractiveMode {
 
 		await this.updateAvailableProviderCount();
 		this.footer.invalidate();
+
 		this.updateEditorBorderColor();
 		if (selectedModel) {
 			this.showStatus(`${actionLabel}. Selected ${selectedModel.id}. Credentials saved locally.`);

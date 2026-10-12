@@ -1,6 +1,6 @@
 # Omukuumi CLI
 
-**Omukuumi** is an English/Luganda-first AI coding assistant for the terminal, sponsored by Genesis Codeworks Foundation.
+**Omukuumi** is an English/Luganda-first AI coding assistant for the terminal, sponsored by Genesis Codeworks Ltd.
 
 ## Quick Start
 

@@ -250,7 +250,7 @@ export async function runVoiceMode(authStorage: AuthStorage, options: VoiceModeO
 	const commandMode = options.onTranscript !== undefined;
 	const token = getToken(authStorage);
 	if (!token) {
-		throw new Error("Injira muri Genesis Codeworks ubanza ukoreshe /login.");
+		throw new Error("Injira muri Genesis Codeworks Ltd ubanza ukoreshe /login.");
 	}
 
 	const backendUrl = getBackendUrl(authStorage);
@@ -259,7 +259,7 @@ export async function runVoiceMode(authStorage: AuthStorage, options: VoiceModeO
 	});
 	const modelsBody = (await modelsResponse.json().catch(() => ({}))) as { models?: unknown[]; message?: string };
 	if (!modelsResponse.ok) {
-		throw new Error(modelsBody.message || "Realtime voice is only available to paid Genesis Codeworks users.");
+		throw new Error(modelsBody.message || "Realtime voice is only available to paid Genesis Codeworks Ltd users.");
 	}
 	const model = typeof modelsBody.models?.[0] === "string" ? modelsBody.models[0] : DEFAULT_REALTIME_MODEL;
 	if (commandMode) {

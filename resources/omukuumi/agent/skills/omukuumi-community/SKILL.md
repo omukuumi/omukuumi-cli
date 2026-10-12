@@ -45,7 +45,7 @@ Do not claim the local data file is a complete official dictionary. Treat it as 
 | forensic technology | ikoranabuhanga ngaragazabimenyetso |
 | computer processor | intima ya mudasobwa |
 | charger | indahuzo |
-| authentication | kwemeza |
+| authentication | okutambulira |
 | biometric data | amakuru y'ibipimo ndangamiterere y'umuntu |
 | screen | indebero |
 | tool | igikoresho |
@@ -60,7 +60,7 @@ Do not claim the local data file is a complete official dictionary. Treat it as 
 Prefer these words in explanations when they sound natural:
 
 - kora / gukora — do, make, operate
-- ongeraho — add
+- ongeza — add
 - baza — ask
 - kubaka — build
 - soma — read

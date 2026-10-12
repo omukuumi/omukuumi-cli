@@ -527,19 +527,19 @@ describe("InteractiveMode.createBaseAutocompleteProvider", () => {
 
 	test("account actions expose login, register, and organisation code", () => {
 		expect(getUpskillsAfricaAccountActionLabels()).toEqual([
-			"Login to Genesis Codeworks",
-			"Register Genesis Codeworks account",
+			"Login to Genesis Codeworks Ltd",
+			"Register Genesis Codeworks Ltd account",
 			"Add organisation code",
 		]);
 	});
 
-	test("payment flow labels are compact Kinyarwanda terminal copy", () => {
+	test("payment flow labels are compact Luganda terminal copy", () => {
 		expect(getUpskillsAfricaPaymentFlowLabels()).toEqual({
-			choosePlan: "Hitamo gahunda ya Genesis Codeworks:",
+			choosePlan: "Kwetaga plan ya Genesis Codeworks Ltd:",
 			phonePrompt: "Nimero ya Mobile Money:",
-			confirmOnPhone: "Emeza ubwishyu kuri telefoni yawe...",
-			waiting: "Ndacyategereje kwemeza ubwishyu...",
-			paid: "Ubwishyu bwemejwe. Hitamo model.",
+			confirmOnPhone: "Ggunula kuweerisa ku simu yawo...",
+			waiting: "Nnalindirira okugganya kuweerisa...",
+			paid: "Kuweerisa kugganyibwako. Kwetaga model.",
 		});
 		expect(formatUpskillsAfricaPlanLabel({ id: "thirty_minutes", amountRwf: 3000 })).toBe(
 			"thirty_minutes · 3,000 RWF",
