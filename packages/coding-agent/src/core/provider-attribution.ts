@@ -43,7 +43,7 @@ function getDefaultAttributionHeaders(
 
 	if (isOpenRouterModel(model)) {
 		return {
-			"HTTP-Referer": "https://console.upskillsafrica.org",
+			"HTTP-Referer": "https://console.omukuumi.org",
 			"X-OpenRouter-Title": "Gihanga CLI",
 			"X-OpenRouter-Categories": "cli-agent",
 		};

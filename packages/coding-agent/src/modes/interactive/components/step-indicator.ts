@@ -39,7 +39,7 @@ const STEP_ICONS: Record<StepKind, string> = {
 
 // Luganda words for each step (ONLY Luganda)
 const STEP_LUGANDA: Record<StepKind, string> = {
-	idle: "Kulinda",
+	idle: "",
 	thinking: "Kutekereza",
 	reading: "Okusoma",
 	writing: "Okwandiika",
@@ -50,11 +50,11 @@ const STEP_LUGANDA: Record<StepKind, string> = {
 	grepping: "Okulonda mu nnyo",
 	tool_executing: "Okukolesha",
 	compacting: "Okusindika",
-	waiting: "Okulinda",
+	waiting: "",
 };
 
 export class StepIndicator implements Component {
-	private currentStep: StepInfo = { kind: "idle", message: "Kulinda" };
+	private currentStep: StepInfo = { kind: "idle", message: "" };
 	private ui: TUI;
 
 	constructor(ui: TUI) {
@@ -67,7 +67,7 @@ export class StepIndicator implements Component {
 	}
 
 	setIdle(): void {
-		this.currentStep = { kind: "idle", message: "Kulinda" };
+		this.currentStep = { kind: "idle", message: "" };
 		this.ui.invalidate();
 	}
 

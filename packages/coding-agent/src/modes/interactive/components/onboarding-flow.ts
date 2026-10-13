@@ -162,7 +162,7 @@ export class OnboardingFlowComponent extends Container {
 			new Text(
 				theme.fg(
 					"text",
-					"Omukuumi is an AI coding assistant for the terminal, sponsored by Genesis Codeworks Ltd.",
+					"Omukuumi is an AI coding assistant for the terminal, sponsored by Genesis Codeworks Foundation.",
 				),
 				1,
 				0,

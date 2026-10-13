@@ -925,19 +925,22 @@ export class InteractiveMode {
 				"dim",
 				`Press ${keyText("app.tools.expand")} to show full startup help, skills data, and loaded resources.`,
 			);
-			const ugandaVector = [
-				theme.fg("accent", "      /\\        ") + theme.fg("warning", "✦"),
-				theme.fg("accent", " ____/  \\____   ") + theme.fg("success", "Uganda"),
-				theme.fg("success", "| enkumi z'obusozi | ") + theme.fg("warning", "sun"),
-				theme.fg("success", "‾‾‾‾‾‾‾‾‾‾‾‾‾"),
+			const omukuumiBanner = [
+				theme.fg("accent", "                                ╭─╮                                       ╭─╮ "),
+				theme.fg("success", "╭───────╮ ╭─────────╮ ╭─╮   ╭─╮ │ │   ╭─╮ ╭─╮   ╭─╮ ╭─╮   ╭─╮ ╭─────────╮ ╰─╯ "),
+				theme.fg("warning", "│ ╭───╮ │ │ ╭─╮ ╭─╮ │ │ │   │ │ │ │ ╭─╯ │ │ │   │ │ │ │   │ │ │ ╭─╮ ╭─╮ │ ╭─╮ "),
+				theme.fg("accent", "│ │   │ │ │ │ │ │ │ │ │ │   │ │ │ ╰─╯   │ │ │   │ │ │ │   │ │ │ │ │ │ │ │ │ │ "),
+				theme.fg("success", "│ ╰───╯ │ │ │ │ │ │ │ │ ╰───╯ │ │ ╭───╮ │ │ ╰───╯ │ │ ╰───╯ │ │ │ │ │ │ │ │ │ "),
+				theme.fg("warning", "╰───────╯ ╰─╯ ╰─╯ ╰─╯ ╰───────╯ ╰─╯   ╰─╯ ╰───────╯ ╰───────╯ ╰─╯ ╰─╯ ╰─╯ ╰─╯ "),
 			].join("\n");
 			const onboarding = theme.fg(
 				"dim",
-				`Omukuumi can explain its features and help with kode, providers, and skills.\nSponsored by Genesis Codeworks Ltd.`,
+				`Omukuumi can explain its features and help with kode, providers, and skills.
+Sponsored by Genesis Codeworks Ltd.`,
 			);
 			this.builtInHeader = new ExpandableText(
-				() => `${ugandaVector}\n${logo}\n${compactInstructions}\n${compactOnboarding}\n\n${onboarding}`,
-				() => `${ugandaVector}\n${logo}\n${expandedInstructions}\n\n${onboarding}`,
+				() => `${omukuumiBanner}\n${compactInstructions}\n${compactOnboarding}\n\n${onboarding}`,
+				() => `${omukuumiBanner}\n${expandedInstructions}\n\n${onboarding}`,
 				this.getStartupExpansionState(),
 				1,
 				0,
@@ -4619,21 +4622,19 @@ export class InteractiveMode {
 		this.showModelSelector(searchTerm);
 	}
 
-	
-
 	private async handleProviderCommand(args: string[]): Promise<void> {
 		const subcommand = args[0]?.toLowerCase() || "list";
-		
+
 		if (subcommand === "list") {
 			await this.showProviderList();
 			return;
 		}
-		
+
 		if (subcommand === "add") {
 			await this.showAddProviderDialog();
 			return;
 		}
-		
+
 		if (subcommand === "remove") {
 			const providerId = args[1];
 			if (!providerId) {
@@ -4643,56 +4644,69 @@ export class InteractiveMode {
 			await this.removeCustomProvider(providerId);
 			return;
 		}
-		
+
 		this.showError(`Unknown provider subcommand: ${subcommand}. Use: add, remove, list`);
 	}
 
 	private async showProviderList(): Promise<void> {
 		const registry = this.session.modelRegistry;
 		const customProviders: string[] = [];
-		
+
 		// Get custom providers from registry
 		const allProviders = registry.getAll();
-		const providerNames = new Set(allProviders.map(m => m.provider));
-		
+		const providerNames = new Set(allProviders.map((m) => m.provider));
+
 		for (const provider of providerNames) {
 			const isBuiltIn = registry.isBuiltInProvider(provider);
 			if (!isBuiltIn) {
 				customProviders.push(provider);
 			}
 		}
-		
+
 		let output = "Custom Providers:\n";
 		if (customProviders.length === 0) {
 			output += "  (none)\n";
 		} else {
 			for (const p of customProviders) {
-				const models = allProviders.filter(m => m.provider === p);
-				output += `  • ${p} (${models.length} model${models.length !== 1 ? 's' : ''})\n`;
+				const models = allProviders.filter((m) => m.provider === p);
+				output += `  • ${p} (${models.length} model${models.length !== 1 ? "s" : ""})\n`;
 			}
 		}
 		output += "\nBuilt-in Providers:\n";
-		const builtIn = [...providerNames].filter(p => registry.isBuiltInProvider(p));
+		const builtIn = [...providerNames].filter((p) => registry.isBuiltInProvider(p));
 		for (const p of builtIn) {
-			const models = allProviders.filter(m => m.provider === p);
-			output += `  • ${p} (${models.length} model${models.length !== 1 ? 's' : ''})\n`;
+			const models = allProviders.filter((m) => m.provider === p);
+			output += `  • ${p} (${models.length} model${models.length !== 1 ? "s" : ""})\n`;
 		}
-		
+
 		this.showStatus(output);
 	}
 
 	private async showAddProviderDialog(): Promise<void> {
 		// Step 1: Provider name
-		const name = await this.promptInput("Add Custom Provider", "Enter provider name (e.g., my-openai, local-llm):", "");
+		const name = await this.promptInput(
+			"Add Custom Provider",
+			"Enter provider name (e.g., my-openai, local-llm):",
+			"",
+		);
 		if (!name) return;
-		
+
 		// Step 2: Base URL
-		const baseUrl = await this.promptInput("Add Custom Provider: " + name, "Enter base URL (e.g., https://api.openai.com/v1):", "");
+		const baseUrl = await this.promptInput(
+			"Add Custom Provider: " + name,
+			"Enter base URL (e.g., https://api.openai.com/v1):",
+			"",
+		);
 		if (!baseUrl) return;
-		
+
 		// Step 3: API Key
-		const apiKey = await this.promptInput("Add Custom Provider: " + name, "Base URL: " + baseUrl, "Enter API Key (optional):", true);
-		
+		const apiKey = await this.promptInput(
+			"Add Custom Provider: " + name,
+			"Base URL: " + baseUrl,
+			"Enter API Key (optional):",
+			true,
+		);
+
 		// Step 4: API Type
 		let apiType: string | null = null;
 		await new Promise<void>((resolve) => {
@@ -4703,9 +4717,9 @@ export class InteractiveMode {
 					apiType = option;
 				},
 				() => {},
-				{ tui: this.ui }
+				{ tui: this.ui },
 			);
-			
+
 			this.editorContainer.clear();
 			this.editorContainer.addChild(new Text("Add Custom Provider: " + name, 1, 0));
 			this.editorContainer.addChild(new Spacer(1));
@@ -4713,7 +4727,7 @@ export class InteractiveMode {
 			this.editorContainer.addChild(apiSelector);
 			this.ui.setFocus(apiSelector);
 			this.ui.requestRender();
-			
+
 			// Wait for selection
 			const checkSelection = setInterval(() => {
 				if (apiType !== null) {
@@ -4722,66 +4736,75 @@ export class InteractiveMode {
 				}
 			}, 100);
 		});
-		
+
 		if (!apiType) return;
-		
+
 		// Step 5: Models
-		const modelIds = await this.promptInput("Add Custom Provider: " + name, "Base URL: " + baseUrl, "Enter model IDs (comma-separated, e.g., gpt-4o,gpt-4o-mini):");
+		const modelIds = await this.promptInput(
+			"Add Custom Provider: " + name,
+			"Base URL: " + baseUrl,
+			"Enter model IDs (comma-separated, e.g., gpt-4o,gpt-4o-mini):",
+		);
 		if (!modelIds) return;
-		
+
 		// Register the provider
 		try {
 			const registry = this.session.modelRegistry;
-			
-			const models = modelIds.split(",").map(id => id.trim()).filter(Boolean);
-			
+
+			const models = modelIds
+				.split(",")
+				.map((id) => id.trim())
+				.filter(Boolean);
+
 			registry.registerProvider(name, {
 				baseUrl,
 				apiKey: apiKey || undefined,
 				api: apiType as any,
-				models: models.map(id => ({
+				models: models.map((id) => ({
 					id,
 					name: id,
 					reasoning: false,
 					input: ["text"],
 					contextWindow: 128000,
 					maxTokens: 4096,
-					cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }
-				}))
+					cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+				})),
 			});
-			
+
 			// Save to models.json
 			registry.saveCustomProviders();
-			
-			this.showStatus("Custom provider " + name + " added with " + models.length + " model(s). Saved to models.json");
+
+			this.showStatus(
+				"Custom provider " + name + " added with " + models.length + " model(s). Saved to models.json",
+			);
 			registry.refresh();
 			this.footer.invalidate();
 		} catch (error) {
 			this.showError(error instanceof Error ? error.message : String(error));
 		}
-	}	private async removeCustomProvider(providerId: string): Promise<void> {
+	}
+	private async removeCustomProvider(providerId: string): Promise<void> {
 		const registry = this.session.modelRegistry;
-		
+
 		if (registry.isBuiltInProvider(providerId)) {
 			this.showError(`Cannot remove built-in provider: ${providerId}`);
 			return;
 		}
-		
+
 		registry.unregisterProvider(providerId);
 		registry.saveCustomProviders();
-		
+
 		this.showStatus(`Custom provider "${providerId}" removed and saved to models.json`);
 		registry.refresh();
 		this.footer.invalidate();
 	}
-
 
 	/**
 	 * Prompt for input using ExtensionInputComponent.
 	 */
 	private async promptInput(title: string, subtitle: string, placeholder: string, masked = false): Promise<string> {
 		const { ExtensionInputComponent } = await import("./components/extension-input.ts");
-		
+
 		return new Promise<string>((resolve) => {
 			const inputComp = new ExtensionInputComponent(
 				title,
@@ -4789,7 +4812,7 @@ export class InteractiveMode {
 				(value) => resolve(value),
 				() => resolve(""),
 			);
-			
+
 			this.editorContainer.clear();
 			this.editorContainer.addChild(new Text(title, 1, 0));
 			if (subtitle) {
@@ -4799,17 +4822,13 @@ export class InteractiveMode {
 			this.editorContainer.addChild(inputComp);
 			this.ui.setFocus(inputComp);
 			this.ui.requestRender();
-			
+
 			// Note: ExtensionInputComponent doesn't support masked input directly
 			// The masked parameter is noted but not implemented in the component
 		});
 	}
 
-
-
-
-
-private async findExactModelMatch(searchTerm: string): Promise<Model<any> | undefined> {
+	private async findExactModelMatch(searchTerm: string): Promise<Model<any> | undefined> {
 		const models = await this.getModelCandidates();
 		return findExactModelReferenceMatch(searchTerm, models);
 	}
