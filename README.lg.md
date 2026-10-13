@@ -2,9 +2,9 @@
 
 Omukuumi CLI buli AI coding assistant wa terminal eyo eva Omulimi olungereza/Luganda. Ennyonyola abateekateekate okusoma, okukyusa, okwandiika, n'okukola code w'oluganda ku command line mu maaso g'okulinda endereera eno ey'omusaayi wa coding agent.
 
-Eddwaliro: https://console.omukuumi.org
+Eddwaliro: https://omukuumi.co
 
-Ekiwanulidde Genesis Codeworks Foundation.
+Ekiwanulidde Genesis Codeworks Ltd.
 
 ## Kiki ekyokola
 
@@ -27,25 +27,25 @@ Ekiwanulidde Genesis Codeworks Foundation.
 ## Okulaga ku Linux / macOS
 
 ```bash
-curl -fsSL https://console.omukuumi.org/install.sh | bash
+curl -fsSL https://omukuumi.co/install.sh | bash
 ```
 
 Akaseera okulaga:
 
 ```bash
-curl -fsSL https://console.omukuumi.org/install.sh | OMUKUUMI_INSTALL_DIR="$HOME/Tools/omukuumi-cli" bash
+curl -fsSL https://omukuumi.co/install.sh | OMUKUUMI_INSTALL_DIR="$HOME/Tools/omukuumi-cli" bash
 ```
 
 ## Okulaga ku Windows PowerShell
 
 ```powershell
-iwr https://console.omukuumi.org/install.ps1 -UseB | iex
+iwr https://omukuumi.co/install.ps1 -UseB | iex
 ```
 
 Akaseera okulaga:
 
 ```powershell
-$env:OMUKUUMI_INSTALL_DIR="$HOME\Tools\omukuumi-cli"; iwr https://console.omukuumi.org/install.ps1 -UseB | iex
+$env:OMUKUUMI_INSTALL_DIR="$HOME\Tools\omukuumi-cli"; iwr https://omukuumi.co/install.ps1 -UseB | iex
 ```
 
 Ekiseera ekitule kijja n'okusasula kana okusasulira Omukuumi CLI mu `~/.omukuumi-cli`, ekiyise, n'ekiyita `omukuumi` command w'omutte w'olunaku.
@@ -146,7 +146,7 @@ Windows development:
 - Erinnya ly'amagambo lye `omukuumi`.
 - Command flags ziva mu Olungereza okweyongeera compatibility, naye help text ye English/Luganda-first.
 - Ekiwuusa eki kyetaagisibwa Uganda/East Africa developer community.
-- Ekiwanulidde Genesis Codeworks Foundation.
+- Ekiwanulidde Genesis Codeworks Ltd.
 
 ## License
 

@@ -51,6 +51,15 @@ export {
 	type ReadToolOptions,
 } from "./read.ts";
 export {
+	createReviewerTool,
+	createReviewerToolDefinition,
+	type ReviewerToolDetails,
+	type ReviewerToolInput,
+	type ReviewerToolOptions,
+	type ReviewFinding,
+	type ReviewSummary,
+} from "./reviewer.ts";
+export {
 	DEFAULT_MAX_BYTES,
 	DEFAULT_MAX_LINES,
 	formatSize,
@@ -76,12 +85,13 @@ import { createFindTool, createFindToolDefinition, type FindToolOptions } from "
 import { createGrepTool, createGrepToolDefinition, type GrepToolOptions } from "./grep.ts";
 import { createLsTool, createLsToolDefinition, type LsToolOptions } from "./ls.ts";
 import { createReadTool, createReadToolDefinition, type ReadToolOptions } from "./read.ts";
+import { createReviewerTool, createReviewerToolDefinition, type ReviewerToolOptions } from "./reviewer.ts";
 import { createWriteTool, createWriteToolDefinition, type WriteToolOptions } from "./write.ts";
 
 export type Tool = AgentTool<any>;
 export type ToolDef = ToolDefinition<any, any>;
-export type ToolName = "read" | "bash" | "edit" | "write" | "grep" | "find" | "ls";
-export const allToolNames: Set<ToolName> = new Set(["read", "bash", "edit", "write", "grep", "find", "ls"]);
+export type ToolName = "read" | "bash" | "edit" | "write" | "grep" | "find" | "ls" | "reviewer";
+export const allToolNames: Set<ToolName> = new Set(["read", "bash", "edit", "write", "grep", "find", "ls", "reviewer"]);
 
 export interface ToolsOptions {
 	read?: ReadToolOptions;
@@ -91,6 +101,7 @@ export interface ToolsOptions {
 	grep?: GrepToolOptions;
 	find?: FindToolOptions;
 	ls?: LsToolOptions;
+	reviewer?: ReviewerToolOptions;
 }
 
 export function createToolDefinition(toolName: ToolName, cwd: string, options?: ToolsOptions): ToolDef {
@@ -109,8 +120,8 @@ export function createToolDefinition(toolName: ToolName, cwd: string, options?: 
 			return createFindToolDefinition(cwd, options?.find);
 		case "ls":
 			return createLsToolDefinition(cwd, options?.ls);
-		default:
-			throw new Error(`Unknown tool name: ${toolName}`);
+		case "reviewer":
+			return createReviewerToolDefinition(cwd, options?.reviewer);
 	}
 }
 
@@ -130,6 +141,8 @@ export function createTool(toolName: ToolName, cwd: string, options?: ToolsOptio
 			return createFindTool(cwd, options?.find);
 		case "ls":
 			return createLsTool(cwd, options?.ls);
+		case "reviewer":
+			return createReviewerTool(cwd, options?.reviewer);
 		default:
 			throw new Error(`Unknown tool name: ${toolName}`);
 	}
@@ -162,6 +175,7 @@ export function createAllToolDefinitions(cwd: string, options?: ToolsOptions): R
 		grep: createGrepToolDefinition(cwd, options?.grep),
 		find: createFindToolDefinition(cwd, options?.find),
 		ls: createLsToolDefinition(cwd, options?.ls),
+		reviewer: createReviewerToolDefinition(cwd, options?.reviewer),
 	};
 }
 
@@ -192,5 +206,6 @@ export function createAllTools(cwd: string, options?: ToolsOptions): Record<Tool
 		grep: createGrepTool(cwd, options?.grep),
 		find: createFindTool(cwd, options?.find),
 		ls: createLsTool(cwd, options?.ls),
+		reviewer: createReviewerTool(cwd, options?.reviewer),
 	};
 }

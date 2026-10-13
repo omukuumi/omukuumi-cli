@@ -99,7 +99,7 @@ Do not translate command syntax if it would break copy-paste examples.
 Install locally:
 
 ```bash
-curl -fsSL https://console.omukuumi.org/install.sh | bash
+curl -fsSL https://omukuumi.co/install.sh | bash
 ```
 
 Manual development setup:

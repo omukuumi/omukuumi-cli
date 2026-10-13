@@ -228,7 +228,7 @@ export class FooterComponent implements Component {
 			kampalaWeather,
 			Math.max(1, width - 3),
 		);
-		const titleText = truncateToWidth(`╭─ Omukuumi kumurimo · ${pwd} · ${footerSaying}`, width, "...");
+		const titleText = truncateToWidth(`╭─ Omukuumi kulimiro · ${pwd} · ${footerSaying}`, width, "...");
 		const statsLine = `╰─ ${statsText}`;
 
 		const lines = [theme.fg("dim", titleText), theme.fg("dim", statsLine)];

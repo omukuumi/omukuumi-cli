@@ -2,9 +2,9 @@
 
 Omukuumi CLI is an English/Luganda-first AI coding assistant for the terminal. It helps developers read, edit, write, and run code from the command line while keeping the familiar workflow of a coding agent.
 
-Website: https://console.omukuumi.org
+Website: https://omukuumi.co
 
-Sponsored by Genesis Codeworks Foundation.
+Sponsored by Genesis Codeworks Ltd.
 
 ## What it does
 
@@ -27,25 +27,25 @@ Sponsored by Genesis Codeworks Foundation.
 ## Install on Linux / macOS
 
 ```bash
-curl -fsSL https://console.omukuumi.org/install.sh | bash
+curl -fsSL https://omukuumi.co/install.sh | bash
 ```
 
 Custom install folder:
 
 ```bash
-curl -fsSL https://console.omukuumi.org/install.sh | OMUKUUMI_INSTALL_DIR="$HOME/Tools/omukuumi-cli" bash
+curl -fsSL https://omukuumi.co/install.sh | OMUKUUMI_INSTALL_DIR="$HOME/Tools/omukuumi-cli" bash
 ```
 
 ## Install on Windows PowerShell
 
 ```powershell
-iwr https://console.omukuumi.org/install.ps1 -UseB | iex
+iwr https://omukuumi.co/install.ps1 -UseB | iex
 ```
 
 Custom install folder:
 
 ```powershell
-$env:OMUKUUMI_INSTALL_DIR="$HOME\Tools\omukuumi-cli"; iwr https://console.omukuumi.org/install.ps1 -UseB | iex
+$env:OMUKUUMI_INSTALL_DIR="$HOME\Tools\omukuumi-cli"; iwr https://omukuumi.co/install.ps1 -UseB | iex
 ```
 
 The installer clones or updates Omukuumi CLI in `~/.omukuumi-cli`, builds it, and links the `omukuumi` command for the current user.
@@ -146,7 +146,7 @@ Windows development:
 - The command name is `omukuumi`.
 - Command flags stay in English for compatibility, while help text is English/Luganda-first.
 - This project is adapted for the Uganda/East Africa developer community.
-- Sponsored by Genesis Codeworks Foundation.
+- Sponsored by Genesis Codeworks Ltd.
 
 ## License
 

@@ -500,7 +500,7 @@ export function expandTildePath(path: string): string {
 	return normalizePath(path);
 }
 
-const DEFAULT_SHARE_VIEWER_URL = "https://console.upskillsafrica.org";
+const DEFAULT_SHARE_VIEWER_URL = "https://console.omukuumi.org";
 
 /** Get the share viewer URL for a gist ID */
 export function getShareViewerUrl(gistId: string): string {

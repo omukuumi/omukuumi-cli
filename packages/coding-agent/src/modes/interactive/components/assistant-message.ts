@@ -22,7 +22,7 @@ export class AssistantMessageComponent extends Container {
 		message?: AssistantMessage,
 		hideThinkingBlock = false,
 		markdownTheme: MarkdownTheme = getMarkdownTheme(),
-		hiddenThinkingLabel = "Ndigutekereza...",
+		hiddenThinkingLabel = "Ndiguggya...",
 		outputPad = 1,
 	) {
 		super();

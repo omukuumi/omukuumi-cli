@@ -185,7 +185,7 @@ export async function refreshUpskillsafricaModels(options: {
 		const current = readJsonFile<ModelsConfig>(modelsJsonPath) ?? { providers: {} };
 		current.providers ??= {};
 		const provider = current.providers[UPSKILLSAFRICA_PROVIDER_ID] ?? {
-			name: "Genesis Codeworks AI",
+			name: "Genesis Codeworks Ltd AI",
 			baseUrl: `${backendUrl.replace(/\/$/, "")}/v1`,
 			api: "openai-completions",
 			authHeader: true,

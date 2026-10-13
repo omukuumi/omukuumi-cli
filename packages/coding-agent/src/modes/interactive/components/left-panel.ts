@@ -60,14 +60,7 @@ export class LeftPanel implements Component {
 		const h2 = Math.max(sec2.length, Math.floor(avail * 0.3));
 		const h3 = Math.max(sec3.length, avail - h1 - h2);
 
-		let wave = "";
-		for (let i = 0; i < width; i++) wave += i % 2 === 0 ? "/" : "\\";
-		const lines: string[] = [
-			t(theme.fg("accent", wave)),
-			t(theme.bold(theme.fg("accent", "OMUKUUMI"))),
-			t(theme.fg("dim", "Workspace status")),
-			"",
-		];
+		const lines: string[] = [t(theme.fg("dim", "Workspace status")), ""];
 
 		lines.push(...sec1);
 		while (lines.length < header + h1) lines.push("");

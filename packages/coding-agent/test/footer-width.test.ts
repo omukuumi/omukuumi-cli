@@ -164,7 +164,7 @@ describe("FooterComponent width handling", () => {
 		const lines = footer.render(120).map(stripAnsi);
 		const [titleLine, statsLine] = lines;
 
-		expect(titleLine.startsWith("╭─ Omukuumi kumurimo · /tmp/project (main)")).toBe(true);
+		expect(titleLine.startsWith("╭─ Omukuumi kulimiro · /tmp/project (main)")).toBe(true);
 		expect(LUGANDA_FOOTER_SAYINGS.some((saying) => titleLine.endsWith(saying))).toBe(true);
 		expect(statsLine).toContain("test-model");
 		expect(statsLine.endsWith("Kigali 24°C ☀")).toBe(true);
